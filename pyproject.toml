@@ -1,0 +1,60 @@
+[project]
+authors = [
+  {name = "Mrowr Purr", email = "mrowr.purr@gmail.com"},
+]
+dependencies = [
+  "pyside6 (>=6.9.0,<7.0.0)",
+  "qasync (>=0.27.1,<0.28.0)",
+  "pylspclient (>=0.1.2,<0.2.0)",
+]
+description = "Editor for the Papyrus scripting language"
+license = {text = "0BSD"}
+name = "PapyrusPad"
+readme = "README.md"
+requires-python = "<3.14,>=3.12"
+version = "0.0.1"
+
+[tool.poetry.scripts]
+app = "PapyrusPad.app.__main__:main"
+
+[tool.poe.tasks]
+dev = "poetry run app --dev"
+dev-dark = "poetry run app --dev --dark"
+dev-light = "poetry run app --dev --light"
+exe = "pyinstaller --onefile --windowed --noconfirm --name \"Papyrus Pad\" --icon resources/images/icon.ico src/PapyrusPad/app/__main__.py"
+exe-dir = "pyinstaller --onedir --windowed --noconfirm --name \"Papyrus Pad\" --icon resources/images/icon.ico src/PapyrusPad/app/__main__.py"
+prod = "poetry run app"
+prod-dark = "poetry run app --dark"
+prod-light = "poetry run app --light"
+qrc = "pyside6-rcc -o src/PapyrusPad/app/qrc_resources.py resources/resources.qrc"
+
+[tool.poetry.group.dev.dependencies]
+libsass = "^0.23.0"
+poethepoet = "^0.33.1"
+pyinstaller = "^6.13.0"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+
+# Extra strictness not included in "strict":
+exclude = ["**/__pycache__", "**/.venv", "**/venv", "**/.mypy_cache"]
+reportCallInDefaultInitializer = true
+reportImplicitOverride = true
+reportImplicitStringConcatenation = true
+reportImportCycles = true
+reportMissingSuperCall = true
+reportPropertyTypeMismatch = true
+reportShadowedImports = true
+reportUninitializedInstanceVariable = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUnusedCallResult = false
+strictDictionaryInference = true
+strictListInference = true
+strictSetInference = true
