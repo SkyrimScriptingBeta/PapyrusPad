@@ -20,6 +20,7 @@ app = "PapyrusPad.app.__main__:main"
 [tool.poe.tasks]
 dev = "poetry run app --dev"
 dev-dark = "poetry run app --dev --dark"
+dev-debug = "poetry run app --dev --debug"
 dev-light = "poetry run app --dev --light"
 exe = "pyinstaller --onefile --windowed --noconfirm --name \"Papyrus Pad\" --icon resources/images/icon.ico src/PapyrusPad/app/__main__.py"
 exe-dir = "pyinstaller --onedir --windowed --noconfirm --name \"Papyrus Pad\" --icon resources/images/icon.ico src/PapyrusPad/app/__main__.py"
@@ -32,6 +33,7 @@ qrc = "pyside6-rcc -o src/PapyrusPad/app/qrc_resources.py resources/resources.qr
 libsass = "^0.23.0"
 poethepoet = "^0.33.1"
 pyinstaller = "^6.13.0"
+debugpy = "^1.8.14"
 
 [tool.setuptools.packages.find]
 where = ["src"]

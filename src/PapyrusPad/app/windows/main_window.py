@@ -1,8 +1,10 @@
-from PySide6.QtWidgets import QWidget
+from dataclasses import field
+from PySide6.QtWidgets import QLabel, QMainWindow
+
+from qt_helpers.window import window
 
 
-class MainWindow(QWidget):
+@window("MainWindow")
+class MainWindow(QMainWindow):
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Skyrim Mod Maker")
+    central_widget: QLabel = field(default_factory=lambda: QLabel("Hello World"))
