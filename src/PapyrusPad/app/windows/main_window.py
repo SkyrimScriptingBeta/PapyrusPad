@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import QMainWindow
 
-from PapyrusPad.app.widgets.my_widget import MyWidget
+from PapyrusPad.app.widgets.editor_widget import EditorWidget
 from qt_helpers.factory import factory
 from qt_helpers.window import window
 
 
-@window("MainWindow", title="PapyrusPad")
+@window("main_window", title="PapyrusPad")
 class MainWindow(QMainWindow):
-    central_widget: MyWidget = factory(MyWidget)
+    central_widget: EditorWidget = factory(EditorWidget)
