@@ -1,21 +1,23 @@
 from typing import override
-from PySide6.QtWidgets import QLabel, QMainWindow
+from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QLabel
 
-from PapyrusPad.app.widgets.editor_widget import EditorWidget
 from qt_helpers.factory import make
+from qt_helpers.main_window_base import MainWindowBase
 from qt_helpers.window import window
 
 
 @window("main_window", title="PapyrusPad")
-class MainWindow(QMainWindow):
-    central_widget: EditorWidget = make(EditorWidget)
-
+class MainWindow(MainWindowBase):
     left_widget_example: QLabel = make(QLabel, "Left Widget Example")
     right_widget_example: QLabel = make(QLabel, "Right Widget Example")
 
-    # @override
+    @override
     def setup_layout(self):
-        #     print("Hello?")
-        print(self.left_widget_example)
-
-    #     self.add_dock_widget(self.left_widget_example)
+        self.add_dock_widget(
+            self.left_widget_example,
+            areas=Qt.DockWidgetArea.LeftDockWidgetArea,
+        )
+        self.add_dock_widget(
+            self.right_widget_example, areas=Qt.DockWidgetArea.RightDockWidgetArea
+        )

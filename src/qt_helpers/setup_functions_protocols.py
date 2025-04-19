@@ -1,20 +1,29 @@
 from typing import Protocol
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QBoxLayout, QDockWidget, QWidget
+from PySide6.QtWidgets import QDockWidget, QWidget
 
 
 class SetupFunctionsProtocol(Protocol):
     """Protocol defining setup methods for Qt components."""
 
-    def setup(self) -> None: ...
-    def setup_layout(self) -> None: ...
-    def setup_styles(self) -> None: ...
-    def setup_events(self) -> None: ...
-    def setup_signals(self) -> None: ...
+    def setup(self) -> None:
+        pass
+
+    def setup_layout(self) -> None:
+        pass
+
+    def setup_styles(self) -> None:
+        pass
+
+    def setup_events(self) -> None:
+        pass
+
+    def setup_signals(self) -> None:
+        pass
 
 
 class WidgetProtocol(SetupFunctionsProtocol):
-    layout: QBoxLayout | None
+    pass
 
 
 class MainWindowProtocol(SetupFunctionsProtocol):
@@ -23,13 +32,17 @@ class MainWindowProtocol(SetupFunctionsProtocol):
     def make_dock_widget(
         self,
         widget: QWidget,
-        areas: Qt.DockWidgetArea,
-        features: QDockWidget.DockWidgetFeature,
+        areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
+        features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
+        | QDockWidget.DockWidgetFeature.DockWidgetMovable
+        | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
     ) -> QDockWidget: ...
 
     def add_dock_widget(
         self,
         widget: QWidget,
-        areas: Qt.DockWidgetArea,
-        features: QDockWidget.DockWidgetFeature,
+        areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
+        features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
+        | QDockWidget.DockWidgetFeature.DockWidgetMovable
+        | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
     ) -> QDockWidget: ...
