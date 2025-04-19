@@ -11,7 +11,7 @@ class Factory(Protocol, Generic[T]):
     def __call__(self) -> T: ...
 
 
-def factory[T](class_type: Type[T], *args: Any, **kwargs: Any) -> T:
+def make[T](class_type: Type[T], *args: Any, **kwargs: Any) -> T:
     """
     Creates a factory for any object that can be used as a dataclass field default.
 
