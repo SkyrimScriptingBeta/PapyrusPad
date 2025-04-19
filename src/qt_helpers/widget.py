@@ -1,5 +1,5 @@
 from dataclasses import dataclass, fields, is_dataclass
-from typing import Any, Callable, Protocol, Type, TypeVar, runtime_checkable
+from typing import Any, Callable, Type, TypeVar
 
 from PySide6.QtWidgets import QBoxLayout, QWidget
 
@@ -10,17 +10,6 @@ from qt_helpers.setup_functions_mixins import (
 T = TypeVar("T", bound=QWidget)
 
 Direction = QBoxLayout.Direction
-
-
-@runtime_checkable
-class WidgetWithMixin(Protocol):
-    """Protocol representing a QWidget with mixin capabilities"""
-
-    setup: Callable[[], None]
-    setup_styles: Callable[[], None]
-    setup_events: Callable[[], None]
-    setup_signals: Callable[[], None]
-    layout: QBoxLayout | None
 
 
 def widget(
@@ -60,6 +49,7 @@ def widget(
 
             # Now setup the widget
             self.setup()
+            self.setup_layout()
             self.setup_styles()
             self.setup_events()
             self.setup_signals()

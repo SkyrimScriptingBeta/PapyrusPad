@@ -1,25 +1,14 @@
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Callable, Protocol, Type, TypeVar, runtime_checkable
+from typing import Any, Callable, Type, TypeVar
 
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QBoxLayout, QMainWindow, QWidget
+from PySide6.QtWidgets import QBoxLayout, QMainWindow
 
 from qt_helpers.setup_functions_mixins import MainWindowSetupFunctionsMixin
 
 T = TypeVar("T", bound=QMainWindow)
 
 Direction = QBoxLayout.Direction
-
-
-@runtime_checkable
-class WindowWithMixin(Protocol):
-    """Protocol representing a QMainWindow with mixin capabilities"""
-
-    setup: Callable[[], None]
-    setup_styles: Callable[[], None]
-    setup_events: Callable[[], None]
-    setup_signals: Callable[[], None]
-    central_widget: QWidget | None
 
 
 def window(
@@ -61,6 +50,7 @@ def window(
             # Now setup the window
             # We know these methods exist because of our mixin
             self.setup()
+            self.setup_layout()
             self.setup_styles()
             self.setup_events()
             self.setup_signals()

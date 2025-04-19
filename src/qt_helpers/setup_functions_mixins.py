@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from PySide6.QtWidgets import QBoxLayout, QWidget
+from typing import cast
+from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QBoxLayout, QDockWidget, QMainWindow, QWidget
 
 
 @dataclass
@@ -9,6 +11,9 @@ class SetupFunctionsMixin:
     """
 
     def setup(self) -> None:
+        pass
+
+    def setup_layout(self) -> None:
         pass
 
     def setup_styles(self) -> None:
@@ -40,8 +45,39 @@ class MainWindowSetupFunctionsMixin(SetupFunctionsMixin):
 
     central_widget: QWidget | None
 
-    # TODO: some docking stuff
+    dock_widgets: list[QDockWidget]
 
     def __init__(self):
         super().__init__()
         self.central_widget = None
+        self.dock_widgets = []
+
+    def make_dock_widget(
+        self,
+        widget: QWidget,
+        areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
+        features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
+        | QDockWidget.DockWidgetFeature.DockWidgetMovable
+        | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+    ) -> QDockWidget:
+        dock_widget = QDockWidget(widget.windowTitle(), self._as_main_window())
+        dock_widget.setWidget(widget)
+        dock_widget.setAllowedAreas(areas)
+        dock_widget.setFeatures(features)
+        self.dock_widgets.append(dock_widget)
+        return dock_widget
+
+    def add_dock_widget(
+        self,
+        widget: QWidget,
+        areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
+        features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
+        | QDockWidget.DockWidgetFeature.DockWidgetMovable
+        | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+    ) -> QDockWidget:
+        dock_widget = self.make_dock_widget(widget, areas, features)
+        self._as_main_window().addDockWidget(areas, dock_widget)
+        return dock_widget
+
+    def _as_main_window(self) -> QMainWindow:
+        return cast(QMainWindow, self)
