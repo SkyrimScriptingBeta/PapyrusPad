@@ -52,6 +52,9 @@ class MainWindowMixin(SetupFunctionsMixin):
         self.central_widget = None
         self.dock_widgets = []
 
+    def setup_dock_widgets(self) -> None:
+        pass
+
     def make_dock_widget(
         self,
         widget: QWidget,
@@ -59,8 +62,9 @@ class MainWindowMixin(SetupFunctionsMixin):
         features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
         | QDockWidget.DockWidgetFeature.DockWidgetMovable
         | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+        title: str = "",
     ) -> QDockWidget:
-        dock_widget = QDockWidget(widget.windowTitle(), self._as_main_window())
+        dock_widget = QDockWidget(title or widget.windowTitle(), self._as_main_window())
         dock_widget.setWidget(widget)
         dock_widget.setAllowedAreas(areas)
         dock_widget.setFeatures(features)
@@ -74,8 +78,9 @@ class MainWindowMixin(SetupFunctionsMixin):
         features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
         | QDockWidget.DockWidgetFeature.DockWidgetMovable
         | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+        title: str = "",
     ) -> QDockWidget:
-        dock_widget = self.make_dock_widget(widget, areas, features)
+        dock_widget = self.make_dock_widget(widget, areas, features, title)
         self._as_main_window().addDockWidget(areas, dock_widget)
         return dock_widget
 

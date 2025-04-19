@@ -13,11 +13,16 @@ class MainWindow(MainWindowBase):
     right_widget_example: QLabel = make(QLabel, "Right Widget Example")
 
     @override
-    def setup_layout(self):
-        self.add_dock_widget(
+    def setup_dock_widgets(self):
+        self.setDockNestingEnabled(True)
+        left_dock_widget = self.add_dock_widget(
             self.left_widget_example,
             areas=Qt.DockWidgetArea.LeftDockWidgetArea,
+            title="LEFT!",
         )
-        self.add_dock_widget(
-            self.right_widget_example, areas=Qt.DockWidgetArea.RightDockWidgetArea
+        right_dock_widget = self.make_dock_widget(
+            self.right_widget_example,
+            areas=Qt.DockWidgetArea.RightDockWidgetArea,
+            title="RIGHT!",
         )
+        self.tabifyDockWidget(left_dock_widget, right_dock_widget)

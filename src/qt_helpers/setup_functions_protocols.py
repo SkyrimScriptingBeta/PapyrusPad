@@ -29,6 +29,9 @@ class WidgetProtocol(SetupFunctionsProtocol):
 class MainWindowProtocol(SetupFunctionsProtocol):
     dock_widgets: list[QDockWidget]
 
+    def setup_dock_widgets(self) -> None:
+        pass
+
     def make_dock_widget(
         self,
         widget: QWidget,
@@ -36,6 +39,7 @@ class MainWindowProtocol(SetupFunctionsProtocol):
         features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
         | QDockWidget.DockWidgetFeature.DockWidgetMovable
         | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+        title: str = "",
     ) -> QDockWidget: ...
 
     def add_dock_widget(
@@ -45,4 +49,5 @@ class MainWindowProtocol(SetupFunctionsProtocol):
         features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
         | QDockWidget.DockWidgetFeature.DockWidgetMovable
         | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+        title: str = "",
     ) -> QDockWidget: ...

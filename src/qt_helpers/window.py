@@ -50,6 +50,7 @@ def window(
             # Now setup the window
             # We know these methods exist because of our mixin
             self.setup()
+            self.setup_dock_widgets()
             self.setup_layout()
             self.setup_styles()
             self.setup_events()

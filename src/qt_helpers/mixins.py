@@ -5,7 +5,7 @@ def type_hint_only(mixin_cls: type) -> Callable[[Type[Any]], Type[Any]]:
     def decorator(cls: Type[Any]) -> Type[Any]:
         if TYPE_CHECKING:
             # Pretend we're adding mixin, just for Pylance
-            return cast(Type[Any], cls)
+            return cast(Type[Any], cls)  # type: ignore
         return cls
 
     return decorator
