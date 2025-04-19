@@ -26,7 +26,7 @@ class WidgetWithMixin(Protocol):
 def widget(
     name: str | None = None,
     classes: list[str] | None = None,
-    layout: QBoxLayout.Direction | None = QBoxLayout.Direction.TopToBottom,
+    layout: QBoxLayout.Direction | str | None = QBoxLayout.Direction.TopToBottom,
     *,
     add_widgets_to_layout: bool = True,
 ) -> Callable[[Type[T]], Type[T]]:
@@ -41,6 +41,9 @@ def widget(
             (cls, WidgetSetupFunctionsMixin),  # Base classes
             {},  # No new attributes/methods
         )
+
+        # Ensure the new class is recognized as a dataclass
+        new_cls = dataclass(new_cls)
 
         original_init = new_cls.__init__
 
@@ -69,14 +72,29 @@ def widget(
 
             # Set up layout if requested
             if layout is not None:
-                self.layout = QBoxLayout(layout)
+                # Convert string layout names to QBoxLayout.Direction
+                layout_direction: QBoxLayout.Direction
+                if isinstance(layout, str):
+                    # Handle string layout names
+                    if layout.lower() == "horizontal":
+                        layout_direction = QBoxLayout.Direction.LeftToRight
+                    elif layout.lower() == "vertical":
+                        layout_direction = QBoxLayout.Direction.TopToBottom
+                    else:
+                        # Default to vertical for unrecognized strings
+                        layout_direction = QBoxLayout.Direction.TopToBottom
+                else:
+                    # It's already a QBoxLayout.Direction
+                    layout_direction = layout
+
+                # Create and set the layout
+                self.layout = QBoxLayout(layout_direction)
                 self.setLayout(self.layout)
 
                 # Add child widgets to layout if requested
                 if add_widgets_to_layout:
-                    print(f"Adding widgets to layout for {self.__class__.__name__}")
-                    for field in fields(new_cls):
-                        print(f"Field: {field.name}, Type: {field.type}")
+                    # Get fields from the dataclass
+                    for field in fields(self.__class__):
                         if isinstance(field.type, type) and issubclass(
                             field.type, QWidget
                         ):

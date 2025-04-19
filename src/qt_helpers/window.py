@@ -41,6 +41,9 @@ def window(
             {},  # No new attributes/methods
         )
 
+        # Ensure the new class is recognized as a dataclass
+        new_cls = dataclass(new_cls)
+
         original_init = new_cls.__init__
 
         def new_init(self: Any, *args: Any, **kwargs: Any) -> None:
