@@ -8,3 +8,16 @@ QPlainTextEdit {
     font-size: 18px;
     font-family: "Fira Code iScript"
 }
+
+QTabBar {
+    font-size: 24px;
+    background-color: #ff00ff;
+}
+
+QTabBar::tab {
+    background-color: blue;
+}
+
+QTabBar::tab::selected {
+    background-color: red;
+}
