@@ -26,7 +26,7 @@ class SetupFunctionsMixin:
         pass
 
 
-class WidgetSetupFunctionsMixin(SetupFunctionsMixin):
+class WidgetMixin(SetupFunctionsMixin):
     """
     Mixin class to provide setup functions for a PyQt/PySide widgets.
     """
@@ -38,7 +38,7 @@ class WidgetSetupFunctionsMixin(SetupFunctionsMixin):
         self.layout = None
 
 
-class MainWindowSetupFunctionsMixin(SetupFunctionsMixin):
+class MainWindowMixin(SetupFunctionsMixin):
     """
     Mixin class to provide setup functions for a PyQt/PySide main windows.
     """

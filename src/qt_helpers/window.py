@@ -4,7 +4,7 @@ from typing import Any, Callable, Type, TypeVar
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QBoxLayout, QMainWindow
 
-from qt_helpers.setup_functions_mixins import MainWindowSetupFunctionsMixin
+from qt_helpers.setup_functions_mixins import MainWindowMixin
 
 T = TypeVar("T", bound=QMainWindow)
 
@@ -26,7 +26,7 @@ def window(
         # Create a new class that inherits from both the original class and the mixin
         new_cls = type(
             cls.__name__,
-            (cls, MainWindowSetupFunctionsMixin),  # Base classes
+            (cls, MainWindowMixin),  # Base classes
             {},  # No new attributes/methods
         )
 
@@ -40,7 +40,7 @@ def window(
             QMainWindow.__init__(self)
 
             # Initialize the mixin
-            MainWindowSetupFunctionsMixin.__init__(self)
+            MainWindowMixin.__init__(self)
 
             # Call the original init to set dataclass fields
             # Use super() to avoid direct method calling issues

@@ -10,3 +10,7 @@ class EditorWidget(QWidget):
     lbl_title: QLabel = make(QLabel, "<h3>Editor!</h3>")
     txt_source: QTextEdit = make(QTextEdit, "// Editing a file...")
     my_widget: MyWidget = make(MyWidget)
+
+    def setup(self) -> None:
+        print("my label: ", self.lbl_title)
+        print("the label text: ", self.lbl_title.text())

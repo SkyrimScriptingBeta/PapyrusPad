@@ -4,7 +4,7 @@ from typing import Any, Callable, Type, TypeVar
 from PySide6.QtWidgets import QBoxLayout, QWidget
 
 from qt_helpers.setup_functions_mixins import (
-    WidgetSetupFunctionsMixin,
+    WidgetMixin,
 )
 
 T = TypeVar("T", bound=QWidget)
@@ -27,7 +27,7 @@ def widget(
         # Create a new class that inherits from both the original class and the mixin
         new_cls = type(
             cls.__name__,
-            (cls, WidgetSetupFunctionsMixin),  # Base classes
+            (cls, WidgetMixin),  # Base classes
             {},  # No new attributes/methods
         )
 
@@ -41,7 +41,7 @@ def widget(
             QWidget.__init__(self)
 
             # Initialize the mixin
-            WidgetSetupFunctionsMixin.__init__(self)
+            WidgetMixin.__init__(self)
 
             # Call the original init to set dataclass fields
             if original_init is not QWidget.__init__:
