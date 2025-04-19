@@ -1,6 +1,6 @@
 from typing import override
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QLabel
+from PySide6.QtWidgets import QLabel, QTabWidget
 
 from qt_helpers.factory import make
 from qt_helpers.main_window_base import MainWindowBase
@@ -26,3 +26,6 @@ class MainWindow(MainWindowBase):
             title="RIGHT!",
         )
         self.tabifyDockWidget(left_dock_widget, right_dock_widget)
+        self.setTabPosition(
+            Qt.DockWidgetArea.AllDockWidgetAreas, QTabWidget.TabPosition.North
+        )
