@@ -165,6 +165,20 @@ class IDockManager(Protocol):
         """
         ...
 
+    def reset_dock_state(self, dock: QDockWidget) -> QDockWidget:
+        """
+        Reset a dock widget's state to ensure it can be properly docked.
+
+        This is useful for fixing docks that are stuck or can't be re-docked.
+
+        Args:
+            dock: The dock widget to reset
+
+        Returns:
+            The new dock widget that replaces the original
+        """
+        ...
+
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -254,9 +268,9 @@ class DockManager(QObject):
         dock.topLevelChanged.connect(lambda floating: self._handle_dock_top_level_changed(dock, floating))  # type: ignore
         dock.dockLocationChanged.connect(lambda area: self._handle_dock_location_changed(dock, area))  # type: ignore
 
-        # Install event filter on the dock widget
-        dock.installEventFilter(self)
-        logger.debug(f"Event filter installed on dock '{dock.windowTitle()}'")
+        # Note: We don't install event filters on dock widgets anymore
+        # This is to avoid interfering with Qt's native drag-and-drop functionality
+        logger.debug(f"Created dock '{dock.windowTitle()}'")
 
         # Tabify if requested
         if tab_with is not None:
@@ -373,6 +387,45 @@ class DockManager(QObject):
         """
         self._customize_all_tab_bars()
 
+    def reset_dock_state(self, dock: QDockWidget) -> QDockWidget:
+        """
+        Reset a dock widget's state to ensure it can be properly docked.
+
+        This is useful for fixing docks that are stuck or can't be re-docked.
+
+        Args:
+            dock: The dock widget to reset
+        """
+        logger.debug(f"Resetting state for dock '{dock.windowTitle()}'")
+
+        # Store the current widget and title
+        widget = dock.widget()
+        title = dock.windowTitle()
+
+        # Remove the dock from the main window
+        self._main_window.removeDockWidget(dock)
+
+        # Create a new dock widget with the same properties
+        new_dock = QDockWidget(title, self._main_window)
+        new_dock.setWidget(widget)
+        new_dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+        new_dock.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetClosable | QDockWidget.DockWidgetFeature.DockWidgetMovable | QDockWidget.DockWidgetFeature.DockWidgetFloatable)
+
+        # Add the new dock to the main window
+        self._main_window.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, new_dock)
+
+        # Connect signals
+        new_dock.topLevelChanged.connect(lambda floating: self._handle_dock_top_level_changed(new_dock, floating))  # type: ignore
+        new_dock.dockLocationChanged.connect(lambda area: self._handle_dock_location_changed(new_dock, area))  # type: ignore
+
+        # Note: We don't install event filters on dock widgets anymore
+        # This is to avoid interfering with Qt's native drag-and-drop functionality
+
+        logger.debug(f"Dock '{title}' has been reset")
+
+        # Return the new dock to the caller
+        return new_dock
+
     @override
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         """
@@ -386,22 +439,13 @@ class DockManager(QObject):
             True if the event was handled and should be filtered out,
             False if the event should be processed normally
         """
-        # Log dock widget events (for debugging only)
-        if isinstance(watched, QDockWidget) and event.type() in {
-            QEvent.Type.DragEnter,
-            QEvent.Type.DragLeave,
-            QEvent.Type.DragMove,
-            QEvent.Type.Drop,
-        }:
-            logger.debug(f"Dock event: {watched.windowTitle()} - {event.type().name}")
-
         # Handle layout changes to customize tab bars
         if watched is self._main_window and event.type() == QEvent.Type.LayoutRequest:
             logger.debug("Layout request event received")
             self._customize_all_tab_bars()
             # Don't return True here, let the event continue to propagate
 
-        # Handle tab bar events for drag detection
+        # Handle tab bar events for drag detection - similar to the original example
         if isinstance(watched, QTabBar) and watched in self._customized_tab_bars:
             tab_bar = watched
             if event.type() == QEvent.Type.MouseButtonPress:
@@ -413,7 +457,6 @@ class DockManager(QObject):
                         tab_index=tab_index,
                         tab_text=tab_bar.tabText(tab_index),
                     )
-                # Don't return True, let the event continue to propagate
             elif event.type() == QEvent.Type.MouseMove and self._drag_state is not None:
                 mouse_event = cast(QMouseEvent, event)
                 margin = 50  # Adjust this value to change sensitivity
@@ -421,10 +464,8 @@ class DockManager(QObject):
                 if not padded.contains(mouse_event.pos()):
                     self._undock_tab(self._drag_state.tab_text)
                     self._drag_state = None
-                    # Don't return True here either
             elif event.type() in {QEvent.Type.MouseButtonRelease, QEvent.Type.Leave}:
                 self._drag_state = None
-                # Don't return True, let the event continue to propagate
 
         # Always call the parent class's eventFilter to ensure proper event propagation
         return super().eventFilter(watched, event)
@@ -527,6 +568,7 @@ class DockManager(QObject):
     def _undock_tab(self, tab_text: str) -> bool:
         """
         Undock a tab by its text, making it a floating window.
+        This is a direct port of the _undock_tab method in the original example.
 
         Args:
             tab_text: The text of the tab to undock
@@ -536,11 +578,16 @@ class DockManager(QObject):
         """
         for dock in self._main_window.findChildren(QDockWidget):
             if dock.windowTitle() == tab_text:
+                logger.debug(f"Undocking tab: '{tab_text}'")
+
                 # Get siblings before removal
                 siblings = self._main_window.tabifiedDockWidgets(dock)
+                logger.debug(f"  - Siblings before undocking: {[d.windowTitle() for d in siblings]}")
 
-                # Remove and re-add the dock
+                # Remove the dock from the main window
                 self._main_window.removeDockWidget(dock)
+
+                # Re-add the dock to the main window at the right area
                 self._main_window.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
 
                 # Make it floating
@@ -549,9 +596,14 @@ class DockManager(QObject):
 
                 # Update title bars for all affected docks (including the undocked one)
                 for d in siblings + [dock]:
+                    logger.debug(f"  - Updating title bar for dock: '{d.windowTitle()}'")
                     self._update_title_bar_for_dock(d)
 
+                # Important: break after processing the first matching dock
+                # This matches the original example's behavior
                 return True
+
+        logger.debug(f"No dock found with title: '{tab_text}'")
         return False
 
     def _handle_dock_top_level_changed(self, dock: QDockWidget, floating: bool) -> None:
@@ -594,47 +646,76 @@ class DockManager(QObject):
     def _update_title_bar_for_dock(self, dock: QDockWidget) -> None:
         """
         Update the title bar visibility for a dock based on its tabification state.
+        This is a direct port of the _update_title_bar_for method in the original example.
 
         Args:
             dock: The QDockWidget to update
         """
         logger.debug(f"Updating title bar for dock '{dock.windowTitle()}'")
         logger.debug(f"  - isFloating: {dock.isFloating()}")
-        logger.debug(f"  - isVisible: {dock.isVisible()}")
-        logger.debug(f"  - features: {dock.features()}")
-        logger.debug(f"  - allowedAreas: {dock.allowedAreas()}")
+
+        # Get the tab group for this dock
+        tab_group = self._main_window.tabifiedDockWidgets(dock)
+        if dock not in tab_group:
+            tab_group.append(dock)
+            logger.debug(f"  - Added dock to tab group, now contains: {[d.windowTitle() for d in tab_group]}")
 
         # Check if the dock is tabified with any other dock
         is_tabified = any(other in self._main_window.tabifiedDockWidgets(dock) for other in self._main_window.findChildren(QDockWidget) if other is not dock)
+
         logger.debug(f"Dock '{dock.windowTitle()}' is tabified: {is_tabified}")
 
+        # Update the title bar based on tabification state
         if is_tabified:
             # If the dock is tabified, hide the title bar
-            logger.debug(f"  - Hiding title bar (tabified)")
-            self._hide_dock_title_bar(dock)
+            current = dock.titleBarWidget()
+            # Check if we need to hide the title bar
+            # The condition is complex due to None handling
+            if current is None or current.sizeHint().height() > 0:  # type: ignore
+                logger.debug(f"  - Hiding title bar (tabified)")
+                hidden = QWidget()
+                hidden.setFixedHeight(0)
+                dock.setTitleBarWidget(hidden)
         else:
             # Otherwise, show the title bar
             logger.debug(f"  - Showing title bar (normal)")
-            self._show_dock_title_bar(dock)
+            # Show the title bar by creating a temporary widget first
+            # This is a workaround for the None issue
+            temp_widget = QWidget()
+            dock.setTitleBarWidget(temp_widget)
+            # In Qt, passing None to setTitleBarWidget restores the default title bar
+            dock.setTitleBarWidget(None)  # type: ignore
 
     def _update_title_bars_for_tab_group(self, dock: QDockWidget) -> None:
         """
         Update title bars for a dock and all docks tabified with it.
+        This is a direct port of the original example's approach.
 
         Args:
             dock: The QDockWidget that is part of the tab group
         """
         logger.debug(f"Updating title bars for tab group of dock '{dock.windowTitle()}'")
+        logger.debug(f"  - isFloating: {dock.isFloating()}")
+
+        # Get all docks that are tabified with this dock
         tab_group = self._main_window.tabifiedDockWidgets(dock)
         logger.debug(f"  - Tab group size: {len(tab_group)}")
+        logger.debug(f"  - Tab group contents: {[d.windowTitle() for d in tab_group]}")
 
+        # Make sure the dock itself is included in the tab group
         if dock not in tab_group:
             tab_group.append(dock)
             logger.debug(f"  - Added dock to tab group, new size: {len(tab_group)}")
+            logger.debug(f"  - Updated tab group contents: {[d.windowTitle() for d in tab_group]}")
 
+        # Update each dock in the tab group
         for other_dock in tab_group:
-            logger.debug(f"  - Updating title bar for dock in group: '{other_dock.windowTitle()}'")
-            self._update_title_bar_for_dock(other_dock)
+            # Skip docks that are no longer valid (might have been deleted)
+            if other_dock.isVisible():
+                logger.debug(f"  - Updating title bar for dock in group: '{other_dock.windowTitle()}'")
+                self._update_title_bar_for_dock(other_dock)
+            else:
+                logger.debug(f"  - Skipping invisible dock: '{other_dock.windowTitle()}'")
 
     def _hide_dock_title_bar(self, dock: QDockWidget) -> None:
         """
