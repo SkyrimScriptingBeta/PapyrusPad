@@ -30,10 +30,10 @@ prod-light = "poetry run app --light"
 qrc = "pyside6-rcc -o src/PapyrusPad/app/qrc_resources.py resources/resources.qrc"
 
 [tool.poetry.group.dev.dependencies]
+debugpy = "^1.8.14"
 libsass = "^0.23.0"
 poethepoet = "^0.33.1"
 pyinstaller = "^6.13.0"
-debugpy = "^1.8.14"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -43,9 +43,6 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 
 [tool.pyright]
-typeCheckingMode = "strict"
-
-# Extra strictness not included in "strict":
 exclude = ["**/__pycache__", "**/.venv", "**/venv", "**/.mypy_cache"]
 reportCallInDefaultInitializer = true
 reportImplicitOverride = true
@@ -60,3 +57,7 @@ reportUnusedCallResult = false
 strictDictionaryInference = true
 strictListInference = true
 strictSetInference = true
+typeCheckingMode = "strict"
+
+[tool.black]
+line-length = 180
