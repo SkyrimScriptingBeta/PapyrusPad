@@ -1,35 +1,34 @@
 from typing import override
-from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QLabel, QTabWidget
+from PySide6.QtWidgets import QMainWindow
 
-from qt_helpers.factory import make
-from qt_helpers.main_window_base import MainWindowBase
+from PapyrusPad.app.widgets.editor_widget import EditorWidget
+from qt_helpers.dock_manager import DockManager, DockWidgetLocation, IDockManager
+from qt_helpers.interfaces import IWidget
+from qt_helpers.make import make_later
+from qt_helpers.make_widget import make_widget
 from qt_helpers.window import window
 
 
 @window("main_window", title="PapyrusPad")
-class MainWindow(MainWindowBase):
-    left_widget_example: QLabel = make(QLabel, "Left Widget Example")
-    right_widget_example: QLabel = make(QLabel, "Right Widget Example")
+class MainWindow(QMainWindow, IWidget):
+    # central_widget: QLabel = make_widget(QLabel, ["central_widget"], "Hello!")
+
+    left_widget_example: EditorWidget = make_widget(EditorWidget, ["editor"])
+    right_widget_example: EditorWidget = make_widget(EditorWidget, ["editor"])
+
+    dock_manager: IDockManager = make_later(DockManager)
 
     @override
     def setup(self):
         self.resize(1000, 1000)
 
-    @override
-    def setup_dock_widgets(self):
-        self.setDockNestingEnabled(True)
-        left_dock_widget = self.add_dock_widget(
-            self.left_widget_example,
-            areas=Qt.DockWidgetArea.LeftDockWidgetArea,
-            title="LEFT!",
+        print(f"LEFT WIDGET: {self.left_widget_example}")
+        print(f"RIGHT WIDGET: {self.right_widget_example}")
+
+        self.dock_manager = DockManager(self)
+        self.dock_manager.add_dock_widget(
+            self.left_widget_example, "Left Dock", DockWidgetLocation.LEFT
         )
-        right_dock_widget = self.make_dock_widget(
-            self.right_widget_example,
-            areas=Qt.DockWidgetArea.RightDockWidgetArea,
-            title="RIGHT!",
-        )
-        self.tabifyDockWidget(left_dock_widget, right_dock_widget)
-        self.setTabPosition(
-            Qt.DockWidgetArea.AllDockWidgetAreas, QTabWidget.TabPosition.North
+        self.dock_manager.add_dock_widget(
+            self.right_widget_example, "Right Dock", DockWidgetLocation.RIGHT
         )

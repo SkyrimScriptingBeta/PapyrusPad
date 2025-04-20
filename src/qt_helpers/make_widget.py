@@ -32,6 +32,9 @@ def _create_widget[W](
 
     This is used by make_widget to create the actual widget instance.
     """
+
+    print(f"Creating widget: {widget_class.__name__} with options: {widget_options}")
+
     # Create the widget instance
     widget = widget_class(*args, **kwargs)
 
@@ -46,13 +49,17 @@ def _create_widget[W](
         elif isinstance(widget_options, list):
             # Just the classes
             qwidget.setProperty("class", f"|{'|'.join(widget_options)}|")
-        elif isinstance(widget_options, tuple) and len(widget_options) == 2:
+        elif len(widget_options) == 2:
             # Both name and classes
             name, classes = widget_options
             if name:
                 qwidget.setObjectName(name)
             if classes:
                 qwidget.setProperty("class", f"|{'|'.join(classes)}|")
+
+    print(
+        f"Widget created: {widget_class.__name__} with name: {qwidget.objectName()} and classes: {qwidget.property('class')}"
+    )
 
     return widget
 

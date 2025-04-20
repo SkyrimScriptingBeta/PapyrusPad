@@ -3,7 +3,7 @@ from typing import Any, Callable, Type, TypeVar
 
 from PySide6.QtWidgets import QBoxLayout, QWidget
 
-from qt_helpers.setup_functions_mixins import (
+from qt_helpers.mixins import (
     WidgetMixin,
 )
 
@@ -20,6 +20,8 @@ def widget(
     add_widgets_to_layout: bool = True,
 ) -> Callable[[Type[T]], Type[T]]:
     def decorator(cls: Type[T]) -> Type[T]:
+        print(f"Decorating {cls.__name__} with widget mixin")
+
         # First make original class a dataclass if it's not already
         if not is_dataclass(cls):
             cls = dataclass(cls)

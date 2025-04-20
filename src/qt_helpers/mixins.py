@@ -1,11 +1,48 @@
-from typing import cast, TYPE_CHECKING, Type, Callable, Any
+from dataclasses import dataclass
+from PySide6.QtWidgets import QBoxLayout, QWidget
 
 
-def type_hint_only(mixin_cls: type) -> Callable[[Type[Any]], Type[Any]]:
-    def decorator(cls: Type[Any]) -> Type[Any]:
-        if TYPE_CHECKING:
-            # Pretend we're adding mixin, just for Pylance
-            return cast(Type[Any], cls)  # type: ignore
-        return cls
+@dataclass
+class SetupFunctionsMixin:
+    """
+    Mixin class to provide setup functions for a PyQt/PySide application.
+    """
 
-    return decorator
+    def setup(self) -> None:
+        pass
+
+    def setup_layout(self) -> None:
+        pass
+
+    def setup_styles(self) -> None:
+        pass
+
+    def setup_events(self) -> None:
+        pass
+
+    def setup_signals(self) -> None:
+        pass
+
+
+class WidgetMixin(SetupFunctionsMixin):
+    """
+    Mixin class to provide setup functions for a PyQt/PySide widgets.
+    """
+
+    layout: QBoxLayout | None
+
+    def __init__(self):
+        super().__init__()
+        self.layout = None
+
+
+class MainWindowMixin(SetupFunctionsMixin):
+    """
+    Mixin class to provide setup functions for a PyQt/PySide main windows.
+    """
+
+    central_widget: QWidget | None
+
+    def __init__(self):
+        super().__init__()
+        self.central_widget = None

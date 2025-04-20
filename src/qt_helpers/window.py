@@ -4,7 +4,7 @@ from typing import Any, Callable, Type, TypeVar
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QBoxLayout, QMainWindow
 
-from qt_helpers.setup_functions_mixins import MainWindowMixin
+from qt_helpers.mixins import MainWindowMixin
 
 T = TypeVar("T", bound=QMainWindow)
 
@@ -19,6 +19,8 @@ def window(
     icon: str | None = None,
 ) -> Callable[[Type[T]], Type[T]]:
     def decorator(cls: Type[T]) -> Type[T]:
+        print(f"Decorating {cls.__name__} with window()")
+
         # First make original class a dataclass if it's not already
         if not is_dataclass(cls):
             cls = dataclass(cls)
@@ -50,7 +52,6 @@ def window(
             # Now setup the window
             # We know these methods exist because of our mixin
             self.setup()
-            self.setup_dock_widgets()
             self.setup_layout()
             self.setup_styles()
             self.setup_events()
