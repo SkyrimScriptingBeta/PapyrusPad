@@ -90,10 +90,10 @@ class IDEExampleWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.bottom_panel)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.left_panel)
 
-        # self.editor_docks: DockList = []
+        self.editor_docks: DockList = []
         first_editor = self._make_editor("main.cpp")
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, first_editor)
-        # self.editor_docks.append(first_editor)
+        self.editor_docks.append(first_editor)
 
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.right_panel)
         self.splitDockWidget(first_editor, self.right_panel, Qt.Orientation.Horizontal)
@@ -102,11 +102,10 @@ class IDEExampleWindow(QMainWindow):
             dock = self._make_editor(filename)
             self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
             self.tabifyDockWidget(first_editor, dock)
-            # self.editor_docks.append(dock)
+            self.editor_docks.append(dock)
 
         for dock in self.findChildren(QDockWidget):
-            # dock.topLevelChanged.connect(self._update_title_bar_for)
-            dock.topLevelChanged.connect(as_bool_handler(lambda _ignored: self._update_title_bar_for(dock)))
+            dock.topLevelChanged.connect(self._update_title_bar_for)
             # Use our type-safe signal handler utility for the dockLocationChanged signal
             dock.dockLocationChanged.connect(as_bool_handler(lambda _ignored: self._update_title_bar_for(dock)))
 
@@ -196,8 +195,8 @@ class IDEExampleWindow(QMainWindow):
                 if dock.windowTitle() == tab_text:
                     self.removeDockWidget(dock)
                     dock.deleteLater()
-                    # if dock in self.editor_docks:
-                    #     self.editor_docks.remove(dock)
+                    if dock in self.editor_docks:
+                        self.editor_docks.remove(dock)
                     break
 
     def _make_panel(self, title: str) -> QDockWidget:
@@ -229,7 +228,6 @@ class IDEExampleWindow(QMainWindow):
                 break
 
     def _update_title_bar_for(self, dock: QDockWidget) -> None:
-        print("Updating title bar for:", dock)
         tab_group = self.tabifiedDockWidgets(dock)
         if dock not in tab_group:
             tab_group.append(dock)
