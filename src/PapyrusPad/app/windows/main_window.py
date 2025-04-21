@@ -1,43 +1,23 @@
 from typing import override
-from PySide6.QtCore import QEvent, QObject, Qt
-from PySide6.QtWidgets import QLabel, QMainWindow, QWidget
+from PySide6.QtCore import QEvent, QObject
+from PySide6.QtWidgets import QMainWindow
 
+from PapyrusPad.app.widgets.editor_widget import EditorWidget
 from qt_helpers.dock_manager import IDockManager, get_dock_manager
 from qt_helpers.interfaces import IWidget
-from qt_helpers.make import make_later
-from qt_helpers.make_widget import make_widget
+from qt_helpers.make import make, make_later
 from qt_helpers.window import window
 
 
 @window("main_window", title="PapyrusPad")
 class MainWindow(QMainWindow, IWidget):
     dock_manager: IDockManager = make_later(IDockManager)
-
-    # Create a bunch of example widgets to fill the docking areas
-    left_widget: QWidget = make_widget(QLabel, [], "Left Panel")
-    right_widget: QWidget = make_widget(QLabel, [], "Right Panel")
-    bottom_widget: QWidget = make_widget(QLabel, [], "Bottom Panel")
-    top_widget: QWidget = make_widget(QLabel, [], "Top Panel")
-
-    # Let's start with the "center area" with 3x widgets, and we'll tabify them to start
-    center_widget_one: QLabel = make_widget(QLabel, [], "Center Panel 1")
-    center_widget_two: QLabel = make_widget(QLabel, [], "Center Panel 2")
-    center_widget_three: QLabel = make_widget(QLabel, [], "Center Panel 3")
+    central_widget: EditorWidget = make(EditorWidget, text="Untitled")
 
     @override
     def setup(self):
-        self.resize(2048, 1152)
+        self.resize(1024, 1024)
         self.dock_manager = get_dock_manager(self)
-        self.dock_manager.dock(self.left_widget, Qt.DockWidgetArea.LeftDockWidgetArea, "LEFT")
-        right_dock = self.dock_manager.dock(self.right_widget, Qt.DockWidgetArea.RightDockWidgetArea, "RIGHT")
-        self.dock_manager.dock(self.bottom_widget, Qt.DockWidgetArea.BottomDockWidgetArea, "BOTTOM")
-        self.dock_manager.dock(self.top_widget, Qt.DockWidgetArea.TopDockWidgetArea, "TOP")
-        center_one_dock = self.dock_manager.dock(self.center_widget_one, Qt.DockWidgetArea.RightDockWidgetArea, "CENTER 1")
-        self.splitDockWidget(
-            center_one_dock,
-            right_dock,
-            Qt.Orientation.Horizontal,
-        )
 
     @override
     def event(self, event: QEvent) -> bool:
