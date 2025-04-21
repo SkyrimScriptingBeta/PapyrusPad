@@ -24,8 +24,12 @@ class MainWindow(QMainWindow, IWidget):
     def setup(self, document_collection: IDocumentCollection = Depends[IDocumentCollection]):
         self.resize(1024, 1024)
         self.dock_manager = get_dock_manager(self)
+
+        # Add editor for all of the editor documents
         for document in document_collection.list_documents():
             self.dock_manager.dock(EditorWidget(document), Qt.DockWidgetArea.RightDockWidgetArea)
+
+        # If there is only one document, hide its draggable docking title bar
         if len(document_collection.list_documents()) == 1:
             if dock_widget := self.dock_manager.get_docked_widgets()[0]:
                 self.dock_manager.hide_titlebar(dock_widget)
