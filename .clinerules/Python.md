@@ -5,6 +5,13 @@
   so please make sure to use all imports in the code before you save the file.
 - Imports should be added to the top of the file, never within functions or classes.
 
+### Project Structure
+- Do NOT use `__init__.py` files anywhere in the project.
+- Use explicit imports with full module paths instead of relying on `__init__.py` exports.
+- Name files after their primary class or function, using snake_case.
+- For interface files, use the pattern `{domain}_interface.py`.
+- For implementations, use the pattern `{domain}_{implementation}.py`.
+
 ### Typing
 - All functions and methods must use **explicit type hints** on parameters and return types.
 - **Never** use `Any` or `Unknown`.

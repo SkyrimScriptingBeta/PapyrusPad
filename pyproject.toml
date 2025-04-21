@@ -35,6 +35,10 @@ qrc = "pyside6-rcc -o src/PapyrusPad/qrc_resources.py resources/resources.qrc"
 debugpy = "^1.8.14"
 poethepoet = "^0.33.1"
 pyinstaller = "^6.13.0"
+pytest = "^8.3.5"
+assertpy = "^1.1"
+pytest-sugar = "^1.0.0"
+pytest-rich = "^0.2.0"
 
 [tool.setuptools.packages.find]
 where = ["src"]

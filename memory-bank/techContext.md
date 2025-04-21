@@ -4,7 +4,7 @@
 
 ### Python
 
-- **Version**: 3.12+ (with support for 3.13+ features)
+- **Version**: 3.13
 - **Role**: Primary programming language for the entire application
 - **Key Features Used**:
   - Type hints and strict type checking
@@ -134,7 +134,7 @@
 
 ### Required Tools
 
-- Python 3.12+
+- Python 3.13
 - Poetry for dependency management
 - Qt resources compiler (pyside6-rcc)
 
