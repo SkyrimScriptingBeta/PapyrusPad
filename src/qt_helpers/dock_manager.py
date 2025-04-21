@@ -20,16 +20,30 @@ from qt_helpers.signal_typing import as_bool_handler
 class IDockManager(ABC):
     def on_event(self, event: QEvent) -> None: ...
     def on_eventFilter(self, watched: QObject, event: QEvent) -> None: ...
+
     def dock(
         self,
         widget: QWidget,
         area: Qt.DockWidgetArea,
+        # *,
         title: Optional[str] = None,
         allowed_areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
         features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
         | QDockWidget.DockWidgetFeature.DockWidgetMovable
         | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
     ) -> QDockWidget: ...
+
+    # def make_dock(
+    #     self,
+    #     widget: QWidget,
+    #     area: Qt.DockWidgetArea,
+    #     *,
+    #     title: Optional[str] = None,
+    #     allowed_areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
+    #     features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
+    #     | QDockWidget.DockWidgetFeature.DockWidgetMovable
+    #     | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+    # ) -> QDockWidget: ...
 
 
 @dataclass

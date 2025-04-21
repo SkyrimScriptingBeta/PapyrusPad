@@ -1,7 +1,6 @@
-from dataclasses import field
-from typing import List, override
+from typing import override
 from PySide6.QtCore import QEvent, QObject, Qt
-from PySide6.QtWidgets import QDockWidget, QLabel, QMainWindow, QWidget
+from PySide6.QtWidgets import QLabel, QMainWindow, QWidget
 
 from qt_helpers.dock_manager import IDockManager, get_dock_manager
 from qt_helpers.interfaces import IWidget
@@ -25,17 +24,20 @@ class MainWindow(QMainWindow, IWidget):
     center_widget_two: QLabel = make_widget(QLabel, [], "Center Panel 2")
     center_widget_three: QLabel = make_widget(QLabel, [], "Center Panel 3")
 
-    # dock_manager: IDockManager = make_later(DockManager)
-    editor_docks: List[QDockWidget] = field(default_factory=lambda: [])
-
     @override
     def setup(self):
         self.resize(2048, 1152)
         self.dock_manager = get_dock_manager(self)
         self.dock_manager.dock(self.left_widget, Qt.DockWidgetArea.LeftDockWidgetArea, "LEFT")
-        self.dock_manager.dock(self.right_widget, Qt.DockWidgetArea.RightDockWidgetArea, "RIGHT")
+        right_dock = self.dock_manager.dock(self.right_widget, Qt.DockWidgetArea.RightDockWidgetArea, "RIGHT")
         self.dock_manager.dock(self.bottom_widget, Qt.DockWidgetArea.BottomDockWidgetArea, "BOTTOM")
         self.dock_manager.dock(self.top_widget, Qt.DockWidgetArea.TopDockWidgetArea, "TOP")
+        center_one_dock = self.dock_manager.dock(self.center_widget_one, Qt.DockWidgetArea.RightDockWidgetArea, "CENTER 1")
+        self.splitDockWidget(
+            center_one_dock,
+            right_dock,
+            Qt.Orientation.Horizontal,
+        )
 
     @override
     def event(self, event: QEvent) -> bool:
