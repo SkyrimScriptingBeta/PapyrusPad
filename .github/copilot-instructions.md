@@ -118,4 +118,4 @@ REMEMBER: GitHub Copilot's effectiveness depends entirely on the clarity and acc
 
 # Style Guide
 
-Note also that this repository follows a strict set of style guidelines. These can be found in the ./styleguide/ folder.
+Note also that this repository follows a strict set of coding guidelines. These can be found in the ./.clinerules/ folder.
