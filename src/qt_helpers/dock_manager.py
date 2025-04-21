@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Optional, cast, override
 from PySide6.QtWidgets import (
@@ -18,9 +18,22 @@ from qt_helpers.signal_typing import as_bool_handler
 
 
 class IDockManager(ABC):
+    @abstractmethod
+    def get_docked_widgets(self) -> list[QDockWidget]: ...
+
+    @abstractmethod
     def on_event(self, event: QEvent) -> None: ...
+
+    @abstractmethod
     def on_eventFilter(self, watched: QObject, event: QEvent) -> None: ...
 
+    @abstractmethod
+    def hide_titlebar(self, dock_widget: QDockWidget) -> None: ...
+
+    @abstractmethod
+    def show_titlebar(self, dock_widget: QDockWidget) -> None: ...
+
+    @abstractmethod
     def dock(
         self,
         widget: QWidget,
@@ -57,6 +70,11 @@ class DockManager(IDockManager):
     def __post_init__(self) -> None:
         self.main_window.setDockNestingEnabled(True)
         self.main_window.setTabPosition(Qt.DockWidgetArea.AllDockWidgetAreas, QTabWidget.TabPosition.North)
+
+    @override
+    def get_docked_widgets(self) -> list[QDockWidget]:
+        """Get the list of docked widgets."""
+        return self.docked_widgets
 
     @override
     def on_event(self, event: QEvent) -> None:
@@ -154,6 +172,16 @@ class DockManager(IDockManager):
                     self._update_title_bar_for(d)
                 break
 
+    @override
+    def hide_titlebar(self, dock_widget: QDockWidget) -> None:
+        hidden = QWidget()
+        hidden.setFixedHeight(0)
+        dock_widget.setTitleBarWidget(hidden)
+
+    @override
+    def show_titlebar(self, dock_widget: QDockWidget) -> None:
+        dock_widget.setTitleBarWidget(None)  # type: ignore
+
     def _update_title_bar_for(self, dock: QDockWidget) -> None:
         print("Updating title bar for:", dock)
         tab_group = self.main_window.tabifiedDockWidgets(dock)
@@ -165,11 +193,9 @@ class DockManager(IDockManager):
             if is_tabbified:
                 current = w.titleBarWidget()
                 if current is None or current.sizeHint().height() > 0:  # type: ignore
-                    hidden = QWidget()
-                    hidden.setFixedHeight(0)
-                    w.setTitleBarWidget(hidden)
+                    self.hide_titlebar(w)
             else:
-                w.setTitleBarWidget(None)  # type: ignore
+                self.show_titlebar(w)
 
 
 def get_dock_manager(main_window: QMainWindow) -> IDockManager:

@@ -1,6 +1,7 @@
 from typing import override
-from PySide6.QtWidgets import QLabel, QTextEdit, QWidget
+from PySide6.QtWidgets import QLabel, QPlainTextEdit, QWidget
 
+from PapyrusPad.domain.document.document_interface import IDocument
 from qt_helpers.interfaces import IWidget
 from qt_helpers.make import make
 from qt_helpers.widget import widget
@@ -8,19 +9,12 @@ from qt_helpers.widget import widget
 
 @widget("editor")
 class EditorWidget(QWidget, IWidget):
-    text: str
+    document: IDocument
 
     lbl_title: QLabel = make(QLabel)
-    txt_source: QTextEdit = make(QTextEdit)
+    txt_source: QPlainTextEdit = make(QPlainTextEdit)
 
     @override
     def setup(self) -> None:
-        self.title = self.text
-
-    @property
-    def title(self) -> str:
-        return self.lbl_title.text()
-
-    @title.setter
-    def title(self, text: str) -> None:
-        self.lbl_title.setText(f"<h3>{text}</h3>")
+        self.lbl_title.setText(self.document.name)
+        self.txt_source.setPlainText(self.document.content)

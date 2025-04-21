@@ -4,7 +4,7 @@ from typing import Any, Callable, Type, TypeVar, dataclass_transform
 from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import QStyle
 
-from PapyrusPad.app import dependencies
+from PapyrusPad import dependencies
 from qt_helpers.mixins import ActionMixin
 from qt_helpers.signal_typing import as_bool_handler
 

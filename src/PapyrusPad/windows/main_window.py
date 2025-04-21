@@ -1,9 +1,12 @@
 from typing import override
+from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QMainWindow
 
-from PapyrusPad.widgets.editor_widget import EditorWidget
+from PapyrusPad.dependencies import Depends
+from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 from PapyrusPad.menus.file_menu import FileMenu
 from PapyrusPad.menus.help_menu import HelpMenu
+from PapyrusPad.widgets.editor_widget import EditorWidget
 from qt_helpers.dock_manager import IDockManager, get_dock_manager
 from qt_helpers.interfaces import IWidget
 from qt_helpers.make import make, make_later
@@ -13,11 +16,16 @@ from qt_helpers.window import window
 @window("main_window", title="PapyrusPad")
 class MainWindow(QMainWindow, IWidget):
     dock_manager: IDockManager = make_later(IDockManager)
-    central_widget: EditorWidget = make(EditorWidget, text="Untitled")
+
     file_menu: FileMenu = make(FileMenu)
     help_menu: HelpMenu = make(HelpMenu)
 
     @override
-    def setup(self):
+    def setup(self, document_collection: IDocumentCollection = Depends[IDocumentCollection]):
         self.resize(1024, 1024)
         self.dock_manager = get_dock_manager(self)
+        for document in document_collection.list_documents():
+            self.dock_manager.dock(EditorWidget(document), Qt.DockWidgetArea.RightDockWidgetArea)
+        if len(document_collection.list_documents()) == 1:
+            if dock_widget := self.dock_manager.get_docked_widgets()[0]:
+                self.dock_manager.hide_titlebar(dock_widget)

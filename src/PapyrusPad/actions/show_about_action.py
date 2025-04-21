@@ -1,6 +1,6 @@
 from typing import override
 from PySide6.QtGui import QAction
-from PapyrusPad.app.dependencies import Depends
+from PapyrusPad.dependencies import Depends
 from qt_helpers.action import action
 from qt_helpers.interfaces import IAction
 from PySide6.QtWidgets import QApplication, QMessageBox, QStyle
