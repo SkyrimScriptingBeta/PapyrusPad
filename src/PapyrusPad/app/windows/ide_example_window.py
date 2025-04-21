@@ -1,6 +1,6 @@
 from abc import ABC
-from dataclasses import dataclass
-from typing import cast, List, TypeVar, override, Any, Callable
+from dataclasses import dataclass, field
+from typing import Optional, cast, List, TypeVar, override, Any, Callable
 from PySide6.QtWidgets import (
     QMainWindow,
     QDockWidget,
@@ -9,14 +9,14 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QPushButton,
-    QToolBar,
     QTabBar,
     QTabWidget,
 )
-from PySide6.QtGui import QAction, QMouseEvent
+from PySide6.QtGui import QMouseEvent
 from PySide6.QtCore import QEvent, Qt, QPoint, QObject
 
 from qt_helpers.signal_typing import as_bool_handler
+
 
 # Type aliases for better readability
 DockList = List[QDockWidget]
@@ -25,6 +25,9 @@ T = TypeVar("T")
 # Type definition for Qt signal handlers to satisfy Pylance
 # This is a workaround for Qt's signal-slot typing issues
 SignalHandler = Callable[[Any], None]
+
+# TODO: after we set a widget as floating, from dragging from the tab bar,
+# after it becomes floating perform a "click" on the title bar of the widget so we can keep dragging it, if possible
 
 
 class EditorWidget(QWidget):
@@ -49,19 +52,73 @@ class PanelWidget(QWidget):
 class IDockManager(ABC):
     def initialize(self, main_window: QMainWindow) -> None:
         """Initialize the Dock Manager for use with the given QMainWindow."""
-        pass
+        ...
+
+    # def make_dock(
+    #     self,
+    #     widget: QWidget,
+    #     title: Optional[str] = None,
+    #     areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
+    #     features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
+    #     | QDockWidget.DockWidgetFeature.DockWidgetMovable
+    #     | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+    # ) -> QDockWidget:
+    #     """Create a dock widget with the specified properties."""
+    #     ...
+
+    def dock(
+        self,
+        widget: QWidget,
+        area: Qt.DockWidgetArea,
+        title: Optional[str] = None,
+        allowed_areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
+        features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
+        | QDockWidget.DockWidgetFeature.DockWidgetMovable
+        | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+    ) -> QDockWidget:
+        """Create a dock widget with the specified properties."""
+        ...
 
 
 @dataclass
 class DockManager(IDockManager):
-    main_window: QMainWindow | None = None
+    main_window: QMainWindow
+    docked_widgets: list[QDockWidget] = field(default_factory=list[QDockWidget])
+
+    def __post_init__(self) -> None:
+        self.main_window.setDockNestingEnabled(True)
+
+    # @override
+    def _make_dock(
+        self,
+        widget: QWidget,
+        title: Optional[str] = None,
+        allowed_areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
+        features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
+        | QDockWidget.DockWidgetFeature.DockWidgetMovable
+        | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+    ) -> QDockWidget:
+        dock = QDockWidget(title or widget.windowTitle(), self.main_window)
+        dock.setWidget(widget)
+        dock.setAllowedAreas(allowed_areas)
+        dock.setFeatures(features)
+        self.docked_widgets.append(dock)
+        return dock
 
     @override
-    def initialize(self, main_window: QMainWindow) -> None:
-        if self.main_window is not None:
-            raise ValueError("DockManager is already initialized.")
-        self.main_window = main_window
-        self.main_window.setDockNestingEnabled(True)
+    def dock(
+        self,
+        widget: QWidget,
+        area: Qt.DockWidgetArea,
+        title: Optional[str] = None,
+        allowed_areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
+        features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
+        | QDockWidget.DockWidgetFeature.DockWidgetMovable
+        | QDockWidget.DockWidgetFeature.DockWidgetFloatable,
+    ) -> QDockWidget:
+        dock = self._make_dock(widget, title, allowed_areas, features)
+        self.main_window.addDockWidget(area, dock)
+        return dock
 
 
 class IDEExampleWindow(QMainWindow):
@@ -69,8 +126,7 @@ class IDEExampleWindow(QMainWindow):
         super().__init__()
 
         #
-        self.dock_manager: IDockManager = DockManager()
-        self.dock_manager.initialize(self)
+        self.dock_manager: IDockManager = DockManager(self)
         #
 
         self.setWindowTitle("Qt Docking — No Lies Edition")
@@ -81,68 +137,53 @@ class IDEExampleWindow(QMainWindow):
         self._drag_tab_index: int = -1
         self._drag_tab_text: str | None = None
 
-        self.left_panel = self._make_panel("Left Panel")
-        self.right_panel = self._make_panel("Right Panel")
-        self.top_panel = self._make_panel("Top Panel")
-        self.bottom_panel = self._make_panel("Bottom Panel")
+        self.left_panel_widget = PanelWidget("Left Panel")
+        self.right_panel_widget = PanelWidget("Right Panel")
+        self.top_panel_widget = PanelWidget("Top Panel")
+        self.bottom_panel_widget = PanelWidget("Bottom Panel")
 
-        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.top_panel)
-        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.bottom_panel)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.left_panel)
+        top_panel_dock = self.dock_manager.dock(self.top_panel_widget, Qt.DockWidgetArea.TopDockWidgetArea, "Top Panel")
+        bottom_panel_dock = self.dock_manager.dock(self.bottom_panel_widget, Qt.DockWidgetArea.BottomDockWidgetArea, "Bottom Panel")
+        left_panel_dock = self.dock_manager.dock(self.left_panel_widget, Qt.DockWidgetArea.LeftDockWidgetArea, "Left Panel")
 
-        # self.editor_docks: DockList = []
-        first_editor = self._make_editor("main.cpp")
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, first_editor)
-        # self.editor_docks.append(first_editor)
+        self.editor_one = EditorWidget("main.cpp")
+        self.editor_two = EditorWidget("engine.cpp")
+        self.editor_three = EditorWidget("ui.cpp")
 
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.right_panel)
-        self.splitDockWidget(first_editor, self.right_panel, Qt.Orientation.Horizontal)
+        # Add Right
+        right_panel_dock = self.dock_manager.dock(self.right_panel_widget, Qt.DockWidgetArea.RightDockWidgetArea, "Right Panel")
 
-        for filename in ["engine.cpp", "ui.cpp"]:
-            dock = self._make_editor(filename)
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
-            self.tabifyDockWidget(first_editor, dock)
-            # self.editor_docks.append(dock)
+        # # SPLIT right Right, with the editor ending up on the left:
+        editor_one_dock = self.dock_manager.dock(self.editor_one, Qt.DockWidgetArea.RightDockWidgetArea, "main.cpp")
+        self.splitDockWidget(editor_one_dock, right_panel_dock, Qt.Orientation.Horizontal)
+
+        # # Now TABIFY the second and third editor docks to the first one:
+        editor_two_dock = self.dock_manager.dock(self.editor_two, Qt.DockWidgetArea.RightDockWidgetArea, "engine.cpp")
+        self.tabifyDockWidget(editor_one_dock, editor_two_dock)
+
+        editor_three_dock = self.dock_manager.dock(self.editor_three, Qt.DockWidgetArea.RightDockWidgetArea, "ui.cpp")
+        self.tabifyDockWidget(editor_one_dock, editor_three_dock)
 
         for dock in self.findChildren(QDockWidget):
-            # dock.topLevelChanged.connect(self._update_title_bar_for)
             dock.topLevelChanged.connect(as_bool_handler(lambda _ignored: self._update_title_bar_for(dock)))
-            # Use our type-safe signal handler utility for the dockLocationChanged signal
             dock.dockLocationChanged.connect(as_bool_handler(lambda _ignored: self._update_title_bar_for(dock)))
 
-        first_editor.raise_()
-        self._update_title_bar_for(first_editor)
+        editor_one_dock.raise_()
+        self._update_title_bar_for(editor_one_dock)
 
-        self._setup_toolbar()
         self._make_tabs_closable()
 
         # Type ignore for resizeDocks as it's a Qt API with complex typing
         self.resizeDocks(  # type: ignore
-            [self.left_panel, first_editor, self.right_panel],
+            [left_panel_dock, editor_one_dock, right_panel_dock],
             [200, 1648, 200],
             Qt.Orientation.Horizontal,
         )
         self.resizeDocks(  # type: ignore
-            [self.top_panel, first_editor, self.bottom_panel],
+            [top_panel_dock, editor_one_dock, bottom_panel_dock],
             [100, 902, 150],
             Qt.Orientation.Vertical,
         )
-
-    def _setup_toolbar(self) -> None:
-        toolbar = QToolBar("Toggles", self)
-        self.addToolBar(toolbar)
-
-        for label, dock in [
-            ("Top Panel", self.top_panel),
-            ("Bottom Panel", self.bottom_panel),
-            ("Left Panel", self.left_panel),
-            ("Right Panel", self.right_panel),
-        ]:
-            action = QAction(label, self, checkable=True)
-            action.setChecked(True)
-            # Use our type-safe helper for boolean signal handlers
-            action.toggled.connect(as_bool_handler(lambda checked_state: self._toggle_dock_visibility(dock, bool(checked_state))))
-            toolbar.addAction(action)
 
     def _toggle_dock_visibility(self, dock: QDockWidget, visible: bool) -> None:
         dock.setVisible(visible)
