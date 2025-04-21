@@ -1,4 +1,121 @@
-Use strongly typed code, even in dynamic languages like Python.
-Make the code as strictly typed as possible, types for all parameters and return values of functions, etc. But you should also take advantage of type inference, so do not add types where type inference would work. Use `var` and `auto` in C#/C++ etc for type inference. Avoid `any` and `Any` or `Unknown` types in Python and TypeScript etc, when possible. And prefer strong types over dictionaries and maps. So instead of making a dict[str,int] you should consider if having a struct (C++) or @dataclass/Pydantic BaseModel (Python) or interface (TypeScript) etc would help make the code more clean and 
+# GitHub Copilot Memory Bank
 
-Please note that whenever you trigger a code "save", my editor might auto-format the code. This might include moving functions/imports around to rearrange them. And it might remove unused imports. So just be warned and know this. If you add imports, then save, the imports might be removed. So add the code that uses the imports first.
+GitHub Copilot Agent uses this structured documentation system to manage and recall project knowledge. While Copilot may not retain memory between IDE sessions, this Memory Bank ensures consistent project understanding and continuity. Before performing any task in **Agent Mode** or answering questions in **Ask Mode**, Copilot MUST read and understand ALL core memory bank files.
+
+This process is non-negotiable — accurate documentation is essential for Copilot to operate effectively across tasks.
+
+## Memory Bank Structure
+
+The Memory Bank consists of core files and optional context files, all in Markdown format. Files build upon each other in a clear hierarchy:
+
+flowchart TD
+    PB[projectbrief.md] --> PC[productContext.md]
+    PB --> SP[systemPatterns.md]
+    PB --> TC[techContext.md]
+
+    PC --> AC[activeContext.md]
+    SP --> AC
+    TC --> AC
+
+    AC --> P[progress.md]
+
+### Core Files (Required)
+1. `projectbrief.md`
+   - Foundation document that shapes all other files
+   - Created at project start if it doesn't exist
+   - Defines core requirements and goals
+   - Source of truth for project scope
+
+2. `productContext.md`
+   - Why this project exists
+   - Problems it solves
+   - How it should work
+   - User experience goals
+
+3. `activeContext.md`
+   - Current work focus
+   - Recent changes
+   - Next steps
+   - Active decisions and considerations
+   - Important patterns and preferences
+   - Learnings and project insights
+
+4. `systemPatterns.md`
+   - System architecture
+   - Key technical decisions
+   - Design patterns in use
+   - Component relationships
+   - Critical implementation paths
+
+5. `techContext.md`
+   - Technologies used
+   - Development setup
+   - Technical constraints
+   - Dependencies
+   - Tool usage patterns
+
+6. `progress.md`
+   - What works
+   - What's left to build
+   - Current status
+   - Known issues
+   - Evolution of project decisions
+
+### Additional Context
+Create additional files/folders within memory-bank/ when they help organize:
+- Complex feature documentation
+- Integration specifications
+- API documentation
+- Testing strategies
+- Deployment procedures
+
+## Core Workflows
+
+### Ask Mode
+flowchart TD
+    Start[Start] --> ReadFiles[Read Memory Bank]
+    ReadFiles --> CheckFiles{Files Complete?}
+
+    CheckFiles -->|No| Plan[Create Plan]
+    Plan --> Document[Document in Chat]
+
+    CheckFiles -->|Yes| Verify[Verify Context]
+    Verify --> Strategy[Develop Strategy]
+    Strategy --> Present[Present Approach]
+
+### Agent Mode
+flowchart TD
+    Start[Start] --> Context[Check Memory Bank]
+    Context --> Update[Update Documentation]
+    Update --> Execute[Execute Task]
+    Execute --> Document[Document Changes]
+
+## Documentation Updates
+
+Memory Bank updates occur when:
+1. Discovering new project patterns
+2. After implementing significant changes
+3. When user requests with **update memory bank** (MUST review ALL files)
+4. When context needs clarification
+
+flowchart TD
+    Start[Update Process]
+
+    subgraph Process
+        P1[Review ALL Files]
+        P2[Document Current State]
+        P3[Clarify Next Steps]
+        P4[Document Insights & Patterns]
+
+        P1 --> P2 --> P3 --> P4
+    end
+
+    Start --> Process
+
+Note: When triggered by **update memory bank**, Copilot MUST review every memory bank file, even if some don't require updates. Focus particularly on `activeContext.md` and `progress.md` as they track current state.
+
+REMEMBER: GitHub Copilot's effectiveness depends entirely on the clarity and accuracy of this documentation system. This Memory Bank is the foundation of its operational context.
+
+# Style Guide
+
+Note also that this repository follows a strict set of style guidelines. These can be found in the ./styleguide/ folder.
