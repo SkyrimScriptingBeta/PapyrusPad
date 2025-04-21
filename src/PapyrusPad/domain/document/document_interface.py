@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from datetime import datetime
 
+from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
+
 
 class IDocument(ABC):
     """Represents a document open in the editor."""
@@ -63,4 +65,36 @@ class IDocument(ABC):
     @abstractmethod
     def display_name(self) -> str:
         """Name for tab or sidebar display, may include '*' if modified."""
+        ...
+
+    @abstractmethod
+    def save(self, filesystem: IFileSystem) -> bool:
+        """
+        Save the document to its path.
+
+        Args:
+            filesystem: The filesystem to use for saving
+
+        Returns:
+            True if saved successfully, False otherwise
+
+        Raises:
+            ValueError: If the document has no path
+        """
+        ...
+
+    @abstractmethod
+    def reload_content(self, filesystem: IFileSystem) -> bool:
+        """
+        Reload the document's content from its path.
+
+        Args:
+            filesystem: The filesystem to use for loading
+
+        Returns:
+            True if loaded successfully, False otherwise
+
+        Raises:
+            ValueError: If the document has no path
+        """
         ...
