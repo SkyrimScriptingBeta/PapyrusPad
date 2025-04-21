@@ -1,15 +1,15 @@
-## 🧙 Qt Helpers Style Guide: Declarative DSL for Widgets and Windows
+## 🧙 Qt Helpers Style Guide: Declarative DSL for Widgets, Windows, Menus, and Actions
 
 This guide describes the architecture and usage patterns for projects using `qt_helpers`, a declarative DSL layer built atop PySide6 (Qt 6.9.0). This system is strongly inspired by Ruby DSLs and Rails-style conventions.
 
 ---
 
 ### ✅ Core Principles
-- Use **@widget** and **@window** decorators to define all QWidgets and QMainWindow classes.
-- All widget/window classes must be **dataclasses** and implement **IWidget**.
+- Use **@widget**, **@window**, **@menu**, and **@action** decorators to define all QWidgets, QMainWindow, QMenu, and QAction classes.
+- All widget/window classes must be **dataclasses** and implement the appropriate interfaces (IWidget, IAction).
 - **Never** use `__init__` or `__post_init__`. These are handled automatically.
-- Field declarations are used to instantiate widgets.
-- Object names and QSS classes are set using parameters to decorators or `make_widget()`.
+- Field declarations are used to instantiate widgets, menus, and actions.
+- Configuration can be set using parameters to decorators or class attributes with underscore prefix.
 
 ---
 
@@ -37,11 +37,64 @@ class EditorWidget(QWidget, IWidget):
 @window("MainWindow", classes=["window"], title="My App")
 class MainWindow(QMainWindow, IWidget):
     central_widget: EditorWidget = make(EditorWidget)
+    file_menu: FileMenu = make(FileMenu)
+    help_menu: HelpMenu = make(HelpMenu)
 ```
 
 - Sets object name, classes, window title, icon
 - Automatically sets `central_widget` as main content
+- Automatically adds QMenu fields to the menu bar
 - Calls all setup methods
+
+#### `@menu`
+**Import**: `from qt_helpers.menu import menu`
+
+```python
+# Using decorator parameter
+@menu(text="Help")
+class HelpMenu(QMenu):
+    about_action: AboutAction = make(AboutAction)
+
+# Using class attribute
+@menu()
+class FileMenu(QMenu):
+    _text = "File"
+    quit_action: QuitAction = make(QuitAction)
+```
+
+- `text`: Sets the menu title (alternatively, use `_text` class attribute)
+- Automatically adds QMenu and QAction fields as menu items
+- Supports nested menus through field declarations
+
+#### `@action`
+**Import**: `from qt_helpers.action import action`
+
+```python
+# Using decorator parameters
+@action("About", tooltip="Show information about the application", icon=QStyle.StandardPixmap.SP_MessageBoxQuestion)
+class AboutAction(QAction, IAction):
+    @override
+    def action(self, checked: bool):
+        # Action implementation
+
+# Using class attributes
+@action()
+class QuitAction(QAction, IAction):
+    _text = "Quit"
+    _shortcut = "Ctrl+Q"
+    _tooltip = "Exit the application"
+    _icon = QStyle.StandardPixmap.SP_TitleBarCloseButton
+
+    @override
+    def action(self, checked: bool) -> None:
+        # Action implementation
+```
+
+- `text`: Sets the action text (alternatively, use `_text` class attribute)
+- `shortcut`: Sets the keyboard shortcut (alternatively, use `_shortcut` class attribute)
+- `tooltip`: Sets the status tip (alternatively, use `_tooltip` class attribute)
+- `icon`: Sets the icon (alternatively, use `_icon` class attribute)
+- Automatically connects the `triggered` signal to the `action` method
 
 ---
 
@@ -86,6 +139,14 @@ class IWidget:
 ```
 These methods are optional, but called automatically if defined.
 
+#### `IAction`
+**Import**: `from qt_helpers.interfaces import IAction`
+```python
+class IAction:
+    def action(self, checked: bool) -> None: ...
+```
+This method is required for action classes and is automatically connected to the action's triggered signal.
+
 ---
 
 ### 🎨 Styling with QSS (SCSS-backed)
@@ -106,8 +167,11 @@ These methods are optional, but called automatically if defined.
 ### 🧠 Naming Conventions
 - Widget classes must end in `Widget`
 - Main window classes must end in `Window`
+- Menu classes should end in `Menu`
+- Action classes should end in `Action`
 - Object names: PascalCase, match class name for custom widgets
 - QSS classes: lowercase kebab-case
+- Class attributes for configuration: use underscore prefix (e.g., `_text`, `_shortcut`)
 
 ---
 
@@ -116,12 +180,38 @@ These methods are optional, but called automatically if defined.
 - ❌ Do not imperatively build layouts
 - ❌ Do not manually instantiate or set up child widgets
 - ❌ Do not subclass QWidget without `@widget` or QMainWindow without `@window`
+- ❌ Do not subclass QMenu without `@menu` or QAction without `@action`
+- ❌ Do not manually connect action signals; use the `action` method instead
 
 ---
 
 ### 🔧 Async
 - Use `qasync` for asyncio support
 - `QEventLoop` from `qasync` should wrap your `asyncio` loops
+
+---
+
+### 📁 File Organization
+- Follow a feature-based organization rather than type-based
+- Group related components (menus, actions) by feature
+- Example structure:
+  ```
+  src/PapyrusPad/app/
+  └── windows/
+      └── main/
+          ├── main_window.py
+          └── menus/
+              ├── file/
+              │   ├── file_menu.py
+              │   └── actions/
+              │       ├── new.py
+              │       ├── open.py
+              │       └── quit.py
+              └── help/
+                  ├── help_menu.py
+                  └── actions/
+                      └── about.py
+  ```
 
 ---
 

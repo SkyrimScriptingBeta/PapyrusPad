@@ -10,8 +10,8 @@ PapyrusPad follows a component-based architecture with a focus on extensibility 
 
 The application uses a custom declarative approach to Qt widgets, inspired by Ruby DSLs and Rails-style conventions:
 
-1. **Widget Decorators**: `@widget` and `@window` decorators are used to define QWidgets and QMainWindow classes.
-2. **Dataclass Integration**: All widget classes are Python dataclasses that implement the `IWidget` interface.
+1. **Widget Decorators**: `@widget`, `@window`, `@menu`, and `@action` decorators are used to define QWidgets, QMainWindow, QMenu, and QAction classes.
+2. **Dataclass Integration**: All widget classes are Python dataclasses that implement the appropriate interfaces (IWidget, IAction).
 3. **Field-based Widget Declaration**: Widget fields are declared using helper functions like `make()` and `make_widget()`.
 4. **Automatic Setup**: The decorators handle initialization and call setup methods automatically.
 
@@ -23,6 +23,47 @@ class EditorWidget(QWidget, IWidget):
     
     def setup(self) -> None:
         # Custom setup code
+```
+
+### Declarative Menu System
+
+The application extends the declarative approach to menus and actions:
+
+1. **Menu Decorator**: The `@menu` decorator is used to define QMenu classes with automatic child menu and action handling.
+2. **Action Decorator**: The `@action` decorator is used to define QAction classes with automatic signal connection.
+3. **Field-based Menu Structure**: Menus and actions are declared as fields in their parent classes, creating a hierarchical structure.
+4. **Multiple Configuration Styles**: Both decorators support configuration through either decorator parameters or class attributes.
+
+```python
+# Menu with decorator parameter
+@menu(text="Help")
+class HelpMenu(QMenu):
+    about_action: AboutAction = make(AboutAction)
+
+# Menu with class attribute
+@menu()
+class FileMenu(QMenu):
+    _text = "File"
+    quit_action: QuitAction = make(QuitAction)
+
+# Action with decorator parameters
+@action("About", tooltip="Show information about the application", icon=QStyle.StandardPixmap.SP_MessageBoxQuestion)
+class AboutAction(QAction, IAction):
+    @override
+    def action(self, checked: bool):
+        # Action implementation
+
+# Action with class attributes
+@action()
+class QuitAction(QAction, IAction):
+    _text = "Quit"
+    _shortcut = "Ctrl+Q"
+    _tooltip = "Exit the application"
+    _icon = QStyle.StandardPixmap.SP_TitleBarCloseButton
+
+    @override
+    def action(self, checked: bool) -> None:
+        # Action implementation
 ```
 
 ### Dockable Panel System
@@ -47,8 +88,9 @@ dock = dock_manager.dock(
 The application uses interfaces to define contracts and enable loose coupling:
 
 1. **IWidget Interface**: Defines the contract for all widget classes with methods like `setup()`, `setup_layout()`, etc.
-2. **IDockManager Interface**: Defines the contract for dock management functionality.
-3. **Abstract Base Classes**: Used to define interfaces with the `ABC` module.
+2. **IAction Interface**: Defines the contract for action classes with the `action()` method.
+3. **IDockManager Interface**: Defines the contract for dock management functionality.
+4. **Abstract Base Classes**: Used to define interfaces with the `ABC` module.
 
 ```python
 class IWidget(ABC):
@@ -59,6 +101,12 @@ class IWidget(ABC):
     def setup_layout(self) -> None: ...
     
     # Other methods...
+
+class IAction(ABC):
+    @abstractmethod
+    def action(self, checked: bool) -> None:
+        """Defines the default action behavior for QAction instances."""
+        pass
 ```
 
 ## Design Patterns
@@ -83,11 +131,31 @@ Used to add functionality to classes without deep inheritance hierarchies:
 1. **SetupFunctionsMixin**: Provides setup methods for widgets.
 2. **WidgetMixin**: Adds widget-specific functionality.
 3. **MainWindowMixin**: Adds main window-specific functionality.
+4. **MenuMixin**: Adds menu-specific functionality.
+5. **ActionMixin**: Adds action-specific functionality.
 
 ```python
 class MainWindowMixin(SetupFunctionsMixin):
     """Mixin class to provide setup functions for PyQt/PySide main windows."""
     # Implementation...
+
+class MenuMixin:
+    _text: str | None = None
+    
+    def __init__(self):
+        super().__init__()
+
+class ActionMixin:
+    _text: str | None = None
+    _shortcut: str | None = None
+    _tooltip: str | None = None
+    _icon: str | QPixmap | QIcon | QStyle.StandardPixmap | None = None
+    
+    def __init__(self):
+        super().__init__()
+        
+    def action(self, checked: bool) -> None:
+        pass
 ```
 
 ### Decorator Pattern
@@ -95,12 +163,22 @@ class MainWindowMixin(SetupFunctionsMixin):
 Used to enhance classes with additional functionality:
 
 1. **@widget**: Enhances QWidget classes with automatic setup and layout.
-2. **@window**: Enhances QMainWindow classes with window-specific features.
-3. **@dataclass_transform**: Used to maintain type checking with custom decorators.
+2. **@window**: Enhances QMainWindow classes with window-specific features and automatic menu loading.
+3. **@menu**: Enhances QMenu classes with automatic action and submenu loading.
+4. **@action**: Enhances QAction classes with automatic signal connection.
+5. **@dataclass_transform**: Used to maintain type checking with custom decorators.
 
 ```python
 @dataclass_transform()
 def widget(name: str | None = None, classes: list[str] | None = None, layout: str | None = "vertical"):
+    # Implementation...
+
+@dataclass_transform()
+def menu(text: str | None = None):
+    # Implementation...
+
+@dataclass_transform()
+def action(text: str | None = None, *, shortcut: str | None = None, tooltip: str | None = None, icon: QPixmap | QIcon | QStyle.StandardPixmap | str | None = None):
     # Implementation...
 ```
 
@@ -121,10 +199,12 @@ dock.topLevelChanged.connect(lambda floating: self._update_title_bar_for(dock))
 
 ### Main Components
 
-1. **MainWindow**: The primary container that hosts the central editor and dockable panels.
+1. **MainWindow**: The primary container that hosts the central editor, menus, and dockable panels.
 2. **EditorWidget**: The central widget that provides the core editing functionality.
-3. **DockManager**: Manages the creation and behavior of dockable panels.
-4. **Application**: Handles application-level concerns like styling and event loop.
+3. **Menus**: Hierarchical menu structure with File, Help, etc.
+4. **Actions**: Encapsulated action handlers for menu items.
+5. **DockManager**: Manages the creation and behavior of dockable panels.
+6. **Application**: Handles application-level concerns like styling and event loop.
 
 ### Data Flow
 
@@ -166,3 +246,4 @@ dock.topLevelChanged.connect(lambda floating: self._update_title_bar_for(dock))
 3. **Virtual File System**: Integration with mod managers' virtual file systems.
 4. **Compiler Integration**: Direct integration with the Papyrus compiler.
 5. **Project Management**: Formal project structure and management.
+6. **Menu Extension System**: Allow plugins to extend the menu system.

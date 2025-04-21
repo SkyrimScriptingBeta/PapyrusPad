@@ -4,20 +4,22 @@
 
 The current focus of the PapyrusPad project is establishing the foundational architecture and UI framework. This includes:
 
-1. **Core Application Structure**: Setting up the basic Qt/PySide6 application with a main window and central editor widget.
-2. **Declarative Widget System**: Developing a custom declarative approach to Qt widgets using decorators and factory functions.
+1. **Core Application Structure**: Setting up the basic Qt/PySide6 application with a main window, menus, and central editor widget.
+2. **Declarative Widget System**: Developing a custom declarative approach to Qt widgets, menus, and actions using decorators and factory functions.
 3. **Docking System**: Implementing a flexible docking system for panels with modern tab management.
 4. **Development Infrastructure**: Establishing the development workflow with Poetry, SCSS styling, and resource compilation.
+5. **Feature-based File Organization**: Implementing a Rails-inspired file structure that organizes code by feature rather than by type.
 
 ## Recent Changes
 
 ### Architecture and Framework
 
-- Implemented the `@widget` and `@window` decorators for declarative UI definition
+- Implemented the `@widget`, `@window`, `@menu`, and `@action` decorators for declarative UI definition
 - Created factory functions (`make()`, `make_widget()`, `make_later()`) for widget creation
-- Set up the main window with a central editor widget
+- Set up the main window with a central editor widget and menu system
 - Implemented a dock manager for handling dockable panels
 - Added support for dark/light mode via command-line arguments
+- Reorganized the file structure to follow a feature-based approach
 
 ### UI Components
 
@@ -25,6 +27,8 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - Implemented tab management with closeable tabs and drag-to-undock functionality
 - Added title bar management for tabbed widgets
 - Set up SCSS styling with hot-reloading in development mode
+- Added a menu bar with File and Help menus
+- Implemented menu actions with icons, shortcuts, and tooltips
 
 ### Development Tools
 
@@ -68,11 +72,13 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 
 ### Architecture Decisions
 
-1. **Declarative UI Approach**: The decision to use a declarative approach with decorators and dataclasses has proven effective for simplifying UI development. This pattern will continue to be refined and expanded.
+1. **Declarative UI Approach**: The decision to use a declarative approach with decorators and dataclasses has proven effective for simplifying UI development. This pattern has been expanded to include menus and actions, and will continue to be refined.
 
-2. **Docking System**: The custom docking behavior built on top of Qt's docking system provides a more modern and user-friendly experience. Further refinements will focus on stability and user experience.
+2. **Feature-based File Organization**: The decision to organize code by feature rather than by type (following Rails conventions) has improved code organization and maintainability. This approach groups related components (menus, actions, etc.) together based on their functionality.
 
-3. **Styling with SCSS**: Using SCSS for styling with hot-reloading in development has improved the styling workflow. This approach will be maintained and expanded with more comprehensive styling.
+3. **Docking System**: The custom docking behavior built on top of Qt's docking system provides a more modern and user-friendly experience. Further refinements will focus on stability and user experience.
+
+4. **Styling with SCSS**: Using SCSS for styling with hot-reloading in development has improved the styling workflow. This approach will be maintained and expanded with more comprehensive styling.
 
 ### Technical Considerations
 
@@ -94,6 +100,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 
 ### Code Organization
 
+- **Feature-based Structure**: Organize code by feature rather than by type, grouping related components together.
 - **Module Structure**: Maintain clear separation between UI components, application logic, and utilities.
 - **Interface-based Design**: Continue using interfaces (ABC) to define contracts and enable loose coupling.
 - **Typing**: Maintain strict typing throughout the codebase.
@@ -115,6 +122,8 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 ### Successful Approaches
 
 - The declarative widget system has significantly reduced boilerplate and simplified UI development.
+- The extension of the declarative approach to menus and actions has further improved code organization and readability.
+- The feature-based file organization has improved code maintainability and made it easier to locate related components.
 - The docking system provides a flexible and user-friendly way to organize the interface.
 - Using SCSS for styling has improved maintainability and development workflow.
 
@@ -126,6 +135,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 
 ### Future Opportunities
 
-- The declarative widget system could potentially be extracted as a separate library for other Qt projects.
+- The declarative widget, menu, and action system could potentially be extracted as a separate library for other Qt projects.
+- The feature-based file organization could be further refined to support more complex features and plugins.
 - The editor component could be enhanced with Papyrus-specific features beyond what general-purpose editors provide.
 - Integration with mod managers could provide a seamless workflow for modders.

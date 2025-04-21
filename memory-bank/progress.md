@@ -10,14 +10,17 @@ PapyrusPad is in the early stages of development. The project has established it
 
 - ✅ Basic Qt/PySide6 application structure
 - ✅ Custom declarative widget system
-- ✅ Window and widget decorators
+- ✅ Window, widget, menu, and action decorators
 - ✅ Factory functions for widget creation
 - ✅ Application startup and shutdown flow
 - ✅ Dark/light mode support via command-line arguments
+- ✅ Feature-based file organization
 
 ### UI Components
 
 - ✅ Main window with central editor widget
+- ✅ Menu bar with File and Help menus
+- ✅ Menu actions with icons, shortcuts, and tooltips
 - ✅ Basic docking system implementation
 - ✅ Tab management (closeable tabs, drag-to-undock)
 - ✅ Title bar management for tabbed widgets
@@ -121,6 +124,8 @@ The project started with a focus on creating a minimal, fast-loading editor with
 ### Architectural Refinements
 
 - **Declarative Widget System**: Evolved to simplify UI development with decorators and factory functions
+- **Declarative Menu System**: Extended the declarative approach to menus and actions
+- **Feature-based File Organization**: Implemented a Rails-inspired file structure that organizes code by feature
 - **Docking System**: Enhanced to provide a more modern tab-based interface
 - **Styling**: Moved to SCSS for better maintainability
 
