@@ -1,0 +1,63 @@
+## 🐍 Python Style Guide for AI Assistant
+
+### Imports
+- Important: I have an auto-save formatter which REMOVES all imports that are not used,
+  so please make sure to use all imports in the code before you save the file.
+- Imports should be added to the top of the file, never within functions or classes.
+
+### Typing
+- All functions and methods must use **explicit type hints** on parameters and return types.
+- **Never** use `Any` or `Unknown`.
+- **Never** create type aliases for primitives (e.g. `UserId = str` is disallowed).
+- Use **type inference** for local variables where types are obvious.
+- Use `X | Y` instead of `Union[X, Y]`, and `str | None` instead of `Optional[str]`.
+
+### Data Modeling
+- Use `@dataclass` for small value types. Mutability is preferred (`frozen=False` by default).
+- Prefer `list`, `dict`, etc. **Always use built-in generics** (e.g. `list[str]`, not `List[str]`).
+
+### Interfaces and Class Design
+- Use `ABC` to define interfaces. Prefix all ABCs with `I`, e.g. `class IShape(ABC)`.
+- All abstract methods must be explicitly marked with `@abstractmethod`.
+- Prefer `@dataclass` for concrete implementations when possible.
+
+### Method Visibility
+- Methods not used externally should be private (prefix with `_`).
+- All helper or internal methods should start with `_`.
+
+### Logging
+- Use the `logging` module. Add logging where helpful for tracing logic or state.
+
+### Python Version
+- Use **Python 3.13+**. Use modern syntax everywhere.
+
+---
+
+### ✅ Example
+
+```python
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+class IAnimal(ABC):
+    @abstractmethod
+    def speak(self) -> str: ...
+
+@dataclass
+class Dog(IAnimal):
+    name: str
+
+    def speak(self) -> str:
+        msg = f"{self.name} says woof"
+        logging.info(msg)
+        return msg
+
+def greet(animal: IAnimal) -> str:
+    return animal.speak()
+
+dog = Dog(name="Fido")
+print(greet(dog))
+```
