@@ -101,6 +101,8 @@ class TextDocument(IDocument):
             return True
         except Exception:
             # Log the error
+            # Keep the document marked as modified
+            self._is_modified = True
             return False
 
     @override
