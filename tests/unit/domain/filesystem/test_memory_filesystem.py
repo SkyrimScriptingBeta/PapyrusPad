@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime
+from assertpy import assert_that
 
 from PapyrusPad.domain.filesystem.filesystem_memory import MemoryFileSystem
 
@@ -12,10 +13,10 @@ class TestMemoryFileSystem:
     def test_init(self) -> None:
         """Test that the filesystem is initialized with a root directory."""
         fs = MemoryFileSystem()
-        assert fs.directory_exists("/")
+        assert_that(fs.directory_exists("/")).is_true()
         dir_info = fs.get_directory_info("/")
         assert dir_info is not None
-        assert dir_info.name == "/"
+        assert_that(dir_info.name).is_equal_to("/")
 
     def test_write_and_read_text(self) -> None:
         """Test writing and reading text from a file."""
@@ -24,18 +25,18 @@ class TestMemoryFileSystem:
         fs.write_text("/test.txt", content)
 
         # Check that the file exists
-        assert fs.file_exists("/test.txt")
+        assert_that(fs.file_exists("/test.txt")).is_true()
 
         # Check that we can read the content
-        assert fs.read_text("/test.txt") == content
+        assert_that(fs.read_text("/test.txt")).is_equal_to(content)
 
         # Check file info
         file_info = fs.get_file_info("/test.txt")
         assert file_info is not None
-        assert file_info.name == "test.txt"
-        assert file_info.extension == "txt"
-        assert file_info.size == len(content)
-        assert isinstance(file_info.last_modified, datetime)
+        assert_that(file_info.name).is_equal_to("test.txt")
+        assert_that(file_info.extension).is_equal_to("txt")
+        assert_that(file_info.size).is_equal_to(len(content))
+        assert_that(file_info.last_modified).is_instance_of(datetime)
 
     def test_write_to_nonexistent_directory(self) -> None:
         """Test writing to a file in a directory that doesn't exist yet."""
@@ -44,14 +45,14 @@ class TestMemoryFileSystem:
         fs.write_text("/dir1/dir2/test.txt", content)
 
         # Check that the directories were created
-        assert fs.directory_exists("/dir1")
-        assert fs.directory_exists("/dir1/dir2")
+        assert_that(fs.directory_exists("/dir1")).is_true()
+        assert_that(fs.directory_exists("/dir1/dir2")).is_true()
 
         # Check that the file exists
-        assert fs.file_exists("/dir1/dir2/test.txt")
+        assert_that(fs.file_exists("/dir1/dir2/test.txt")).is_true()
 
         # Check that we can read the content
-        assert fs.read_text("/dir1/dir2/test.txt") == content
+        assert_that(fs.read_text("/dir1/dir2/test.txt")).is_equal_to(content)
 
     def test_read_nonexistent_file(self) -> None:
         """Test reading a file that doesn't exist."""
@@ -65,16 +66,16 @@ class TestMemoryFileSystem:
         fs.write_text("/test.txt", "Hello, world!")
 
         # Check that the file exists
-        assert fs.file_exists("/test.txt")
+        assert_that(fs.file_exists("/test.txt")).is_true()
 
         # Delete the file
-        assert fs.delete_file("/test.txt") is True
+        assert_that(fs.delete_file("/test.txt")).is_true()
 
         # Check that the file no longer exists
-        assert not fs.file_exists("/test.txt")
+        assert_that(fs.file_exists("/test.txt")).is_false()
 
         # Try to delete a file that doesn't exist
-        assert fs.delete_file("/nonexistent.txt") is False
+        assert_that(fs.delete_file("/nonexistent.txt")).is_false()
 
     def test_list_files(self) -> None:
         """Test listing files in a directory."""
@@ -85,18 +86,17 @@ class TestMemoryFileSystem:
 
         # List files in /dir
         files = fs.list_files("/dir")
-        assert len(files) == 2
-        assert any(f.name == "file1.txt" for f in files)
-        assert any(f.name == "file2.txt" for f in files)
+        assert_that(files).is_length(2)
+        assert_that(files).extracting("name").contains("file1.txt", "file2.txt")
 
         # List files in /dir/subdir
         files = fs.list_files("/dir/subdir")
-        assert len(files) == 1
-        assert files[0].name == "file3.txt"
+        assert_that(files).is_length(1)
+        assert_that(files[0].name).is_equal_to("file3.txt")
 
         # List files in a directory that doesn't exist
         files = fs.list_files("/nonexistent")
-        assert len(files) == 0
+        assert_that(files).is_empty()
 
     def test_list_dirs(self) -> None:
         """Test listing subdirectories in a directory."""
@@ -107,40 +107,39 @@ class TestMemoryFileSystem:
 
         # List directories in /dir
         dirs = fs.list_dirs("/dir")
-        assert len(dirs) == 2
-        assert any(d.name == "subdir1" for d in dirs)
-        assert any(d.name == "subdir2" for d in dirs)
+        assert_that(dirs).is_length(2)
+        assert_that(dirs).extracting("name").contains("subdir1", "subdir2")
 
         # List directories in /dir/subdir1
         dirs = fs.list_dirs("/dir/subdir1")
-        assert len(dirs) == 1
-        assert dirs[0].name == "subsubdir"
+        assert_that(dirs).is_length(1)
+        assert_that(dirs[0].name).is_equal_to("subsubdir")
 
         # List directories in a directory that doesn't exist
         dirs = fs.list_dirs("/nonexistent")
-        assert len(dirs) == 0
+        assert_that(dirs).is_empty()
 
     def test_create_directory(self) -> None:
         """Test creating a directory."""
         fs = MemoryFileSystem()
 
         # Create a directory
-        assert fs.create_directory("/dir") is True
-        assert fs.directory_exists("/dir")
+        assert_that(fs.create_directory("/dir")).is_true()
+        assert_that(fs.directory_exists("/dir")).is_true()
 
         # Create a nested directory
-        assert fs.create_directory("/dir/subdir") is True
-        assert fs.directory_exists("/dir/subdir")
+        assert_that(fs.create_directory("/dir/subdir")).is_true()
+        assert_that(fs.directory_exists("/dir/subdir")).is_true()
 
         # Create a directory that already exists
-        assert fs.create_directory("/dir") is True
+        assert_that(fs.create_directory("/dir")).is_true()
 
         # Create a deeply nested directory
-        assert fs.create_directory("/a/b/c/d") is True
-        assert fs.directory_exists("/a")
-        assert fs.directory_exists("/a/b")
-        assert fs.directory_exists("/a/b/c")
-        assert fs.directory_exists("/a/b/c/d")
+        assert_that(fs.create_directory("/a/b/c/d")).is_true()
+        assert_that(fs.directory_exists("/a")).is_true()
+        assert_that(fs.directory_exists("/a/b")).is_true()
+        assert_that(fs.directory_exists("/a/b/c")).is_true()
+        assert_that(fs.directory_exists("/a/b/c/d")).is_true()
 
     def test_delete_directory(self) -> None:
         """Test deleting a directory."""
@@ -149,71 +148,71 @@ class TestMemoryFileSystem:
         fs.write_text("/dir/file.txt", "Hello")
 
         # Try to delete a non-empty directory without recursive flag
-        assert fs.delete_directory("/dir") is False
-        assert fs.directory_exists("/dir")
+        assert_that(fs.delete_directory("/dir")).is_false()
+        assert_that(fs.directory_exists("/dir")).is_true()
 
         # Delete a non-empty directory with recursive flag
-        assert fs.delete_directory("/dir", recursive=True) is True
-        assert not fs.directory_exists("/dir")
-        assert not fs.file_exists("/dir/file.txt")
-        assert not fs.directory_exists("/dir/subdir")
+        assert_that(fs.delete_directory("/dir", recursive=True)).is_true()
+        assert_that(fs.directory_exists("/dir")).is_false()
+        assert_that(fs.file_exists("/dir/file.txt")).is_false()
+        assert_that(fs.directory_exists("/dir/subdir")).is_false()
 
         # Delete an empty directory
         fs.create_directory("/empty")
-        assert fs.delete_directory("/empty") is True
-        assert not fs.directory_exists("/empty")
+        assert_that(fs.delete_directory("/empty")).is_true()
+        assert_that(fs.directory_exists("/empty")).is_false()
 
         # Try to delete a directory that doesn't exist
-        assert fs.delete_directory("/nonexistent") is False
+        assert_that(fs.delete_directory("/nonexistent")).is_false()
 
     def test_get_parent_directory(self) -> None:
         """Test getting the parent directory of a path."""
         fs = MemoryFileSystem()
 
         # Get parent of a file
-        assert fs.get_parent_directory("/dir/file.txt") == "/dir"
+        assert_that(fs.get_parent_directory("/dir/file.txt")).is_equal_to("/dir")
 
         # Get parent of a directory
-        assert fs.get_parent_directory("/dir/subdir") == "/dir"
+        assert_that(fs.get_parent_directory("/dir/subdir")).is_equal_to("/dir")
 
         # Get parent of a root-level file
-        assert fs.get_parent_directory("/file.txt") == "/"
+        assert_that(fs.get_parent_directory("/file.txt")).is_equal_to("/")
 
         # Get parent of root
-        assert fs.get_parent_directory("/") is None
+        assert_that(fs.get_parent_directory("/")).is_none()
 
     def test_join_paths(self) -> None:
         """Test joining path components."""
         fs = MemoryFileSystem()
 
         # Join simple paths
-        assert fs.join_paths("dir", "file.txt") == "dir/file.txt"
+        assert_that(fs.join_paths("dir", "file.txt")).is_equal_to("dir/file.txt")
 
         # Join with leading slash
-        assert fs.join_paths("/dir", "file.txt") == "/dir/file.txt"
+        assert_that(fs.join_paths("/dir", "file.txt")).is_equal_to("/dir/file.txt")
 
         # Join multiple components
-        assert fs.join_paths("/dir", "subdir", "file.txt") == "/dir/subdir/file.txt"
+        assert_that(fs.join_paths("/dir", "subdir", "file.txt")).is_equal_to("/dir/subdir/file.txt")
 
         # Join with empty components
-        assert fs.join_paths("/dir", "", "file.txt") == "/dir/file.txt"
+        assert_that(fs.join_paths("/dir", "", "file.txt")).is_equal_to("/dir/file.txt")
 
     def test_normalize_path(self) -> None:
         """Test normalizing paths."""
         fs = MemoryFileSystem()
 
         # Normalize simple path
-        assert fs.normalize_path("/dir/file.txt") == "/dir/file.txt"
+        assert_that(fs.normalize_path("/dir/file.txt")).is_equal_to("/dir/file.txt")
 
         # Normalize path with double slashes
-        assert fs.normalize_path("/dir//file.txt") == "/dir/file.txt"
+        assert_that(fs.normalize_path("/dir//file.txt")).is_equal_to("/dir/file.txt")
 
         # Normalize path with trailing slash
-        assert fs.normalize_path("/dir/") == "/dir"
+        assert_that(fs.normalize_path("/dir/")).is_equal_to("/dir")
 
         # Normalize path with . and ..
-        assert fs.normalize_path("/dir/./file.txt") == "/dir/file.txt"
-        assert fs.normalize_path("/dir/../file.txt") == "/file.txt"
+        assert_that(fs.normalize_path("/dir/./file.txt")).is_equal_to("/dir/file.txt")
+        assert_that(fs.normalize_path("/dir/../file.txt")).is_equal_to("/file.txt")
 
         # Normalize Windows-style path
-        assert fs.normalize_path("C:\\dir\\file.txt") == "C:/dir/file.txt"
+        assert_that(fs.normalize_path("C:\\dir\\file.txt")).is_equal_to("C:/dir/file.txt")
