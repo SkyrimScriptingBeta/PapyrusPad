@@ -1,10 +1,9 @@
 from typing import override
 from PySide6.QtGui import QAction
-from PapyrusPad.app.application import Application
-from PapyrusPad.app.dependencies import DI
+from PapyrusPad.app.dependencies import Depends
 from qt_helpers.action import action
 from qt_helpers.interfaces import IAction
-from PySide6.QtWidgets import QMessageBox, QStyle
+from PySide6.QtWidgets import QApplication, QMessageBox, QStyle
 
 
 # And this is an alternative to attributes, pass everything to the decorator :)
@@ -12,7 +11,7 @@ from PySide6.QtWidgets import QMessageBox, QStyle
 class ShowAboutAction(QAction, IAction):
 
     @override
-    def action(self, checked: bool, app: Application = DI.application):
+    def action(self, checked: bool, app: QApplication = Depends[QApplication]):
         # TODO: make this a widget
         # show a popup with the app name / version
         msg = QMessageBox()
