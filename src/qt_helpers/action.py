@@ -4,8 +4,9 @@ from typing import Any, Callable, Type, TypeVar, dataclass_transform
 from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import QStyle
 
-from PapyrusPad.app.app_instance import app
+from PapyrusPad import dependencies
 from qt_helpers.mixins import ActionMixin
+from qt_helpers.signal_typing import as_bool_handler
 
 T = TypeVar("T", bound=QAction)
 
@@ -63,6 +64,8 @@ def action(
                 self.setStatusTip(tooltip)
                 self._tooltip = tooltip
 
+            app = dependencies.container.application()
+
             if self._icon:
                 if isinstance(self._icon, str):
                     self.setIcon(QIcon(self._icon))
@@ -79,7 +82,7 @@ def action(
                     self.setIcon(app.style().standardIcon(icon))
                 self._icon = icon
 
-            self.triggered.connect(self.action)
+            self.triggered.connect(as_bool_handler(lambda checked: self.action(checked)))
 
         # Replace the init method
         new_cls.__init__ = new_init

@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMenu
-from PapyrusPad.app.actions.show_about_action import ShowAboutAction
+from PapyrusPad.actions.show_about_action import ShowAboutAction
 from qt_helpers.make import make
 from qt_helpers.menu import menu
 

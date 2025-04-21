@@ -1,9 +1,9 @@
 from typing import override
 from PySide6.QtWidgets import QMainWindow
 
-from PapyrusPad.app.widgets.editor_widget import EditorWidget
-from PapyrusPad.app.menus.file_menu import FileMenu
-from PapyrusPad.app.menus.help_menu import HelpMenu
+from PapyrusPad.widgets.editor_widget import EditorWidget
+from PapyrusPad.menus.file_menu import FileMenu
+from PapyrusPad.menus.help_menu import HelpMenu
 from qt_helpers.dock_manager import IDockManager, get_dock_manager
 from qt_helpers.interfaces import IWidget
 from qt_helpers.make import make, make_later

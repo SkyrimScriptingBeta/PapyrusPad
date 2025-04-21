@@ -17,19 +17,19 @@ requires-python = "<3.14,>=3.12"
 version = "0.0.1"
 
 [tool.poetry.scripts]
-app = "PapyrusPad.app.__main__:main"
+app = "PapyrusPad.__main__:main"
 
 [tool.poe.tasks]
 dev = "poetry run app --dev"
 dev-dark = "poetry run app --dev --dark"
 dev-debug = "poetry run app --dev --debug"
 dev-light = "poetry run app --dev --light"
-exe = "pyinstaller --onefile --windowed --noconfirm --name \"Papyrus Pad\" --icon resources/images/icon.ico src/PapyrusPad/app/__main__.py"
-exe-dir = "pyinstaller --onedir --windowed --noconfirm --name \"Papyrus Pad\" --icon resources/images/icon.ico src/PapyrusPad/app/__main__.py"
+exe = "pyinstaller --onefile --windowed --noconfirm --name \"Papyrus Pad\" --icon resources/images/icon.ico src/PapyrusPad/__main__.py"
+exe-dir = "pyinstaller --onedir --windowed --noconfirm --name \"Papyrus Pad\" --icon resources/images/icon.ico src/PapyrusPad/__main__.py"
 prod = "poetry run app"
 prod-dark = "poetry run app --dark"
 prod-light = "poetry run app --light"
-qrc = "pyside6-rcc -o src/PapyrusPad/app/qrc_resources.py resources/resources.qrc"
+qrc = "pyside6-rcc -o src/PapyrusPad/qrc_resources.py resources/resources.qrc"
 
 [tool.poetry.group.dev.dependencies]
 debugpy = "^1.8.14"

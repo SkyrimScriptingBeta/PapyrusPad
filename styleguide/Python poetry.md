@@ -18,7 +18,7 @@ poetry run app --dev
 #### Scripts (pyproject.toml)
 ```toml
 [tool.poetry.scripts]
-app = "PapyrusPad.app.__main__:main"
+app = "PapyrusPad.__main__:main"
 ```
 - This defines the entrypoint for the application as `poetry run app`
 
@@ -57,7 +57,7 @@ poe qrc
 hello = "echo Hello world"
 
 # Python script
-start.script = "PapyrusPad.app.__main__:main"
+start.script = "PapyrusPad.__main__:main"
 
 # Shell (explicit)
 custom.shell = "some_shell_command --arg1 value"

@@ -1,17 +1,21 @@
 from typing import override
 from PySide6.QtGui import QAction
+from dependency_injector.wiring import Provide, inject
+from PapyrusPad import dependencies
+from PapyrusPad.app.application import Application
 from qt_helpers.action import action
 from qt_helpers.interfaces import IAction
 from PySide6.QtWidgets import QMessageBox, QStyle
-from PapyrusPad.app.app_instance import app
 
 
 # And this is an alternative to attributes, pass everything to the decorator :)
 @action("About", tooltip="Show information about the application", icon=QStyle.StandardPixmap.SP_MessageBoxQuestion)
 class ShowAboutAction(QAction, IAction):
 
+    @inject
     @override
-    def action(self, checked: bool):
+    def action(self, checked: bool, app: Application = Provide[dependencies.Container.application]):
+        # app = dependencies.container.application()
         # TODO: make this a widget
         # show a popup with the app name / version
         msg = QMessageBox()
