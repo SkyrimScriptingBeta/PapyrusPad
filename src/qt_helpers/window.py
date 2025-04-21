@@ -1,5 +1,5 @@
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Callable, Type, TypeVar
+from typing import Any, Callable, Type, TypeVar, dataclass_transform
 
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QBoxLayout, QMainWindow
@@ -11,6 +11,7 @@ T = TypeVar("T", bound=QMainWindow)
 Direction = QBoxLayout.Direction
 
 
+@dataclass_transform()
 def window(
     name: str | None = None,
     classes: list[str] | None = None,

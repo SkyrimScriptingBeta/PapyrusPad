@@ -1,5 +1,5 @@
 from dataclasses import dataclass, fields, is_dataclass
-from typing import Any, Callable, Type, TypeVar
+from typing import Any, Callable, Type, TypeVar, dataclass_transform
 
 from PySide6.QtWidgets import QBoxLayout, QWidget
 
@@ -12,6 +12,7 @@ T = TypeVar("T", bound=QWidget)
 Direction = QBoxLayout.Direction
 
 
+@dataclass_transform()
 def widget(
     name: str | None = None,
     classes: list[str] | None = None,
@@ -87,9 +88,7 @@ def widget(
                 if add_widgets_to_layout:
                     # Get fields from the dataclass
                     for field in fields(self.__class__):
-                        if isinstance(field.type, type) and issubclass(
-                            field.type, QWidget
-                        ):
+                        if isinstance(field.type, type) and issubclass(field.type, QWidget):
                             widget_instance = getattr(self, field.name, None)
                             if widget_instance is not None:
                                 self.layout.addWidget(widget_instance)

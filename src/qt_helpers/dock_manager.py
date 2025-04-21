@@ -1,15 +1,11 @@
 from abc import ABC
 from dataclasses import dataclass, field
-from typing import Optional, cast, List, TypeVar, override, Any, Callable
+from typing import Optional, cast, override
 from PySide6.QtWidgets import (
     QMainWindow,
     QDockWidget,
     QTabWidget,
-    QTextEdit,
     QWidget,
-    QVBoxLayout,
-    QLabel,
-    QPushButton,
     QTabBar,
 )
 from PySide6.QtGui import QMouseEvent
@@ -17,36 +13,8 @@ from PySide6.QtCore import QEvent, Qt, QPoint, QObject
 
 from qt_helpers.signal_typing import as_bool_handler
 
-
-# Type aliases for better readability
-DockList = List[QDockWidget]
-T = TypeVar("T")
-
-# Type definition for Qt signal handlers to satisfy Pylance
-# This is a workaround for Qt's signal-slot typing issues
-SignalHandler = Callable[[Any], None]
-
 # TODO: after we set a widget as floating, from dragging from the tab bar,
 # after it becomes floating perform a "click" on the title bar of the widget so we can keep dragging it, if possible
-
-
-class EditorWidget(QWidget):
-    def __init__(self, filename: str) -> None:
-        super().__init__()
-        layout = QVBoxLayout(self)
-        layout.addWidget(QLabel(f"<b>{filename}</b>"))
-        layout.addWidget(QTextEdit(f"// Editing {filename}"))
-        self.setLayout(layout)
-
-
-class PanelWidget(QWidget):
-    def __init__(self, title: str) -> None:
-        super().__init__()
-        layout = QVBoxLayout(self)
-        layout.addWidget(QLabel(f"<h3>{title}</h3>"))
-        layout.addWidget(QPushButton(f"{title} Button"))
-        layout.addStretch()
-        self.setLayout(layout)
 
 
 class IDockManager(ABC):
@@ -188,3 +156,8 @@ class DockManager(IDockManager):
                     w.setTitleBarWidget(hidden)
             else:
                 w.setTitleBarWidget(None)  # type: ignore
+
+
+def get_dock_manager(main_window: QMainWindow) -> IDockManager:
+    """Get the Dock Manager for the given QMainWindow."""
+    return DockManager(main_window)
