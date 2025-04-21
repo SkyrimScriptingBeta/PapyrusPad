@@ -21,3 +21,10 @@ class IWidget:
     @abstractmethod
     def setup_signals(self) -> None:
         pass
+
+
+class IAction:
+    @abstractmethod
+    def action(self) -> None:
+        """Defines the default action behavior for QAction instances."""
+        pass

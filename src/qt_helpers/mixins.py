@@ -46,3 +46,12 @@ class MainWindowMixin(SetupFunctionsMixin):
     def __init__(self):
         super().__init__()
         self.central_widget = None
+
+
+class MenuMixin:
+    """
+    Mixin class to provide setup functions for a PyQt/PySide menus.
+    """
+
+    def __init__(self):
+        super().__init__()

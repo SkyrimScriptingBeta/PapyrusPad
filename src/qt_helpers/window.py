@@ -2,7 +2,7 @@ from dataclasses import dataclass, is_dataclass
 from typing import Any, Callable, Type, TypeVar, dataclass_transform
 
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QBoxLayout, QMainWindow
+from PySide6.QtWidgets import QBoxLayout, QMainWindow, QMenu
 
 from qt_helpers.mixins import MainWindowMixin
 
@@ -71,6 +71,11 @@ def window(
             # Set central widget if available
             if hasattr(self, "central_widget") and self.central_widget is not None:
                 self.setCentralWidget(self.central_widget)
+
+            # Loop through dataclass fields and add QMenu instances as menus
+            for field_name, field_value in self.__dataclass_fields__.items():
+                if isinstance(getattr(self, field_name, None), QMenu):
+                    self.menuBar().addMenu(getattr(self, field_name))
 
         # Replace the init method
         new_cls.__init__ = new_init
