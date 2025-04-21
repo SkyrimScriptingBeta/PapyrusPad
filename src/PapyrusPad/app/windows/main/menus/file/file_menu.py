@@ -4,6 +4,9 @@ from qt_helpers.menu import menu
 from PapyrusPad.app.windows.main.menus.file.actions.quit import QuitAction
 
 
-@menu(name="File")
+@menu()
 class FileMenu(QMenu):
+    # This is one way to set the menu text
+    _text = "File"
+
     quit_action: QuitAction = make(QuitAction)

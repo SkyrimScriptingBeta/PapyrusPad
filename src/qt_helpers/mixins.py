@@ -38,8 +38,14 @@ class MainWindowMixin(SetupFunctionsMixin):
 
 
 class MenuMixin:
+    _text: str | None = None
+
     def __init__(self):
         super().__init__()
+
+    # an idea for later maybe!
+    # def on_open(self) -> None:
+    #     pass
 
 
 class ActionMixin:

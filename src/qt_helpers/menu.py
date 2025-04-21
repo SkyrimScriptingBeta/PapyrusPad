@@ -10,7 +10,7 @@ T = TypeVar("T", bound=QMenu)
 
 
 @dataclass_transform()
-def menu(name: str | None = None) -> Callable[[Type[T]], Type[T]]:
+def menu(text: str | None = None) -> Callable[[Type[T]], Type[T]]:
     def decorator(cls: Type[T]) -> Type[T]:
         print(f"Decorating {cls.__name__} with menu mixin")
 
@@ -49,9 +49,12 @@ def menu(name: str | None = None) -> Callable[[Type[T]], Type[T]]:
                 elif isinstance(field_instance, QAction):
                     self.addAction(field_instance)
 
-            # Set the menu title if provided
-            if name:
-                self.setTitle(name)
+            # Set the menu title, prioritizing _text from the mixin
+            if self._text:
+                self.setTitle(self._text)
+            elif text:
+                self.setTitle(text)
+                self._text = text
 
         # Replace the init method
         new_cls.__init__ = new_init

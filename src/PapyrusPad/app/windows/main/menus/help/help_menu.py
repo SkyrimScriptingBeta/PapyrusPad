@@ -4,6 +4,7 @@ from qt_helpers.make import make
 from qt_helpers.menu import menu
 
 
-@menu(name="Help")
+# This is another way to set the menu text, you can pass everything to the decorator
+@menu(text="Help")
 class HelpMenu(QMenu):
     about_action: AboutAction = make(AboutAction)
