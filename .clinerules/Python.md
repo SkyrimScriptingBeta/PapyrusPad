@@ -21,6 +21,8 @@
 
 ### Data Modeling
 - Use `@dataclass` for small value types. Mutability is preferred (`frozen=False` by default).
+- Consider `frozen=True` for immutable value types when appropriate.
+- Prefer mutable classes over immutable ones for domain objects and services.
 - Prefer `list`, `dict`, etc. **Always use built-in generics** (e.g. `list[str]`, not `List[str]`).
 
 ### Interfaces and Class Design
