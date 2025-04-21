@@ -1,7 +1,7 @@
 from typing import override
 from PySide6.QtGui import QAction
-from dependency_injector.wiring import inject
 from PapyrusPad.app.application import Application
+from PapyrusPad.app.dependencies import DI
 from qt_helpers.action import action
 from qt_helpers.interfaces import IAction
 from PySide6.QtWidgets import QMessageBox, QStyle
@@ -11,17 +11,12 @@ from PySide6.QtWidgets import QMessageBox, QStyle
 @action("About", tooltip="Show information about the application", icon=QStyle.StandardPixmap.SP_MessageBoxQuestion)
 class ShowAboutAction(QAction, IAction):
 
-    @inject
     @override
-    def action(self, checked: bool, app: Application | None = None):
-        # app = dependencies.container.application()
+    def action(self, checked: bool, app: Application = DI.application):
         # TODO: make this a widget
         # show a popup with the app name / version
         msg = QMessageBox()
-        if app:
-            msg.setText(f"{app.applicationName()} {app.applicationVersion()}")
-        else:
-            msg.setText("NO APP")
+        msg.setText(f"{app.applicationName()} {app.applicationVersion()}")
         msg.setInformativeText("This is a simple text editor.")
         msg.setWindowTitle("About")
         msg.setStandardButtons(QMessageBox.StandardButton.Ok)
