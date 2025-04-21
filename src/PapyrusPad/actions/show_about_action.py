@@ -1,7 +1,6 @@
 from typing import override
 from PySide6.QtGui import QAction
-from dependency_injector.wiring import Provide, inject
-from PapyrusPad import dependencies
+from dependency_injector.wiring import inject
 from PapyrusPad.app.application import Application
 from qt_helpers.action import action
 from qt_helpers.interfaces import IAction
@@ -14,12 +13,15 @@ class ShowAboutAction(QAction, IAction):
 
     @inject
     @override
-    def action(self, checked: bool, app: Application = Provide[dependencies.Container.application]):
+    def action(self, checked: bool, app: Application | None = None):
         # app = dependencies.container.application()
         # TODO: make this a widget
         # show a popup with the app name / version
         msg = QMessageBox()
-        msg.setText(f"{app.applicationName()} {app.applicationVersion()}")
+        if app:
+            msg.setText(f"{app.applicationName()} {app.applicationVersion()}")
+        else:
+            msg.setText("NO APP")
         msg.setInformativeText("This is a simple text editor.")
         msg.setWindowTitle("About")
         msg.setStandardButtons(QMessageBox.StandardButton.Ok)

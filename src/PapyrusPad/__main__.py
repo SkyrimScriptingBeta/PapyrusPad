@@ -1,5 +1,9 @@
 import os
 import sys
+import PapyrusPad.app.dependencies  # Import from __main__ so DI can wire up the whole app's modules
+
+# Don't remove this import :)
+DEPS = PapyrusPad.app.dependencies
 
 
 def main():
