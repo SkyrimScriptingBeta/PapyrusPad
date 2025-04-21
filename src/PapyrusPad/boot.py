@@ -1,4 +1,4 @@
-from PapyrusPad.dependencies import Depends
+from PapyrusPad.di.depends import Depends
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 
 

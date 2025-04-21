@@ -1,9 +1,6 @@
 import os
 import sys
-import PapyrusPad.dependencies  # Import from __main__ so DI can wire up the whole app's modules
-
-# Don't remove these imports :)
-DEPS_CONTAINER = PapyrusPad.dependencies
+from PapyrusPad.di.container_registry import ContainerRegistry
 
 
 def main():
@@ -13,6 +10,20 @@ def main():
         debugpy.listen(("localhost", 5678))
         print("⏳ Waiting for VS Code debugger to attach on port 5678...")
         debugpy.wait_for_client()
+
+    # Set up the appropriate container based on arguments
+    if "--dev" in sys.argv:
+        from PapyrusPad.di.container_dev import DevelopmentContainer
+
+        ContainerRegistry.set_container(DevelopmentContainer())
+    else:
+        from PapyrusPad.di.container_prod import ProductionContainer
+
+        ContainerRegistry.set_container(ProductionContainer())
+
+    # The container is now set up and ready to be used by the application
+    # No need to import PapyrusPad.di.depends here as the container registry
+    # already initializes everything we need
 
     if "--light" in sys.argv:
         os.environ["QT_QPA_PLATFORM"] = "windows:darkmode=0"

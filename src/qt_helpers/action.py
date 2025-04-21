@@ -4,7 +4,7 @@ from typing import Any, Callable, Type, TypeVar, dataclass_transform
 from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import QStyle
 
-from PapyrusPad import dependencies
+from PapyrusPad.di.container_registry import ContainerRegistry
 from qt_helpers.mixins import ActionMixin
 from qt_helpers.signal_typing import as_bool_handler
 
@@ -64,7 +64,7 @@ def action(
                 self.setStatusTip(tooltip)
                 self._tooltip = tooltip
 
-            app = dependencies.container.application()
+            app = ContainerRegistry.get_container().application()
 
             if self._icon:
                 if isinstance(self._icon, str):

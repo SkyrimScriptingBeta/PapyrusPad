@@ -2,7 +2,8 @@ from typing import override
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QMainWindow
 
-from PapyrusPad.dependencies import container
+from PapyrusPad.di.depends import Depends
+from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 from PapyrusPad.menus.file_menu import FileMenu
 from PapyrusPad.menus.help_menu import HelpMenu
 from PapyrusPad.widgets.editor_widget import EditorWidget
@@ -22,8 +23,7 @@ class MainWindow(QMainWindow, IWidget):
     help_menu: HelpMenu = make(HelpMenu)
 
     @override
-    def setup(self):
-        document_collection = container.document_collection()
+    def setup(self, document_collection: IDocumentCollection = Depends[IDocumentCollection]):
         self.resize(1024, 1024)
         self.dock_manager = get_dock_manager(self)
 

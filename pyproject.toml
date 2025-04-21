@@ -8,6 +8,7 @@ dependencies = [
   "pylspclient (>=0.1.2,<0.2.0)",
   "dependency-injector (>=4.46.0,<5.0.0)",
   "libsass (>=0.23.0,<0.24.0)",
+  "pytest-mock (>=3.14.0,<4.0.0)",
 ]
 description = "Editor for the Papyrus scripting language"
 license = {text = "0BSD"}
