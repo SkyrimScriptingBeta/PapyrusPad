@@ -4,13 +4,13 @@ from typing import Optional, cast, List, TypeVar, override, Any, Callable
 from PySide6.QtWidgets import (
     QMainWindow,
     QDockWidget,
+    QTabWidget,
     QTextEdit,
     QWidget,
     QVBoxLayout,
     QLabel,
     QPushButton,
     QTabBar,
-    QTabWidget,
 )
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtCore import QEvent, Qt, QPoint, QObject
@@ -87,6 +87,7 @@ class DockManager(IDockManager):
 
     def __post_init__(self) -> None:
         self.main_window.setDockNestingEnabled(True)
+        self.main_window.setTabPosition(Qt.DockWidgetArea.AllDockWidgetAreas, QTabWidget.TabPosition.North)
 
     # @override
     def _make_dock(
@@ -171,8 +172,6 @@ class IDEExampleWindow(QMainWindow):
         editor_one_dock.raise_()
         self._update_title_bar_for(editor_one_dock)
 
-        self._make_tabs_closable()
-
         # Type ignore for resizeDocks as it's a Qt API with complex typing
         self.resizeDocks(  # type: ignore
             [left_panel_dock, editor_one_dock, right_panel_dock],
@@ -189,9 +188,6 @@ class IDEExampleWindow(QMainWindow):
         dock.setVisible(visible)
         if visible:
             self._update_title_bar_for(dock)
-
-    def _make_tabs_closable(self) -> None:
-        self.setTabPosition(Qt.DockWidgetArea.AllDockWidgetAreas, QTabWidget.TabPosition.North)
 
     @override
     def event(self, event: QEvent) -> bool:
