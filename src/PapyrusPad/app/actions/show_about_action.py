@@ -8,10 +8,11 @@ from PapyrusPad.app.app_instance import app
 
 # And this is an alternative to attributes, pass everything to the decorator :)
 @action("About", tooltip="Show information about the application", icon=QStyle.StandardPixmap.SP_MessageBoxQuestion)
-class AboutAction(QAction, IAction):
+class ShowAboutAction(QAction, IAction):
 
     @override
     def action(self, checked: bool):
+        # TODO: make this a widget
         # show a popup with the app name / version
         msg = QMessageBox()
         msg.setText(f"{app.applicationName()} {app.applicationVersion()}")

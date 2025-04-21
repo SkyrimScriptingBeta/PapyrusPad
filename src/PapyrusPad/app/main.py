@@ -1,5 +1,5 @@
 from PySide6.QtGui import QPixmap
-from PapyrusPad.app.windows.main.main_window import MainWindow
+from PapyrusPad.app.windows.main_window import MainWindow
 from qt_helpers.fonts import load_fonts
 from PapyrusPad.app.qrc_resources import qt_resource_data
 from qt_helpers.run_app import run_app
