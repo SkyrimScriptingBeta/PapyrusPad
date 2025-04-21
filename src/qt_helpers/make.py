@@ -1,17 +1,11 @@
 from dataclasses import field
-from typing import Any, Callable, Generic, Protocol, Type, TypeVar
+from typing import Any, Callable, ParamSpec, Type, TypeVar
 
-# Define a generic type variable for any class
 T = TypeVar("T", covariant=True)
+P = ParamSpec("P")
 
 
-class Factory(Protocol, Generic[T]):
-    """Protocol for factory objects that can create instances."""
-
-    def __call__(self) -> T: ...
-
-
-def make[T](class_type: Type[T], *args: Any, **kwargs: Any) -> T:
+def make(class_type: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
     """
     Creates a factory for any object that can be used as a dataclass field default.
 
