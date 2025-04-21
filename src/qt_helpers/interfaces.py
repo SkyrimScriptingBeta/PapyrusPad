@@ -25,6 +25,6 @@ class IWidget:
 
 class IAction:
     @abstractmethod
-    def action(self) -> None:
+    def action(self, checked: bool) -> None:
         """Defines the default action behavior for QAction instances."""
         pass

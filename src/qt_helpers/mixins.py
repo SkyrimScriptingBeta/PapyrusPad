@@ -1,13 +1,10 @@
 from dataclasses import dataclass
-from PySide6.QtWidgets import QBoxLayout, QWidget
+from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtWidgets import QBoxLayout, QStyle, QWidget
 
 
 @dataclass
 class SetupFunctionsMixin:
-    """
-    Mixin class to provide setup functions for a PyQt/PySide application.
-    """
-
     def setup(self) -> None:
         pass
 
@@ -25,10 +22,6 @@ class SetupFunctionsMixin:
 
 
 class WidgetMixin(SetupFunctionsMixin):
-    """
-    Mixin class to provide setup functions for a PyQt/PySide widgets.
-    """
-
     layout: QBoxLayout | None
 
     def __init__(self):
@@ -37,10 +30,6 @@ class WidgetMixin(SetupFunctionsMixin):
 
 
 class MainWindowMixin(SetupFunctionsMixin):
-    """
-    Mixin class to provide setup functions for a PyQt/PySide main windows.
-    """
-
     central_widget: QWidget | None
 
     def __init__(self):
@@ -49,9 +38,18 @@ class MainWindowMixin(SetupFunctionsMixin):
 
 
 class MenuMixin:
-    """
-    Mixin class to provide setup functions for a PyQt/PySide menus.
-    """
+    def __init__(self):
+        super().__init__()
+
+
+class ActionMixin:
+    _text: str | None = None
+    _shortcut: str | None = None
+    _tooltip: str | None = None
+    _icon: str | QPixmap | QIcon | QStyle.StandardPixmap | None = None
 
     def __init__(self):
         super().__init__()
+
+    def action(self, checked: bool) -> None:
+        pass
