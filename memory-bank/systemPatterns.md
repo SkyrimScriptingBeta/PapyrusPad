@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-PapyrusPal follows a component-based architecture with a focus on extensibility through dockable panels. The application is built using Qt/PySide6 and leverages a custom declarative widget system to simplify UI development.
+PapyrusPad follows a component-based architecture with a focus on extensibility through dockable panels. The application is built using Qt/PySide6 and leverages a custom declarative widget system to simplify UI development.
 
 ## Core Architectural Patterns
 

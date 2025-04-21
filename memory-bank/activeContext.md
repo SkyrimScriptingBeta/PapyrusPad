@@ -2,7 +2,7 @@
 
 ## Current Work Focus
 
-The current focus of the PapyrusPal project is establishing the foundational architecture and UI framework. This includes:
+The current focus of the PapyrusPad project is establishing the foundational architecture and UI framework. This includes:
 
 1. **Core Application Structure**: Setting up the basic Qt/PySide6 application with a main window and central editor widget.
 2. **Declarative Widget System**: Developing a custom declarative approach to Qt widgets using decorators and factory functions.

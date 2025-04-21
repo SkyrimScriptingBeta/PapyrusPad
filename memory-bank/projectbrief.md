@@ -2,9 +2,9 @@ These features are DESIRED features and are not guaranteed to be implemented.
 
 Pretty much nothing is implemented yet except just setting up a Qt/PySide6 project.
 
-# PapyrusPal
+# PapyrusPad
 
-**PapyrusPal** is a lightweight, modern, and script-focused IDE for writing and managing Bethesda's Papyrus scripts, aimed primarily at **Skyrim** and **Fallout 4** modders. Think *Notepad.exe* with a hidden arsenal of power: toggleable, dockable panels that reveal a full development suite.
+**PapyrusPad** is a lightweight, modern, and script-focused IDE for writing and managing Bethesda's Papyrus scripts, aimed primarily at **Skyrim** and **Fallout 4** modders. Think *Notepad.exe* with a hidden arsenal of power: toggleable, dockable panels that reveal a full development suite.
 
 ## ✨ Features
 
@@ -15,7 +15,7 @@ Pretty much nothing is implemented yet except just setting up a Qt/PySide6 proje
 
 ## 🧠 Language Server Support
 
-PapyrusPal uses a **MIT-built LSP server** based on the excellent [Joel Day Papyrus Extension for VS Code](https://github.com/joelday/papyrus-lang).
+PapyrusPad uses a **MIT-built LSP server** based on the excellent [Joel Day Papyrus Extension for VS Code](https://github.com/joelday/papyrus-lang).
 
 - Integrates tightly with the official **Creation Kit compiler** and Papyrus metadata
 - Provides function signatures, definitions, symbol lookup, and tooltips
@@ -27,7 +27,7 @@ PapyrusPal uses a **MIT-built LSP server** based on the excellent [Joel Day Papy
 
 ## 🧩 Integration With Modding Tools
 
-PapyrusPal integrates with the following key modding tools and formats:
+PapyrusPad integrates with the following key modding tools and formats:
 
 - **Champollion** (MIT): For decompiling `.pex` to `.psc`
 - **bsarch** (MPL): For browsing and managing `.bsa` archives
@@ -61,7 +61,7 @@ PapyrusPal integrates with the following key modding tools and formats:
 
 ## 📜 License
 
-PapyrusPal is open source (license TBD) and integrates the following open-source tools:
+PapyrusPad is open source (license TBD) and integrates the following open-source tools:
 
 - Joel Day Papyrus LSP – MIT
 - Champollion – MIT
@@ -70,4 +70,4 @@ PapyrusPal is open source (license TBD) and integrates the following open-source
 
 ---
 
-**PapyrusPal**: A total Swiss Army knife for Papyrus scripting — lean, extensible, and tuned for serious modders.
+**PapyrusPad**: A total Swiss Army knife for Papyrus scripting — lean, extensible, and tuned for serious modders.

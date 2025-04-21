@@ -2,7 +2,7 @@
 
 ## Current Status
 
-PapyrusPal is in the early stages of development. The project has established its foundational architecture and basic UI framework, but most of the Papyrus-specific functionality is yet to be implemented.
+PapyrusPad is in the early stages of development. The project has established its foundational architecture and basic UI framework, but most of the Papyrus-specific functionality is yet to be implemented.
 
 ## What Works
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-PapyrusPal is designed to address the need for a modern, lightweight, and efficient development environment specifically tailored for Bethesda's Papyrus scripting language. It aims to provide a superior alternative to existing tools for Skyrim and Fallout 4 modders who work with Papyrus scripts.
+PapyrusPad is designed to address the need for a modern, lightweight, and efficient development environment specifically tailored for Bethesda's Papyrus scripting language. It aims to provide a superior alternative to existing tools for Skyrim and Fallout 4 modders who work with Papyrus scripts.
 
 ## Problems Solved
 
@@ -36,7 +36,7 @@ PapyrusPal is designed to address the need for a modern, lightweight, and effici
 
 ## Key Differentiators
 
-1. **Focused Purpose**: Unlike general-purpose editors with Papyrus plugins, PapyrusPal is built from the ground up for Papyrus development.
+1. **Focused Purpose**: Unlike general-purpose editors with Papyrus plugins, PapyrusPad is built from the ground up for Papyrus development.
 
 2. **Modding Ecosystem Integration**: Deep integration with mod managers and the broader modding workflow.
 
@@ -46,7 +46,7 @@ PapyrusPal is designed to address the need for a modern, lightweight, and effici
 
 ## Success Metrics
 
-1. **Adoption Rate**: Number of modders who choose PapyrusPal as their primary Papyrus editor.
+1. **Adoption Rate**: Number of modders who choose PapyrusPad as their primary Papyrus editor.
 
 2. **Workflow Efficiency**: Reduction in time needed to complete common Papyrus development tasks.
 
@@ -56,4 +56,4 @@ PapyrusPal is designed to address the need for a modern, lightweight, and effici
 
 ## Long-term Vision
 
-PapyrusPal aims to become the de facto standard for Papyrus script development, with potential expansion to support other Bethesda games and scripting languages. The long-term vision includes building a community of contributors who can help extend the tool with plugins and integrations, making it a central hub for script-focused mod development.
+PapyrusPad aims to become the de facto standard for Papyrus script development, with potential expansion to support other Bethesda games and scripting languages. The long-term vision includes building a community of contributors who can help extend the tool with plugins and integrations, making it a central hub for script-focused mod development.
