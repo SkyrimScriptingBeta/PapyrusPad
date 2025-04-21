@@ -14,7 +14,8 @@ PapyrusPad is in the early stages of development. The project has established it
 - ✅ Factory functions for widget creation
 - ✅ Application startup and shutdown flow
 - ✅ Dark/light mode support via command-line arguments
-- ✅ Feature-based file organization
+- ✅ Domain-driven file organization
+- ✅ Dependency injection system
 
 ### UI Components
 
@@ -125,7 +126,8 @@ The project started with a focus on creating a minimal, fast-loading editor with
 
 - **Declarative Widget System**: Evolved to simplify UI development with decorators and factory functions
 - **Declarative Menu System**: Extended the declarative approach to menus and actions
-- **Feature-based File Organization**: Implemented a Rails-inspired file structure that organizes code by feature
+- **Domain-driven File Organization**: Implemented a domain-driven file structure that organizes code by domain concepts
+- **Dependency Injection**: Implemented a FastAPI-inspired dependency injection system
 - **Docking System**: Enhanced to provide a more modern tab-based interface
 - **Styling**: Moved to SCSS for better maintainability
 

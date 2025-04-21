@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-PapyrusPad follows a component-based architecture with a focus on extensibility through dockable panels. The application is built using Qt/PySide6 and leverages a custom declarative widget system to simplify UI development.
+PapyrusPad follows a component-based architecture with a focus on extensibility through dockable panels. The application is built using Qt/PySide6 and leverages a custom declarative widget system to simplify UI development. It also uses dependency injection to manage application dependencies and promote loose coupling.
 
 ## Core Architectural Patterns
 
@@ -14,6 +14,7 @@ The application uses a custom declarative approach to Qt widgets, inspired by Ru
 2. **Dataclass Integration**: All widget classes are Python dataclasses that implement the appropriate interfaces (IWidget, IAction).
 3. **Field-based Widget Declaration**: Widget fields are declared using helper functions like `make()` and `make_widget()`.
 4. **Automatic Setup**: The decorators handle initialization and call setup methods automatically.
+5. **Dependency Injection**: Components can request dependencies using the `Depends[T]` pattern.
 
 ```python
 @widget("EditorWidget", classes=["editor"])
@@ -81,6 +82,20 @@ dock = dock_manager.dock(
     area=Qt.DockWidgetArea.RightDockWidgetArea,
     title="My Panel"
 )
+```
+
+### Dependency Injection System
+
+The application uses a dependency injection system to manage dependencies and promote loose coupling:
+
+1. **Container**: A central container manages singleton instances of application services.
+2. **Dependencies Class**: A static class provides access to dependencies by name.
+3. **Depends Dictionary**: A type-based lookup system allows components to request dependencies by type.
+4. **FastAPI-inspired Syntax**: Components can request dependencies using a syntax similar to FastAPI's `Depends()`.
+
+```python
+def action(self, checked: bool, app: QApplication = Depends[QApplication]):
+    # Use app dependency
 ```
 
 ### Interface-based Design
@@ -195,6 +210,33 @@ Used for event handling and signal connections:
 dock.topLevelChanged.connect(lambda floating: self._update_title_bar_for(dock))
 ```
 
+## File Organization
+
+The application follows a domain-driven, feature-based organization:
+
+```
+src/PapyrusPad/
+├── __main__.py          # Application entry point
+├── main.py              # Main application setup
+├── qrc_resources.py     # Compiled resources
+├── actions/             # Action classes
+│   ├── quit_action.py
+│   └── show_about_action.py
+├── app/                 # Core application components
+│   ├── application.py   # QApplication subclass
+│   └── dependencies.py  # Dependency injection setup
+├── domain/              # Domain models and business logic
+├── menus/               # Menu classes
+│   ├── file_menu.py
+│   ├── help_menu.py
+│   └── view_menu.py
+├── services/            # Application services
+├── widgets/             # Widget components
+│   └── editor_widget.py
+└── windows/             # Window components
+    └── main_window.py
+```
+
 ## Component Relationships
 
 ### Main Components
@@ -205,6 +247,7 @@ dock.topLevelChanged.connect(lambda floating: self._update_title_bar_for(dock))
 4. **Actions**: Encapsulated action handlers for menu items.
 5. **DockManager**: Manages the creation and behavior of dockable panels.
 6. **Application**: Handles application-level concerns like styling and event loop.
+7. **Dependencies**: Manages application dependencies and wiring.
 
 ### Data Flow
 
@@ -247,3 +290,4 @@ dock.topLevelChanged.connect(lambda floating: self._update_title_bar_for(dock))
 4. **Compiler Integration**: Direct integration with the Papyrus compiler.
 5. **Project Management**: Formal project structure and management.
 6. **Menu Extension System**: Allow plugins to extend the menu system.
+7. **Testing Framework**: Comprehensive testing strategy, especially for dependency injection.

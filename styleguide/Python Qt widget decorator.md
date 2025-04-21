@@ -34,9 +34,10 @@ class EditorWidget(QWidget, IWidget):
 **Import**: `from qt_helpers.window import window`
 
 ```python
-@window("MainWindow", classes=["window"], title="My App")
+@window("main_window", title="PapyrusPad")
 class MainWindow(QMainWindow, IWidget):
-    central_widget: EditorWidget = make(EditorWidget)
+    dock_manager: IDockManager = make_later(IDockManager)
+    central_widget: EditorWidget = make(EditorWidget, text="Untitled")
     file_menu: FileMenu = make(FileMenu)
     help_menu: HelpMenu = make(HelpMenu)
 ```
@@ -53,7 +54,7 @@ class MainWindow(QMainWindow, IWidget):
 # Using decorator parameter
 @menu(text="Help")
 class HelpMenu(QMenu):
-    about_action: AboutAction = make(AboutAction)
+    about_action: ShowAboutAction = make(ShowAboutAction)
 
 # Using class attribute
 @menu()
@@ -72,10 +73,10 @@ class FileMenu(QMenu):
 ```python
 # Using decorator parameters
 @action("About", tooltip="Show information about the application", icon=QStyle.StandardPixmap.SP_MessageBoxQuestion)
-class AboutAction(QAction, IAction):
+class ShowAboutAction(QAction, IAction):
     @override
-    def action(self, checked: bool):
-        # Action implementation
+    def action(self, checked: bool, app: QApplication = Depends[QApplication]):
+        # Action implementation using dependency injection
 
 # Using class attributes
 @action()
@@ -95,6 +96,7 @@ class QuitAction(QAction, IAction):
 - `tooltip`: Sets the status tip (alternatively, use `_tooltip` class attribute)
 - `icon`: Sets the icon (alternatively, use `_icon` class attribute)
 - Automatically connects the `triggered` signal to the `action` method
+- Supports dependency injection using `Depends[T]` pattern
 
 ---
 
@@ -146,6 +148,7 @@ class IAction:
     def action(self, checked: bool) -> None: ...
 ```
 This method is required for action classes and is automatically connected to the action's triggered signal.
+The method can also accept dependencies using the `Depends[T]` pattern.
 
 ---
 
@@ -192,25 +195,30 @@ This method is required for action classes and is automatically connected to the
 ---
 
 ### 📁 File Organization
-- Follow a feature-based organization rather than type-based
-- Group related components (menus, actions) by feature
+- Follow a domain-driven organization rather than type-based
+- Group related components by domain concepts and features
 - Example structure:
   ```
-  src/PapyrusPad/app/
-  └── windows/
-      └── main/
-          ├── main_window.py
-          └── menus/
-              ├── file/
-              │   ├── file_menu.py
-              │   └── actions/
-              │       ├── new.py
-              │       ├── open.py
-              │       └── quit.py
-              └── help/
-                  ├── help_menu.py
-                  └── actions/
-                      └── about.py
+  src/PapyrusPad/
+  ├── __main__.py          # Application entry point
+  ├── main.py              # Main application setup
+  ├── qrc_resources.py     # Compiled resources
+  ├── actions/             # Action classes
+  │   ├── quit_action.py
+  │   └── show_about_action.py
+  ├── app/                 # Core application components
+  │   ├── application.py   # QApplication subclass
+  │   └── dependencies.py  # Dependency injection setup
+  ├── domain/              # Domain models and business logic
+  ├── menus/               # Menu classes
+  │   ├── file_menu.py
+  │   ├── help_menu.py
+  │   └── view_menu.py
+  ├── services/            # Application services
+  ├── widgets/             # Widget components
+  │   └── editor_widget.py
+  └── windows/             # Window components
+      └── main_window.py
   ```
 
 ---
