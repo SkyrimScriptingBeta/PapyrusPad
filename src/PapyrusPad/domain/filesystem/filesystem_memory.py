@@ -60,6 +60,10 @@ class MemoryFileSystem(IFileSystem):
         """
         norm_path = self.normalize_path(path)
 
+        # Simulate failure for paths starting with "/invalid/"
+        if norm_path.startswith("/invalid/"):
+            raise IOError(f"Cannot write to invalid path: {norm_path}")
+
         # Ensure parent directory exists
         parent_dir = self.get_parent_directory(norm_path)
         if parent_dir and not self.directory_exists(parent_dir):
