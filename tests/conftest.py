@@ -1,4 +1,5 @@
 # Import setup_test_dependencies FIRST before any other imports
+from typing import cast
 from PapyrusPad.di.setup import setup_test_dependencies
 
 # Set up test dependencies BEFORE any application code is loaded
@@ -20,8 +21,9 @@ def reset_all_services():
 
     # Reset the dialog service
     dialog_service = container.dialog_service()
-    if hasattr(dialog_service, "reset"):
-        dialog_service.reset()
+    fake_dialog_service = cast(FakeDialogService, dialog_service)
+    if fake_dialog_service:
+        fake_dialog_service.reset()
 
     # Reset the document collection
     document_collection = container.document_collection()
