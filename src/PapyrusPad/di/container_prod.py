@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 from PapyrusPad.application import Application
 from PapyrusPad.domain.document.document_collection import DocumentCollection
-from PapyrusPad.domain.filesystem.filesystem_memory import MemoryFileSystem
+from PapyrusPad.domain.filesystem.filesystem_qt import QtFileSystem
 from PapyrusPad.domain.dialog.dialog_qt import QtDialogService
 
 
@@ -10,5 +10,5 @@ class ProductionContainer(containers.DeclarativeContainer):
 
     application = providers.Singleton(Application)
     document_collection = providers.Singleton(DocumentCollection)
-    filesystem = providers.Singleton(MemoryFileSystem)
+    filesystem = providers.Singleton(QtFileSystem)
     dialog_service = providers.Singleton(QtDialogService)

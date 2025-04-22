@@ -6,6 +6,8 @@ setup_test_dependencies()
 
 # Now it's safe to import other modules
 import pytest
+import tempfile
+from pathlib import Path
 from PapyrusPad.di.container import get_container
 from PapyrusPad.domain.dialog.dialog_fake import FakeDialogService
 
@@ -62,6 +64,14 @@ def document_collection():
         collection.remove(doc.id)
 
     return collection
+
+
+@pytest.fixture
+def temp_dir():
+    """Fixture that provides a temporary directory that is automatically cleaned up."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        yield Path(temp_dir)
+    # The temporary directory is automatically cleaned up when the context manager exits
 
 
 @pytest.fixture
