@@ -1,8 +1,9 @@
+from pathlib import Path
 from typing import override
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QStyle
 
-from PapyrusPad.di.depends import Depends, save_as_action_factory
+from PapyrusPad.di.depends import Depends
 from PapyrusPad.domain.dialog.dialog_interface import IDialogService, DialogOptions, DialogType
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
@@ -10,9 +11,9 @@ from qt_helpers.action import action
 from qt_helpers.interfaces import IAction
 
 
-@action("Save", shortcut="Ctrl+S", tooltip="Save the current document", icon=QStyle.StandardPixmap.SP_DialogSaveButton)
-class SaveAction(QAction, IAction):
-    """Action to save the current document."""
+@action("Save As", shortcut="Ctrl+Shift+S", tooltip="Save the document with a new name", icon=QStyle.StandardPixmap.SP_DialogSaveButton)
+class SaveAsAction(QAction, IAction):
+    """Action to save the current document with a new name."""
 
     @override
     def action(
@@ -23,7 +24,7 @@ class SaveAction(QAction, IAction):
         dialog_service: IDialogService = Depends[IDialogService],
     ) -> None:
         """
-        Save the current document.
+        Save the current document with a new name.
 
         Args:
             checked: Whether the action is checked (not used)
@@ -39,13 +40,16 @@ class SaveAction(QAction, IAction):
             dialog_service.show_message(DialogOptions(title="Save Error", message="No document is currently active", type=DialogType.WARNING))
             return
 
-        # If document has no path, use Save As functionality
-        if document.path is None:
-            save_as = save_as_action_factory()
-            save_as.action(checked)
+        # Show file save dialog
+        default_name = document.name if document.name else "Untitled.txt"
+        file_path = dialog_service.show_file_save_dialog(title="Save As", default_path=default_name, filter="All Files (*);;Text Files (*.txt);;Papyrus Scripts (*.psc)")
+
+        # If user cancelled, return
+        if file_path is None:
             return
 
-        # Save the document
+        # Set the document path and save
+        document.path = Path(file_path)
         success = document.save(filesystem)
 
         # Show error message if save failed

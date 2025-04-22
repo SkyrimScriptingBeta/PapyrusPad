@@ -26,3 +26,14 @@ Depends: dict[type, Any] = {
     IFileSystem: dependencies.filesystem,
     IDialogService: dependencies.dialog_service,
 }
+
+
+# Add SaveAsAction dynamically to avoid circular imports
+def _create_save_as_action():
+    from PapyrusPad.actions.save_as_action import SaveAsAction
+
+    return SaveAsAction()
+
+
+# This will be imported by name in SaveAction
+save_as_action_factory = _create_save_as_action

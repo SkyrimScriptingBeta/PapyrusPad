@@ -60,3 +60,18 @@ class IDialogService(ABC):
             The result of the dialog interaction (YES or NO)
         """
         ...
+
+    @abstractmethod
+    def show_file_save_dialog(self, title: str, default_path: str = "", filter: str = "") -> str | None:
+        """
+        Show a file save dialog.
+
+        Args:
+            title: The dialog title
+            default_path: Optional default path or filename
+            filter: Optional file type filter (e.g., "Text files (*.txt);;All files (*)")
+
+        Returns:
+            The selected file path, or None if the dialog was cancelled
+        """
+        ...

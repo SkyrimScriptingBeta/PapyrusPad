@@ -12,6 +12,16 @@ class DialogRecord:
     result: DialogResult
 
 
+@dataclass
+class FileDialogRecord:
+    """Record of a file dialog that was shown."""
+
+    title: str
+    default_path: str
+    filter: str
+    result: str | None
+
+
 class FakeDialogService(IDialogService):
     """
     Fake implementation of the dialog service for testing.
@@ -24,10 +34,12 @@ class FakeDialogService(IDialogService):
         super().__init__()
         self.shown_messages: List[DialogRecord] = []
         self.shown_questions: List[DialogRecord] = []
+        self.shown_file_save_dialogs: List[FileDialogRecord] = []
 
         # Configure default returns
         self.next_message_result = DialogResult.OK
         self.next_question_result = DialogResult.NO
+        self.next_file_save_dialog_result: str | None = None
 
     @override
     def show_message(self, options: DialogOptions) -> DialogResult:
@@ -59,9 +71,28 @@ class FakeDialogService(IDialogService):
         self.shown_questions.append(record)
         return self.next_question_result
 
+    @override
+    def show_file_save_dialog(self, title: str, default_path: str = "", filter: str = "") -> str | None:
+        """
+        Record a file save dialog interaction without showing an actual dialog.
+
+        Args:
+            title: The dialog title
+            default_path: Optional default path or filename
+            filter: Optional file type filter
+
+        Returns:
+            The pre-configured result (default: None)
+        """
+        record = FileDialogRecord(title=title, default_path=default_path, filter=filter, result=self.next_file_save_dialog_result)
+        self.shown_file_save_dialogs.append(record)
+        return self.next_file_save_dialog_result
+
     def reset(self):
         """Reset all recorded interactions and default return values."""
         self.shown_messages.clear()
         self.shown_questions.clear()
+        self.shown_file_save_dialogs.clear()
         self.next_message_result = DialogResult.OK
         self.next_question_result = DialogResult.NO
+        self.next_file_save_dialog_result = None

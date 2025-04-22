@@ -1,5 +1,5 @@
 from typing import override
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox, QFileDialog
 
 from PapyrusPad.domain.dialog.dialog_interface import IDialogService, DialogOptions, DialogType, DialogResult
 
@@ -67,3 +67,36 @@ class QtDialogService(IDialogService):
             return DialogResult.YES
         else:
             return DialogResult.NO
+
+    @override
+    def show_file_save_dialog(self, title: str, default_path: str = "", filter: str = "") -> str | None:
+        """
+        Show a file save dialog using Qt's QFileDialog.
+
+        Args:
+            title: The dialog title
+            default_path: Optional default path or filename
+            filter: Optional file type filter
+
+        Returns:
+            The selected file path, or None if the dialog was cancelled
+        """
+        file_dialog = QFileDialog()
+        file_dialog.setWindowTitle(title)
+        file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+
+        if default_path:
+            file_dialog.selectFile(default_path)
+
+        if filter:
+            file_dialog.setNameFilter(filter)
+        else:
+            # Default filter for text files and Papyrus scripts
+            file_dialog.setNameFilter("All Files (*);;Text Files (*.txt);;Papyrus Scripts (*.psc)")
+
+        if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
+            selected_files = file_dialog.selectedFiles()
+            if selected_files:
+                return selected_files[0]
+
+        return None
