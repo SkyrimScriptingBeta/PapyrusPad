@@ -4,7 +4,7 @@ import os
 import sys
 
 from dependency_injector.wiring import register_loader_containers
-from PapyrusPad.di.container import set_container_class
+from PapyrusPad.di.container import set_container
 
 
 def setup_development_dependencies() -> None:
@@ -16,7 +16,7 @@ def setup_development_dependencies() -> None:
     register_loader_containers(container)
     print("Registered loader")
 
-    set_container_class(DevelopmentContainer)
+    set_container(DevelopmentContainer, container)
 
     print("Importing PapyrusPad.di.depends")
     import PapyrusPad.di.depends
@@ -35,7 +35,7 @@ def setup_production_dependencies() -> None:
     print("Registered loader")
 
     # ContainerRegistry.set_container(container)
-    set_container_class(ProductionContainer)
+    set_container(ProductionContainer, container)
 
     print("Importing PapyrusPad.di.depends")
     import PapyrusPad.di.depends
