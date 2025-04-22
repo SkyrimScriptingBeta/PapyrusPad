@@ -1,11 +1,10 @@
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Callable, Type, TypeVar, cast, dataclass_transform
+from typing import Any, Callable, Type, TypeVar, dataclass_transform
 
 from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import QStyle
 
 from PapyrusPad.di.container import get_container
-from PapyrusPad.di.container_interface import IContainer
 from qt_helpers.mixins import ActionMixin
 from qt_helpers.signal_typing import as_bool_handler
 
@@ -65,8 +64,7 @@ def action(
                 self.setStatusTip(tooltip)
                 self._tooltip = tooltip
 
-            container = cast(IContainer, get_container())
-            app = container.application()
+            app = get_container().application()
 
             if self._icon:
                 if isinstance(self._icon, str):

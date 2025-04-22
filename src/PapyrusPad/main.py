@@ -1,5 +1,3 @@
-print("main()")
-
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication
 from PapyrusPad.boot import startup
@@ -14,8 +12,6 @@ QRC_DATA = qt_resource_data
 
 
 def main(development_mode: bool = False, app: QApplication = Depends[QApplication]) -> None:
-    print(f"APP: {app}")
-
     load_fonts()
     startup()
     main_window = MainWindow()

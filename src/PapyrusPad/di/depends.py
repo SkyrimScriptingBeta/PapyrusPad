@@ -1,5 +1,3 @@
-print("DEPENDS")
-
 from typing import Any
 from PySide6.QtWidgets import QApplication
 from dependency_injector.wiring import Provide
