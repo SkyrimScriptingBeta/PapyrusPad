@@ -9,19 +9,15 @@ from PapyrusPad.domain.dialog.dialog_interface import IDialogService
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 
-
-class IContainerClass(Protocol):
-    application = providers.Dependency()
-    document_collection = providers.Dependency()
-    filesystem = providers.Dependency()
-    dialog_service = providers.Dependency()
+# TODO: one IContainer where each property is a callable that returns the T
+# and so we can call like reset_override and have that stuff work ... does Dependency take a T?
 
 
 class IContainer(Protocol):
-    def application(self) -> QApplication: ...
-    def document_collection(self) -> IDocumentCollection: ...
-    def filesystem(self) -> IFileSystem: ...
-    def dialog_service(self) -> IDialogService: ...
+    application = providers.Dependency(QApplication)
+    document_collection = providers.Dependency(IDocumentCollection)
+    filesystem = providers.Dependency(IFileSystem)
+    dialog_service = providers.Dependency(IDialogService)
 
 
 _container: containers.DeclarativeContainer | None = None
@@ -41,14 +37,7 @@ def get_container() -> IContainer:
     return cast(IContainer, _container)
 
 
-def get_container_class() -> IContainerClass:
+def get_container_class() -> IContainer:
     if _container_class is None:
         raise ValueError("Container class has not been set.")
     return _container_class
-
-
-def reset_container() -> None:
-    global _container, _container_class
-    _container = None
-    _container_class = None
-    print("Container and container class have been reset.")
