@@ -79,7 +79,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 
 2. **Domain-Driven File Organization**: The decision to organize code by domain concepts and features rather than by type has improved code organization and maintainability. This approach groups related components based on their domain functionality.
 
-3. **Dependency Injection**: The decision to use dependency injection with a FastAPI-inspired syntax provides a clean way to manage dependencies and will facilitate testing in the future.
+3. **Dependency Injection**: The decision to use dependency injection with a FastAPI-inspired syntax provides a clean way to manage dependencies and facilitates testing. We've refined our approach to maintain singleton instances and reset them between tests rather than creating new instances, which ensures consistent behavior and avoids issues with the dependency injection system.
 
 4. **Docking System**: The custom docking behavior built on top of Qt's docking system provides a more modern and user-friendly experience. Further refinements will focus on stability and user experience.
 
@@ -130,7 +130,8 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - The declarative widget system has significantly reduced boilerplate and simplified UI development.
 - The extension of the declarative approach to menus and actions has further improved code organization and readability.
 - The domain-driven file organization has improved code maintainability and made it easier to locate related components.
-- The dependency injection system has made it easier to manage application dependencies and will facilitate testing.
+- The dependency injection system has made it easier to manage application dependencies and facilitates testing.
+- We've learned that resetting singleton instances in place rather than creating new instances is a more robust approach for testing with dependency injection.
 - The docking system provides a flexible and user-friendly way to organize the interface.
 - Using SCSS for styling has improved maintainability and development workflow.
 
@@ -139,6 +140,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - Qt's docking system requires significant customization to achieve a modern user experience.
 - Balancing simplicity and power in the editor interface requires careful design.
 - Integrating with external tools (compiler, LSP) will require robust error handling and user feedback.
+- Testing with dependency injection requires careful management of singleton instances to avoid test isolation issues.
 
 ### Future Opportunities
 

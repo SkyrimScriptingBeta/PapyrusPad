@@ -92,10 +92,31 @@ The application uses a dependency injection system to manage dependencies and pr
 2. **Dependencies Class**: A static class provides access to dependencies by name.
 3. **Depends Dictionary**: A type-based lookup system allows components to request dependencies by type.
 4. **FastAPI-inspired Syntax**: Components can request dependencies using a syntax similar to FastAPI's `Depends()`.
+5. **Singleton Reset**: For testing, singleton instances are reset in place rather than recreated to maintain references.
 
 ```python
 def action(self, checked: bool, app: QApplication = Depends[QApplication]):
     # Use app dependency
+```
+
+```python
+# Resetting a singleton for testing
+@pytest.fixture(autouse=True)
+def reset_all_services():
+    """Reset all services before each test."""
+    container = get_container()
+    
+    # Reset the dialog service
+    dialog_service = container.dialog_service()
+    if hasattr(dialog_service, "reset"):
+        dialog_service.reset()
+    
+    # Reset the document collection
+    document_collection = container.document_collection()
+    for doc in document_collection.list_documents():
+        document_collection.remove(doc.id)
+    
+    yield
 ```
 
 ### Interface-based Design
@@ -290,4 +311,4 @@ src/PapyrusPad/
 4. **Compiler Integration**: Direct integration with the Papyrus compiler.
 5. **Project Management**: Formal project structure and management.
 6. **Menu Extension System**: Allow plugins to extend the menu system.
-7. **Testing Framework**: Comprehensive testing strategy, especially for dependency injection.
+7. **Testing Framework**: Comprehensive testing strategy with proper test isolation. We've already implemented a robust approach for resetting singleton instances between tests, which will serve as the foundation for our testing framework.

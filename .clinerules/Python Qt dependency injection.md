@@ -97,28 +97,58 @@ Depends: dict[type, Any] = {
 
 ---
 
-### 🧪 Testing (Future)
+### 🧪 Testing
 
-In the future, we will add support for testing with dependency injection:
+We've implemented a robust approach for testing with dependency injection:
 
-1. Create a test container that overrides dependencies with mocks
-2. Use a context manager to temporarily replace the global container with the test container
-3. Reset the container after each test
+1. **Reset Singletons In Place**: Instead of creating new instances or replacing the container, we reset the existing singleton instances between tests.
+2. **Autouse Fixture**: We use an autouse fixture to reset all services before each test.
+3. **Service-specific Reset Methods**: Each service that needs to be reset between tests implements a `reset()` method.
 
 ```python
-# Example (future implementation)
-def test_about_action():
+# Autouse fixture to reset all services before each test
+@pytest.fixture(autouse=True)
+def reset_all_services():
+    """Reset all services before each test."""
+    container = get_container()
+    
+    # Reset the dialog service
+    dialog_service = container.dialog_service()
+    if hasattr(dialog_service, "reset"):
+        dialog_service.reset()
+    
+    # Reset the document collection
+    document_collection = container.document_collection()
+    for doc in document_collection.list_documents():
+        document_collection.remove(doc.id)
+    
+    yield
+```
+
+This approach ensures that:
+1. The same instance is used throughout the tests, but with a clean state for each test
+2. The dependency injection system's references remain intact
+3. Tests are properly isolated from each other
+
+For services that need to be mocked, you can still use the traditional approach:
+
+```python
+def test_about_action(monkeypatch):
     # Create mock application
     mock_app = Mock(spec=QApplication)
     mock_app.applicationName.return_value = "Test App"
     mock_app.applicationVersion.return_value = "1.0.0"
     
-    # Create test container
-    test_container = Container()
-    test_container.application.override(mock_app)
+    # Get the container
+    container = get_container()
     
-    # Use test container
-    with use_test_container(test_container):
+    # Store the original application
+    original_app = container.application()
+    
+    # Replace the application with the mock
+    monkeypatch.setattr(container, "application", lambda: mock_app)
+    
+    try:
         # Create action and trigger it
         action = ShowAboutAction()
         action.trigger()
@@ -126,6 +156,9 @@ def test_about_action():
         # Assert mock was called
         mock_app.applicationName.assert_called_once()
         mock_app.applicationVersion.assert_called_once()
+    finally:
+        # Restore the original application
+        monkeypatch.setattr(container, "application", lambda: original_app)
 ```
 
 ---
