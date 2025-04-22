@@ -1,14 +1,14 @@
-from dependency_injector import providers
-from PapyrusPad.di.container_prod import ProductionContainer
+from dependency_injector import containers, providers
+from PapyrusPad.application import Application
+from PapyrusPad.domain.dialog.dialog_qt import QtDialogService
+from PapyrusPad.domain.document.document_collection import DocumentCollection
 from PapyrusPad.domain.filesystem.filesystem_memory import MemoryFileSystem
 
 
-class DevelopmentContainer(ProductionContainer):
+class DevelopmentContainer(containers.DeclarativeContainer):
     """Development container with development-specific overrides."""
 
-    # Override with development-specific implementations if needed
-    # For example, we could use a different filesystem implementation
-    _filesystem = providers.Singleton(MemoryFileSystem)
-
-    # Could add development-specific services
-    # _debug_service = providers.Singleton(DebugService)
+    application = providers.Singleton(Application)
+    document_collection = providers.Singleton(DocumentCollection)
+    filesystem = providers.Singleton(MemoryFileSystem)
+    dialog_service = providers.Singleton(QtDialogService)
