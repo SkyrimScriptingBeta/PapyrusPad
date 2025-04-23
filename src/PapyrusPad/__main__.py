@@ -2,10 +2,6 @@ import os
 import sys
 
 from PapyrusPad.di.setup import setup_development_dependencies, setup_production_dependencies
-import qt_helpers.widget_binding_types as qt_binding_types
-
-# Just so we import these registrations at application start
-_registrations_ = qt_binding_types
 
 
 def main():

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 import uuid
-from typing import override
+from typing import override, Any
 
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
@@ -14,11 +14,21 @@ class TextDocument(IDocument):
     """A text document implementation of IDocument."""
 
     _id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    _name: ObservableField[str] = field(default_factory=lambda: ObservableField("Untitled"))
+    _name: Any = field(default_factory=lambda: ObservableField("Untitled"))
     _path: Path | None = None
-    _content: ObservableField[str] = field(default_factory=lambda: ObservableField(""))
+    _content: Any = field(default_factory=lambda: ObservableField(""))
     _is_modified: bool = False
     _last_saved: datetime | None = None
+
+    def __post_init__(self) -> None:
+        """Initialize the document after creation."""
+        # Convert string _name to ObservableField if needed
+        if isinstance(self._name, str):
+            self._name = ObservableField(self._name)
+
+        # Convert string _content to ObservableField if needed
+        if isinstance(self._content, str):
+            self._content = ObservableField(self._content)
 
     @property
     @override
@@ -92,7 +102,7 @@ class TextDocument(IDocument):
     @override
     def display_name(self) -> str:
         modified_indicator = "*" if self._is_modified else ""
-        return f"{self._name}{modified_indicator}"
+        return f"{self.name}{modified_indicator}"
 
     @override
     def save(self, filesystem: IFileSystem) -> bool:
@@ -112,7 +122,7 @@ class TextDocument(IDocument):
             raise ValueError("Cannot save document without a path")
 
         try:
-            filesystem.write_text(str(self._path), self._content.get())
+            filesystem.write_text(str(self._path), self.content)
             self.mark_saved()
             return True
         except Exception:
