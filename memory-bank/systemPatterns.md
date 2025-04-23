@@ -13,7 +13,7 @@ The application uses a custom declarative approach to Qt widgets, inspired by Ru
 1. **Widget Decorators**: `@widget`, `@window`, `@menu`, and `@action` decorators are used to define QWidgets, QMainWindow, QMenu, and QAction classes.
 2. **Dataclass Integration**: All widget classes are Python dataclasses that implement the appropriate interfaces (IWidget, IAction).
 3. **Field-based Widget Declaration**: Widget fields are declared using helper functions like `make()` and `make_widget()`.
-4. **Automatic Setup**: The decorators handle initialization and call setup methods automatically.
+4. **Automatic Setup**: The decorators handle initialization and call setup methods automatically, including binding setup.
 5. **Dependency Injection**: Components can request dependencies using the `Depends[T]` pattern.
 
 ```python
@@ -24,6 +24,49 @@ class EditorWidget(QWidget, IWidget):
     
     def setup(self) -> None:
         # Custom setup code
+```
+
+### Data Binding System
+
+The application implements a type-safe, registry-based data binding system for synchronizing UI elements with domain models:
+
+1. **Central Registry**: A global registry maps widget types and property names to binding adapters.
+2. **Binding Adapters**: Type-safe adapters define how to get signals from and set values on specific widget types.
+3. **Observable Fields**: Domain models expose observable fields that notify listeners when values change.
+4. **Declarative Binding**: Widgets declare bindings in their `setup_bindings` method using a simple API.
+5. **Two-way Binding**: Changes in either the UI or the model are automatically propagated to the other.
+6. **Lock Mechanism**: A lock flag prevents infinite update loops between UI and model.
+
+```python
+# Registering a binding adapter for QPlainTextEdit
+BINDING_REGISTRY[(QPlainTextEdit, "plainText")] = BindingAdapter[QPlainTextEdit, [str]](
+    signal_getter=make_signal_getter_for_no_arg("textChanged", lambda w: w.toPlainText()),
+    setter=lambda w, val: w.setPlainText(val),
+)
+
+# Using the binding in a widget
+@override
+def setup_bindings(self) -> None:
+    bind_fields([(self.txt_source, "plainText", self.document.content_observable)])
+
+# Observable field in a domain model
+@dataclass
+class TextDocument(IDocument):
+    _content: ObservableField[str] = field(default_factory=lambda: ObservableField(""))
+    
+    @property
+    def content(self) -> str:
+        return self._content.get()
+        
+    @content.setter
+    def content(self, value: str) -> None:
+        if self._content.get() != value:
+            self._content.set(value)
+            self._is_modified = True
+            
+    @property
+    def content_observable(self) -> ObservableField[str]:
+        return self._content
 ```
 
 ### Declarative Menu System
@@ -225,10 +268,30 @@ Used for event handling and signal connections:
 1. **Signal-Slot Connections**: Qt's signal-slot mechanism for event handling.
 2. **Event Filtering**: Custom event handling through Qt's event filter system.
 3. **File System Watching**: For style sheet hot-reloading during development.
+4. **Observable Fields**: Generic observable value containers that notify listeners when values change.
 
 ```python
 # Observer pattern with signals
 dock.topLevelChanged.connect(lambda floating: self._update_title_bar_for(dock))
+
+# Observer pattern with observable fields
+@dataclass
+class ObservableField(Generic[T]):
+    _value: T
+    _callbacks: list[Callable[[T], None]] = field(default_factory=list[Callable[[T], None]])
+
+    def get(self) -> T:
+        return self._value
+
+    def set(self, value: T) -> None:
+        if value != self._value:
+            self._value = value
+            for callback in self._callbacks:
+                callback(value)
+
+    def bind(self, callback: Callable[[T], None]) -> None:
+        self._callbacks.append(callback)
+        callback(self._value)  # trigger immediately with current value
 ```
 
 ## File Organization
@@ -269,13 +332,16 @@ src/PapyrusPad/
 5. **DockManager**: Manages the creation and behavior of dockable panels.
 6. **Application**: Handles application-level concerns like styling and event loop.
 7. **Dependencies**: Manages application dependencies and wiring.
+8. **Binding Registry**: Central registry for widget binding adapters.
+9. **Observable Fields**: Domain model properties that notify listeners when values change.
 
 ### Data Flow
 
 1. **User Input → Widgets**: User interactions are captured by widgets.
-2. **Widgets → Application Logic**: Widgets trigger application logic through signals.
-3. **Application Logic → Model**: Changes are applied to the underlying data model.
-4. **Model → Widgets**: Updates in the model are reflected back in the UI.
+2. **Widgets → Model**: Changes in widgets are automatically propagated to the model through bindings.
+3. **Model → Widgets**: Changes in the model are automatically propagated to widgets through bindings.
+4. **Model → Application Logic**: Application logic operates on the model.
+5. **Application Logic → Model**: Application logic updates the model, which triggers UI updates through bindings.
 
 ## Critical Implementation Paths
 
@@ -311,4 +377,5 @@ src/PapyrusPad/
 4. **Compiler Integration**: Direct integration with the Papyrus compiler.
 5. **Project Management**: Formal project structure and management.
 6. **Menu Extension System**: Allow plugins to extend the menu system.
-7. **Testing Framework**: Comprehensive testing strategy with proper test isolation. We've already implemented a robust approach for resetting singleton instances between tests, which will serve as the foundation for our testing framework.
+7. **Enhanced Data Binding**: Extend the data binding system to support validation, transformation, and more complex binding scenarios.
+8. **Testing Framework**: Comprehensive testing strategy with proper test isolation. We've already implemented a robust approach for resetting singleton instances between tests, which will serve as the foundation for our testing framework.
