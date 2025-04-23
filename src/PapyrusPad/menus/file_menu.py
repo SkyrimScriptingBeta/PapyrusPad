@@ -14,5 +14,4 @@ class FileMenu(QMenu):
 
     save_action: SaveAction = make(SaveAction)
     save_as_action: SaveAsAction = make(SaveAsAction)
-    confirm_action: ConfirmAction = make(ConfirmAction)
     quit_action: QuitAction = make(QuitAction)

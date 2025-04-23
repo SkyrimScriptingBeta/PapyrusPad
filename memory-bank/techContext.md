@@ -112,6 +112,12 @@
 - **Rationale**: Simplify widget creation and reduce boilerplate
 - **Implementation**: Decorators and factory functions
 
+### Data Binding System
+
+- **Decision**: Implement a type-safe, registry-based data binding system
+- **Rationale**: Simplify UI-to-model synchronization and improve code maintainability
+- **Implementation**: Central binding registry, observable fields, and binding adapters
+
 ### Docking System
 
 - **Decision**: Implement custom docking behavior on top of Qt's docking system
@@ -137,6 +143,7 @@
 - Python 3.13
 - Poetry for dependency management
 - Qt resources compiler (pyside6-rcc)
+- Poe the Poet for task running
 
 ### Development Workflow
 

@@ -52,6 +52,7 @@ def widget(
 
             # Now setup the widget
             self.setup()
+            self.setup_bindings()
             self.setup_layout()
             self.setup_styles()
             self.setup_events()

@@ -6,6 +6,7 @@ from typing import override
 
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
+from qt_helpers.observable_field import ObservableField
 
 
 @dataclass
@@ -13,9 +14,9 @@ class TextDocument(IDocument):
     """A text document implementation of IDocument."""
 
     _id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    _name: str = "Untitled"
+    _name: ObservableField[str] = field(default_factory=lambda: ObservableField("Untitled"))
     _path: Path | None = None
-    _content: str = ""
+    _content: ObservableField[str] = field(default_factory=lambda: ObservableField(""))
     _is_modified: bool = False
     _last_saved: datetime | None = None
 
@@ -27,13 +28,18 @@ class TextDocument(IDocument):
     @property
     @override
     def name(self) -> str:
-        return self._name
+        return self._name.get()
 
     @name.setter
     @override
     def name(self, value: str) -> None:
-        self._name = value
+        self._name.set(value)
         self._is_modified = True
+
+    @property
+    @override
+    def name_observable(self) -> ObservableField[str]:
+        return self._name
 
     @property
     @override
@@ -48,19 +54,29 @@ class TextDocument(IDocument):
     @property
     @override
     def content(self) -> str:
-        return self._content
+        return self._content.get()
 
     @content.setter
     @override
     def content(self, value: str) -> None:
-        if self._content != value:
-            self._content = value
+        if self._content.get() != value:
+            self._content.set(value)
             self._is_modified = True
+
+    @property
+    @override
+    def content_observable(self) -> ObservableField[str]:
+        return self._content
 
     @property
     @override
     def is_modified(self) -> bool:
         return self._is_modified
+
+    @is_modified.setter
+    @override
+    def is_modified(self, value: bool) -> None:
+        self._is_modified = value
 
     @override
     def mark_saved(self) -> None:
@@ -96,7 +112,7 @@ class TextDocument(IDocument):
             raise ValueError("Cannot save document without a path")
 
         try:
-            filesystem.write_text(str(self._path), self._content)
+            filesystem.write_text(str(self._path), self._content.get())
             self.mark_saved()
             return True
         except Exception:
@@ -123,7 +139,7 @@ class TextDocument(IDocument):
             raise ValueError("Cannot reload document without a path")
 
         try:
-            self._content = filesystem.read_text(str(self._path))
+            self._content.set(filesystem.read_text(str(self._path)))
             self._is_modified = False
             return True
         except Exception:

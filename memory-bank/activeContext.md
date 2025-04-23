@@ -6,10 +6,11 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 
 1. **Core Application Structure**: Setting up the basic Qt/PySide6 application with a main window, menus, and central editor widget.
 2. **Declarative Widget System**: Developing a custom declarative approach to Qt widgets, menus, and actions using decorators and factory functions.
-3. **Docking System**: Implementing a flexible docking system for panels with modern tab management.
-4. **Development Infrastructure**: Establishing the development workflow with Poetry, SCSS styling, and resource compilation.
-5. **Domain-Driven File Organization**: Implementing a domain-driven file structure that organizes code by feature and domain concepts.
-6. **Dependency Injection**: Setting up a dependency injection system to manage application dependencies and promote loose coupling.
+3. **Data Binding System**: Implementing a type-safe, registry-based data binding system for synchronizing UI elements with domain models.
+4. **Docking System**: Implementing a flexible docking system for panels with modern tab management.
+5. **Development Infrastructure**: Establishing the development workflow with Poetry, SCSS styling, and resource compilation.
+6. **Domain-Driven File Organization**: Implementing a domain-driven file structure that organizes code by feature and domain concepts.
+7. **Dependency Injection**: Setting up a dependency injection system to manage application dependencies and promote loose coupling.
 
 ## Recent Changes
 
@@ -23,15 +24,17 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - Reorganized the file structure to follow a domain-driven approach
 - Implemented dependency injection using the `dependency-injector` package
 - Created a FastAPI-inspired `Depends[T]` pattern for requesting dependencies
+- Developed a comprehensive data binding system for UI-to-model synchronization
 
 ### UI Components
 
-- Created a basic editor widget (currently using QTextEdit)
+- Created a basic editor widget (currently using QPlainTextEdit)
 - Implemented tab management with closeable tabs and drag-to-undock functionality
 - Added title bar management for tabbed widgets
 - Set up SCSS styling with hot-reloading in development mode
 - Added a menu bar with File and Help menus
 - Implemented menu actions with icons, shortcuts, and tooltips
+- Added two-way data binding between UI elements and domain models
 
 ### Development Tools
 
@@ -44,7 +47,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 
 ### Immediate Tasks
 
-1. **Editor Enhancement**: Replace the basic QTextEdit with a custom QPlainTextEdit-based editor with:
+1. **Editor Enhancement**: Enhance the QPlainTextEdit-based editor with:
    - Line numbers
    - Syntax highlighting
    - Code folding
@@ -77,13 +80,15 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 
 1. **Declarative UI Approach**: The decision to use a declarative approach with decorators and dataclasses has proven effective for simplifying UI development. This pattern has been expanded to include menus and actions, and will continue to be refined.
 
-2. **Domain-Driven File Organization**: The decision to organize code by domain concepts and features rather than by type has improved code organization and maintainability. This approach groups related components based on their domain functionality.
+2. **Data Binding System**: The decision to implement a type-safe, registry-based data binding system provides a clean, declarative way to synchronize UI elements with domain models. This approach centralizes binding logic, improves type safety, and simplifies widget implementation.
 
-3. **Dependency Injection**: The decision to use dependency injection with a FastAPI-inspired syntax provides a clean way to manage dependencies and facilitates testing. We've refined our approach to maintain singleton instances and reset them between tests rather than creating new instances, which ensures consistent behavior and avoids issues with the dependency injection system.
+3. **Domain-Driven File Organization**: The decision to organize code by domain concepts and features rather than by type has improved code organization and maintainability. This approach groups related components based on their domain functionality.
 
-4. **Docking System**: The custom docking behavior built on top of Qt's docking system provides a more modern and user-friendly experience. Further refinements will focus on stability and user experience.
+4. **Dependency Injection**: The decision to use dependency injection with a FastAPI-inspired syntax provides a clean way to manage dependencies and facilitates testing. We've refined our approach to maintain singleton instances and reset them between tests rather than creating new instances, which ensures consistent behavior and avoids issues with the dependency injection system.
 
-5. **Styling with SCSS**: Using SCSS for styling with hot-reloading in development has improved the styling workflow. This approach will be maintained and expanded with more comprehensive styling.
+5. **Docking System**: The custom docking behavior built on top of Qt's docking system provides a more modern and user-friendly experience. Further refinements will focus on stability and user experience.
+
+6. **Styling with SCSS**: Using SCSS for styling with hot-reloading in development has improved the styling workflow. This approach will be maintained and expanded with more comprehensive styling.
 
 ### Technical Considerations
 
@@ -109,6 +114,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - **Module Structure**: Maintain clear separation between UI components, application logic, and utilities.
 - **Interface-based Design**: Continue using interfaces (ABC) to define contracts and enable loose coupling.
 - **Dependency Injection**: Use the `Depends[T]` pattern for requesting dependencies.
+- **Type-Safe Binding**: Use the registry-based binding system for UI-to-model synchronization.
 - **Typing**: Maintain strict typing throughout the codebase.
 
 ### UI Design
@@ -129,6 +135,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 
 - The declarative widget system has significantly reduced boilerplate and simplified UI development.
 - The extension of the declarative approach to menus and actions has further improved code organization and readability.
+- The type-safe, registry-based data binding system has simplified UI-to-model synchronization and improved code maintainability.
 - The domain-driven file organization has improved code maintainability and made it easier to locate related components.
 - The dependency injection system has made it easier to manage application dependencies and facilitates testing.
 - We've learned that resetting singleton instances in place rather than creating new instances is a more robust approach for testing with dependency injection.
@@ -145,6 +152,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 ### Future Opportunities
 
 - The declarative widget, menu, and action system could potentially be extracted as a separate library for other Qt projects.
+- The data binding system could be extended to support validation, transformation, and more complex binding scenarios.
 - The domain-driven file organization could be further refined to support more complex features and plugins.
 - The dependency injection system could be extended to support scoped dependencies and more complex injection scenarios.
 - The editor component could be enhanced with Papyrus-specific features beyond what general-purpose editors provide.

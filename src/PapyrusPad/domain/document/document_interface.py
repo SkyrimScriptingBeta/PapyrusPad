@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
+from qt_helpers.observable_field import ObservableField
 
 
 class IDocument(ABC):
@@ -26,6 +27,10 @@ class IDocument(ABC):
 
     @property
     @abstractmethod
+    def name_observable(self) -> ObservableField[str]: ...
+
+    @property
+    @abstractmethod
     def path(self) -> Path | None:
         """Path on disk, or None if unsaved."""
         ...
@@ -46,8 +51,18 @@ class IDocument(ABC):
 
     @property
     @abstractmethod
+    def content_observable(self) -> ObservableField[str]: ...
+
+    @property
+    @abstractmethod
     def is_modified(self) -> bool:
         """True if modified since last save."""
+        ...
+
+    @is_modified.setter
+    @abstractmethod
+    def is_modified(self, value: bool) -> None:
+        """Set modified state."""
         ...
 
     @abstractmethod

@@ -7,6 +7,10 @@ class IWidget:
         pass
 
     @abstractmethod
+    def setup_bindings(self) -> None:
+        pass
+
+    @abstractmethod
     def setup_layout(self) -> None:
         pass
 

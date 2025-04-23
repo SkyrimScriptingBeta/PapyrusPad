@@ -77,7 +77,9 @@ class DocumentCollection(IDocumentCollection):
     @override
     def create(self, name: str = "Untitled", content: str = "") -> IDocument:
         """Create and add a new document with a random ID."""
-        document = TextDocument(_name=name, _content=content)
+        document = TextDocument()
+        document.name = name
+        document.content = content
         self.add_or_replace(document)
         return document
 
