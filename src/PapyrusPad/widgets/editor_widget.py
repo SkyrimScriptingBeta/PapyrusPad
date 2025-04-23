@@ -18,3 +18,11 @@ class EditorWidget(QWidget, IWidget):
     def setup(self) -> None:
         self.lbl_title.setText(self.document.name)
         self.txt_source.setPlainText(self.document.content)
+
+    @override
+    def setup_signals(self) -> None:
+        self.txt_source.textChanged.connect(self._on_text_changed)
+
+    def _on_text_changed(self) -> None:
+        self.document.content = self.txt_source.toPlainText()
+        self.document.is_modified = True

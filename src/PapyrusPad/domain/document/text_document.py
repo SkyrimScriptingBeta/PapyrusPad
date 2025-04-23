@@ -62,6 +62,11 @@ class TextDocument(IDocument):
     def is_modified(self) -> bool:
         return self._is_modified
 
+    @is_modified.setter
+    @override
+    def is_modified(self, value: bool) -> None:
+        self._is_modified = value
+
     @override
     def mark_saved(self) -> None:
         self._is_modified = False

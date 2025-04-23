@@ -50,6 +50,12 @@ class IDocument(ABC):
         """True if modified since last save."""
         ...
 
+    @is_modified.setter
+    @abstractmethod
+    def is_modified(self, value: bool) -> None:
+        """Set modified state."""
+        ...
+
     @abstractmethod
     def mark_saved(self) -> None:
         """Reset modified state and update last_saved timestamp."""
