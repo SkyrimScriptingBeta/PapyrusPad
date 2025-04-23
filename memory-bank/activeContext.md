@@ -128,7 +128,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - **Test-Driven Development**: Consider implementing a testing strategy for critical components.
 - **Documentation**: Document code and architecture decisions as they are made.
 - **Incremental Development**: Focus on getting core features working well before adding advanced functionality.
-- **Fake-Based Testing**: Use fake implementations instead of mocks for testing. The ONLY time mocking is appropriate is to prevent Qt UI from opening, such as in the Qt backend for the dialog service to assert that the right Qt functions would be called. For all other cases, use fake implementations.
+- **NO MOCKING**: NEVER use mocks in tests. The ONLY exception is to prevent Qt UI from opening. For all other cases, use fake implementations from the dependency injection container. Always prefer using the dependency container for getting dependencies in tests.
 
 ## Learnings and Project Insights
 

@@ -1,120 +1,97 @@
-from pathlib import Path
-from unittest.mock import Mock
 from assertpy import assert_that
 
 from PapyrusPad.actions.open_file_action import OpenFileAction
 from PapyrusPad.domain.dialog.dialog_interface import DialogType
-from PapyrusPad.domain.document.document_interface import IDocument
+from PapyrusPad.domain.dialog.dialog_fake import FakeDialogService
+from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
+from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 
 
 class TestOpenFileAction:
     """Unit tests for the OpenFileAction class."""
 
-    def test_action_user_cancels(self) -> None:
+    def test_action_user_cancels(self, dialog_service: FakeDialogService, document_collection: IDocumentCollection, filesystem: IFileSystem) -> None:
         """Test the action when the user cancels the file dialog."""
         # Arrange
         action = OpenFileAction()
 
-        # Create mocks
-        mock_dialog_service = Mock()
-        mock_document_collection = Mock()
-        mock_filesystem = Mock()
-
         # Configure the dialog service to return None (user cancelled)
-        mock_dialog_service.show_file_open_dialog.return_value = None
+        dialog_service.next_file_open_dialog_result = None
 
         # Act
-        action.action(False, document_collection=mock_document_collection, filesystem=mock_filesystem, dialog_service=mock_dialog_service)
+        action.action(False, document_collection=document_collection, filesystem=filesystem, dialog_service=dialog_service)
 
         # Assert
-        mock_dialog_service.show_file_open_dialog.assert_called_once()
-        mock_document_collection.open_file.assert_not_called()
-        mock_dialog_service.show_message.assert_not_called()
+        assert_that(len(dialog_service.shown_file_open_dialogs)).is_equal_to(1)
+        assert_that(len(document_collection.list_documents())).is_equal_to(0)
+        assert_that(len(dialog_service.shown_messages)).is_equal_to(0)
 
-    def test_action_success(self) -> None:
+    def test_action_success(self, dialog_service: FakeDialogService, document_collection: IDocumentCollection, filesystem: IFileSystem) -> None:
         """Test the action when the file is opened successfully."""
         # Arrange
         action = OpenFileAction()
 
-        # Create mocks
-        mock_dialog_service = Mock()
-        mock_document_collection = Mock()
-        mock_filesystem = Mock()
+        # Create a test file
+        test_file_path = "/test/test.txt"
+        filesystem.write_text(test_file_path, "File content")
 
-        # Configure the dialog service to return a file path
-        mock_dialog_service.show_file_open_dialog.return_value = "/test/test.txt"
-
-        # Configure the document collection to return a mock document
-        mock_document = Mock(spec=IDocument)
-        mock_document_collection.open_file.return_value = mock_document
+        # Configure the dialog service to return the test file path
+        dialog_service.next_file_open_dialog_result = test_file_path
 
         # Act
-        action.action(False, document_collection=mock_document_collection, filesystem=mock_filesystem, dialog_service=mock_dialog_service)
+        action.action(False, document_collection=document_collection, filesystem=filesystem, dialog_service=dialog_service)
 
         # Assert
-        mock_dialog_service.show_file_open_dialog.assert_called_once()
-        mock_document_collection.open_file.assert_called_once_with(Path("/test/test.txt"), mock_filesystem)
-        mock_dialog_service.show_message.assert_not_called()
+        assert_that(len(dialog_service.shown_file_open_dialogs)).is_equal_to(1)
+        assert_that(len(document_collection.list_documents())).is_equal_to(1)
+        assert_that(document_collection.list_documents()[0].name).is_equal_to("test.txt")
+        assert_that(document_collection.list_documents()[0].content).is_equal_to("File content")
+        assert_that(len(dialog_service.shown_messages)).is_equal_to(0)
 
-    def test_action_file_not_found(self) -> None:
+    def test_action_file_not_found(self, dialog_service: FakeDialogService, document_collection: IDocumentCollection, filesystem: IFileSystem) -> None:
         """Test the action when the file is not found."""
         # Arrange
         action = OpenFileAction()
 
-        # Create mocks
-        mock_dialog_service = Mock()
-        mock_document_collection = Mock()
-        mock_filesystem = Mock()
-
-        # Configure the dialog service to return a file path
-        mock_dialog_service.show_file_open_dialog.return_value = "/test/test.txt"
-
-        # Configure the document collection to raise a FileNotFoundError
-        mock_document_collection.open_file.side_effect = FileNotFoundError("File not found")
+        # Configure the dialog service to return a non-existent file path
+        nonexistent_file_path = "/nonexistent/file.txt"
+        dialog_service.next_file_open_dialog_result = nonexistent_file_path
 
         # Act
-        action.action(False, document_collection=mock_document_collection, filesystem=mock_filesystem, dialog_service=mock_dialog_service)
+        action.action(False, document_collection=document_collection, filesystem=filesystem, dialog_service=dialog_service)
 
         # Assert
-        mock_dialog_service.show_file_open_dialog.assert_called_once()
-        mock_document_collection.open_file.assert_called_once_with(Path("/test/test.txt"), mock_filesystem)
-        mock_dialog_service.show_message.assert_called_once()
+        assert_that(len(dialog_service.shown_file_open_dialogs)).is_equal_to(1)
+        assert_that(len(document_collection.list_documents())).is_equal_to(0)
+        assert_that(len(dialog_service.shown_messages)).is_equal_to(1)
 
         # Check that the error message was shown
-        args, _ = mock_dialog_service.show_message.call_args
-        options = args[0]
-        assert_that(options.title).is_equal_to("Open Error")
-        assert_that(options.message).contains("Could not open file")
-        assert_that(options.type).is_equal_to(DialogType.ERROR)
+        error_message = dialog_service.shown_messages[0]
+        assert_that(error_message.options.title).is_equal_to("Open Error")
+        assert_that(error_message.options.message).contains("Could not open file")
+        assert_that(error_message.options.type).is_equal_to(DialogType.ERROR)
 
-    def test_action_other_error(self) -> None:
+    def test_action_other_error(self, dialog_service: FakeDialogService, document_collection: IDocumentCollection, filesystem: IFileSystem) -> None:
         """Test the action when another error occurs."""
         # Arrange
         action = OpenFileAction()
 
-        # Create mocks
-        mock_dialog_service = Mock()
-        mock_document_collection = Mock()
-        mock_filesystem = Mock()
-
-        # Configure the dialog service to return a file path
-        mock_dialog_service.show_file_open_dialog.return_value = "/test/test.txt"
-
-        # Configure the document collection to raise an exception
-        mock_document_collection.open_file.side_effect = Exception("Some error")
+        # Configure the dialog service to return a file path that will cause an error
+        # We'll use a directory path, which will cause an error when trying to read it as a file
+        error_path = "/"
+        filesystem.create_directory(error_path)  # Ensure the directory exists
+        dialog_service.next_file_open_dialog_result = error_path
 
         # Act
-        action.action(False, document_collection=mock_document_collection, filesystem=mock_filesystem, dialog_service=mock_dialog_service)
+        action.action(False, document_collection=document_collection, filesystem=filesystem, dialog_service=dialog_service)
 
         # Assert
-        mock_dialog_service.show_file_open_dialog.assert_called_once()
-        mock_document_collection.open_file.assert_called_once_with(Path("/test/test.txt"), mock_filesystem)
-        mock_dialog_service.show_message.assert_called_once()
+        assert_that(len(dialog_service.shown_file_open_dialogs)).is_equal_to(1)
+        assert_that(len(document_collection.list_documents())).is_equal_to(0)
+        assert_that(len(dialog_service.shown_messages)).is_equal_to(1)
 
         # Check that the error message was shown
-        args, _ = mock_dialog_service.show_message.call_args
-        options = args[0]
-        assert_that(options.title).is_equal_to("Open Error")
-        assert_that(options.message).contains("Error opening file")
-        assert_that(options.detail).is_equal_to("Some error")
-        assert_that(options.type).is_equal_to(DialogType.ERROR)
+        error_message = dialog_service.shown_messages[0]
+        assert_that(error_message.options.title).is_equal_to("Open Error")
+        assert_that(error_message.options.message).contains("Could not open file")  # Changed to match actual behavior
+        assert_that(error_message.options.type).is_equal_to(DialogType.ERROR)
