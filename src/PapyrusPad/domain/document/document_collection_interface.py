@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 from PapyrusPad.domain.document.document_interface import IDocument
+from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 
 
 class IDocumentCollection(ABC):
@@ -50,4 +51,25 @@ class IDocumentCollection(ABC):
     @abstractmethod
     def is_path_open(self, path: Path) -> bool:
         """Check if a document with this path is already open."""
+        ...
+
+    @abstractmethod
+    def open_file(self, path: Path, filesystem: IFileSystem) -> IDocument:
+        """
+        Open a file from disk and create a document for it.
+
+        If a document with this path is already open, it will be returned.
+        Otherwise, a new document will be created, loaded with the file's content,
+        and added to the collection.
+
+        Args:
+            path: Path to the file to open
+            filesystem: The filesystem to use for loading
+
+        Returns:
+            The document representing the opened file
+
+        Raises:
+            FileNotFoundError: If the file does not exist or cannot be read
+        """
         ...

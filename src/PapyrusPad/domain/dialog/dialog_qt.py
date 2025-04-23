@@ -100,3 +100,37 @@ class QtDialogService(IDialogService):
                 return selected_files[0]
 
         return None
+
+    @override
+    def show_file_open_dialog(self, title: str, default_path: str = "", filter: str = "") -> str | None:
+        """
+        Show a file open dialog using Qt's QFileDialog.
+
+        Args:
+            title: The dialog title
+            default_path: Optional default path or directory
+            filter: Optional file type filter
+
+        Returns:
+            The selected file path, or None if the dialog was cancelled
+        """
+        file_dialog = QFileDialog()
+        file_dialog.setWindowTitle(title)
+        file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+
+        if default_path:
+            file_dialog.selectFile(default_path)
+
+        if filter:
+            file_dialog.setNameFilter(filter)
+        else:
+            # Default filter for text files and Papyrus scripts
+            file_dialog.setNameFilter("All Files (*);;Text Files (*.txt);;Papyrus Scripts (*.psc)")
+
+        if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
+            selected_files = file_dialog.selectedFiles()
+            if selected_files:
+                return selected_files[0]
+
+        return None

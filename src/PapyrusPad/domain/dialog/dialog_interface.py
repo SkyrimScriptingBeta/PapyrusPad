@@ -75,3 +75,18 @@ class IDialogService(ABC):
             The selected file path, or None if the dialog was cancelled
         """
         ...
+
+    @abstractmethod
+    def show_file_open_dialog(self, title: str, default_path: str = "", filter: str = "") -> str | None:
+        """
+        Show a file open dialog.
+
+        Args:
+            title: The dialog title
+            default_path: Optional default path or directory
+            filter: Optional file type filter (e.g., "Text files (*.txt);;All files (*)")
+
+        Returns:
+            The selected file path, or None if the dialog was cancelled
+        """
+        ...
