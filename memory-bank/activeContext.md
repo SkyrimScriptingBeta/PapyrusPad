@@ -130,6 +130,21 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - **Incremental Development**: Focus on getting core features working well before adding advanced functionality.
 - **NO MOCKING**: NEVER use mocks in tests. The ONLY exception is to prevent Qt UI from opening. For all other cases, use fake implementations from the dependency injection container. Always prefer using the dependency container for getting dependencies in tests.
 
+### Testing Approach
+
+- **Pytest Fixtures**: Use pytest fixtures to access dependencies from the test container. The following fixtures are available:
+  - `dialog_service`: Provides a `FakeDialogService` instance from the test container
+  - `document_collection`: Provides a `DocumentCollection` instance from the test container
+  - `filesystem`: Provides a `MemoryFileSystem` instance from the test container
+  - `temp_dir`: Provides a temporary directory that is automatically cleaned up after the test
+  - `reset_all_services`: An autouse fixture that resets all services before each test
+
+- **Fake Implementations**: Use fake implementations for testing instead of mocks:
+  - `FakeDialogService`: A fake implementation of `IDialogService` that records interactions and returns pre-configured results
+  - `MemoryFileSystem`: An in-memory implementation of `IFileSystem` for testing
+
+- **Test Container**: The test container is set up in `src/PapyrusPad/di/container_test.py` and provides test-specific implementations of all dependencies.
+
 ## Learnings and Project Insights
 
 ### Successful Approaches
