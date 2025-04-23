@@ -1,5 +1,5 @@
 from typing import override
-from PySide6.QtWidgets import QLabel, QPlainTextEdit, QWidget
+from PySide6.QtWidgets import QLabel, QPlainTextEdit, QPushButton, QWidget
 
 from PapyrusPad.domain.document.document_interface import IDocument
 from qt_helpers.bind_fields import bind_fields
@@ -14,17 +14,20 @@ class EditorWidget(QWidget, IWidget):
 
     lbl_title: QLabel = make(QLabel)
     txt_source: QPlainTextEdit = make(QPlainTextEdit)
+    btn_test: QPushButton = make(QPushButton, "Change the domain object")
 
     @override
     def setup(self) -> None:
         self.lbl_title.setText(self.document.name)
         self.txt_source.setPlainText(self.document.content)
+
+    @override
+    def setup_bindings(self) -> None:
         bind_fields([(self.txt_source, "plainText", self.document.content_observable)])
 
-    # @override
-    # def setup_signals(self) -> None:
-    # self.txt_source.textChanged.connect(self._on_text_changed)
+    @override
+    def setup_signals(self) -> None:
+        self.btn_test.clicked.connect(self._on_btn_test_clicked)
 
-    # def _on_text_changed(self) -> None:
-    #     self.document.content = self.txt_source.toPlainText()
-    #     self.document.is_modified = True
+    def _on_btn_test_clicked(self) -> None:
+        self.document.content = "CHANGED the MODEL!"

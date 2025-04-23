@@ -15,7 +15,6 @@ class ObservableField(Generic[T]):
     def set(self, value: T) -> None:
         if value != self._value:
             self._value = value
-            print(f"ObservableField set to {value} - {self}")
             for callback in self._callbacks:
                 callback(value)
 
