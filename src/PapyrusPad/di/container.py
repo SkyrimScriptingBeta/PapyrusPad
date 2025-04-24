@@ -7,6 +7,7 @@ from dependency_injector import providers
 
 from PapyrusPad.domain.dialog.dialog_interface import IDialogService
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
+from PapyrusPad.domain.document.document_file_operations_interface import IDocumentFileOperations
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 
 # TODO: one IContainer where each property is a callable that returns the T
@@ -18,6 +19,7 @@ class IContainer(Protocol):
     document_collection = providers.Dependency(IDocumentCollection)
     filesystem = providers.Dependency(IFileSystem)
     dialog_service = providers.Dependency(IDialogService)
+    document_file_operations = providers.Dependency(IDocumentFileOperations)
 
 
 _container: containers.DeclarativeContainer | None = None

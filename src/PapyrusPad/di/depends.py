@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QApplication
 from dependency_injector.wiring import Provide
 from PapyrusPad.di.container import get_container_class
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
+from PapyrusPad.domain.document.document_file_operations_interface import IDocumentFileOperations
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 from PapyrusPad.domain.dialog.dialog_interface import IDialogService
 
@@ -14,6 +15,7 @@ class Dependencies:
     document_collection = Provide[container_class.document_collection]
     filesystem = Provide[container_class.filesystem]
     dialog_service = Provide[container_class.dialog_service]
+    document_file_operations = Provide[container_class.document_file_operations]
 
 
 # Singleton instance
@@ -25,6 +27,7 @@ Depends: dict[type, Any] = {
     IDocumentCollection: dependencies.document_collection,
     IFileSystem: dependencies.filesystem,
     IDialogService: dependencies.dialog_service,
+    IDocumentFileOperations: dependencies.document_file_operations,
 }
 
 

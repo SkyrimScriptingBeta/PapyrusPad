@@ -11,6 +11,7 @@ import tempfile
 from pathlib import Path
 from PapyrusPad.di.container import get_container
 from PapyrusPad.domain.dialog.dialog_fake import FakeDialogService
+from PapyrusPad.domain.document.document_file_operations_interface import IDocumentFileOperations
 
 
 @pytest.fixture(autouse=True)
@@ -84,3 +85,13 @@ def filesystem():
 
     # Get the existing singleton instance
     return container.filesystem()
+
+
+@pytest.fixture
+def document_file_operations() -> IDocumentFileOperations:
+    """Fixture that provides the document file operations from the test container."""
+    # Get the container
+    container = get_container()
+
+    # Get the existing singleton instance
+    return container.document_file_operations()

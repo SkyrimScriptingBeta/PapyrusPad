@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QStyle
 from PapyrusPad.di.depends import Depends
 from PapyrusPad.domain.dialog.dialog_interface import IDialogService, DialogOptions, DialogType
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
-from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
+from PapyrusPad.domain.document.document_file_operations_interface import IDocumentFileOperations
 from qt_helpers.action import action
 from qt_helpers.interfaces import IAction
 
@@ -20,7 +20,7 @@ class OpenFileAction(QAction, IAction):
         self,
         checked: bool,
         document_collection: IDocumentCollection = Depends[IDocumentCollection],
-        filesystem: IFileSystem = Depends[IFileSystem],
+        document_file_operations: IDocumentFileOperations = Depends[IDocumentFileOperations],
         dialog_service: IDialogService = Depends[IDialogService],
     ) -> None:
         """
@@ -29,7 +29,7 @@ class OpenFileAction(QAction, IAction):
         Args:
             checked: Whether the action is checked (not used)
             document_collection: The document collection service
-            filesystem: The filesystem service
+            document_file_operations: The document file operations service
             dialog_service: The dialog service
         """
         # Show file open dialog
@@ -42,8 +42,8 @@ class OpenFileAction(QAction, IAction):
         try:
             # Open the file
             path = Path(file_path)
-            # The document is opened and made active by the document collection
-            document_collection.open_file(path, filesystem)
+            # The document is opened and made active by the document file operations service
+            document_file_operations.open_file(path, document_collection)
 
             # No need to do anything else, the document is now open and active
         except FileNotFoundError:

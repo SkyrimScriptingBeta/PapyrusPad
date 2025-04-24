@@ -3,22 +3,24 @@ import pytest
 from assertpy import assert_that
 
 from PapyrusPad.domain.document.document_collection import DocumentCollection
+from PapyrusPad.domain.document.document_file_operations import DocumentFileOperations
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 
 
-class TestDocumentCollectionOpenFile:
-    """Unit tests for the open_file method of DocumentCollection."""
+class TestDocumentFileOperations:
+    """Unit tests for the DocumentFileOperations class."""
 
     def test_open_file_new(self, document_collection: DocumentCollection, filesystem: IFileSystem) -> None:
         """Test opening a file that is not already open."""
         # Arrange
         file_path = Path("/test/test.txt")
+        document_file_operations = DocumentFileOperations(filesystem)
 
         # Set up the file in the filesystem
         filesystem.write_text(str(file_path), "File content")
 
         # Act
-        document = document_collection.open_file(file_path, filesystem)
+        document = document_file_operations.open_file(file_path, document_collection)
 
         # Assert
         assert_that(document.name).is_equal_to("test.txt")
@@ -32,20 +34,21 @@ class TestDocumentCollectionOpenFile:
         """Test opening a file that is already open."""
         # Arrange
         file_path = Path("/test/test.txt")
+        document_file_operations = DocumentFileOperations(filesystem)
 
         # Set up the files in the filesystem
         filesystem.write_text(str(file_path), "File content")
         filesystem.write_text("/test/other.txt", "Other content")
 
         # First open the file
-        first_document = document_collection.open_file(file_path, filesystem)
+        first_document = document_file_operations.open_file(file_path, document_collection)
 
         # Open another file to make it active
-        other_document = document_collection.open_file(Path("/test/other.txt"), filesystem)
+        other_document = document_file_operations.open_file(Path("/test/other.txt"), document_collection)
         assert_that(document_collection.get_active()).is_equal_to(other_document)
 
         # Act - open the first file again
-        document = document_collection.open_file(file_path, filesystem)
+        document = document_file_operations.open_file(file_path, document_collection)
 
         # Assert
         # Should return the same document
@@ -57,6 +60,7 @@ class TestDocumentCollectionOpenFile:
         """Test opening a file that cannot be read."""
         # Arrange
         file_path = Path("/nonexistent/file.txt")
+        document_file_operations = DocumentFileOperations(filesystem)
 
         # Make sure the file doesn't exist
         if filesystem.file_exists(str(file_path)):
@@ -64,7 +68,7 @@ class TestDocumentCollectionOpenFile:
 
         # Act & Assert
         with pytest.raises(FileNotFoundError):
-            document_collection.open_file(file_path, filesystem)
+            document_file_operations.open_file(file_path, document_collection)
 
         # Should not have added a document
         assert_that(document_collection.list_documents()).is_empty()

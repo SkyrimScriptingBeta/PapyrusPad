@@ -5,7 +5,6 @@ from typing import override, Callable, List
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 from PapyrusPad.domain.document.text_document import TextDocument
-from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 
 
 def _empty_document_list() -> list[IDocument]:
@@ -108,48 +107,6 @@ class DocumentCollection(IDocumentCollection):
     def is_path_open(self, path: Path) -> bool:
         """Check if a document with this path is already open."""
         return self.find_by_path(path) is not None
-
-    @override
-    def open_file(self, path: Path, filesystem: IFileSystem) -> IDocument:
-        """
-        Open a file from disk and create a document for it.
-
-        If a document with this path is already open, it will be returned.
-        Otherwise, a new document will be created, loaded with the file's content,
-        and added to the collection.
-
-        Args:
-            path: Path to the file to open
-            filesystem: The filesystem to use for loading
-
-        Returns:
-            The document representing the opened file
-
-        Raises:
-            FileNotFoundError: If the file does not exist or cannot be read
-        """
-        # Check if the file is already open
-        existing_doc = self.find_by_path(path)
-        if existing_doc:
-            # Make it active and return it
-            self.set_active(existing_doc.id)
-            return existing_doc
-
-        # Read the file content
-        content = filesystem.read_text(str(path))
-
-        # Create a new document
-        document = TextDocument()
-        document.name = path.name
-        document.path = path
-        document.content = content
-        document.mark_saved()  # Mark as saved since we just loaded it
-
-        # Add to collection and make active
-        self.add_or_replace(document)
-        self.set_active(document.id)
-
-        return document
 
     @override
     def add_document_added_listener(self, listener: Callable[[IDocument], None]) -> None:
