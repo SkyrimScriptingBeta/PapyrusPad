@@ -2,10 +2,10 @@ from typing import override
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QStyle
 
-from PapyrusPad.di.depends import Depends, save_as_action_factory
+from PapyrusPad.di.depends import Depends
 from PapyrusPad.domain.dialog.dialog_interface import IDialogService, DialogOptions, DialogType
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
-from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
+from PapyrusPad.domain.document.document_file_operations_interface import IDocumentFileOperations
 from qt_helpers.action import action
 from qt_helpers.interfaces import IAction
 
@@ -19,7 +19,7 @@ class SaveAction(QAction, IAction):
         self,
         checked: bool,
         document_collection: IDocumentCollection = Depends[IDocumentCollection],
-        filesystem: IFileSystem = Depends[IFileSystem],
+        document_file_operations: IDocumentFileOperations = Depends[IDocumentFileOperations],
         dialog_service: IDialogService = Depends[IDialogService],
     ) -> None:
         """
@@ -28,7 +28,7 @@ class SaveAction(QAction, IAction):
         Args:
             checked: Whether the action is checked (not used)
             document_collection: The document collection service
-            filesystem: The filesystem service
+            document_file_operations: The document file operations service
             dialog_service: The dialog service
         """
         # Get the active document
@@ -41,12 +41,15 @@ class SaveAction(QAction, IAction):
 
         # If document has no path, use Save As functionality
         if document.path is None:
-            save_as = save_as_action_factory()
-            save_as.action(checked)
+            # Import here to avoid circular imports
+            from PapyrusPad.actions.save_as_action import SaveAsAction
+
+            save_as = SaveAsAction()
+            save_as.action(checked, document_collection=document_collection, document_file_operations=document_file_operations, dialog_service=dialog_service)
             return
 
         # Save the document
-        success = document.save(filesystem)
+        success = document_file_operations.save_document(document)
 
         # Show error message if save failed
         if not success:

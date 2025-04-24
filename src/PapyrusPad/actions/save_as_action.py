@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QStyle
 from PapyrusPad.di.depends import Depends
 from PapyrusPad.domain.dialog.dialog_interface import IDialogService, DialogOptions, DialogType
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
-from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
+from PapyrusPad.domain.document.document_file_operations_interface import IDocumentFileOperations
 from qt_helpers.action import action
 from qt_helpers.interfaces import IAction
 
@@ -20,7 +20,7 @@ class SaveAsAction(QAction, IAction):
         self,
         checked: bool,
         document_collection: IDocumentCollection = Depends[IDocumentCollection],
-        filesystem: IFileSystem = Depends[IFileSystem],
+        document_file_operations: IDocumentFileOperations = Depends[IDocumentFileOperations],
         dialog_service: IDialogService = Depends[IDialogService],
     ) -> None:
         """
@@ -29,7 +29,7 @@ class SaveAsAction(QAction, IAction):
         Args:
             checked: Whether the action is checked (not used)
             document_collection: The document collection service
-            filesystem: The filesystem service
+            document_file_operations: The document file operations service
             dialog_service: The dialog service
         """
         # Get the active document
@@ -48,9 +48,9 @@ class SaveAsAction(QAction, IAction):
         if file_path is None:
             return
 
-        # Set the document path and save
-        document.path = Path(file_path)
-        success = document.save(filesystem)
+        # Save the document to the new path
+        path = Path(file_path)
+        success = document_file_operations.save_document_as(document, path)
 
         # Show error message if save failed
         if not success:

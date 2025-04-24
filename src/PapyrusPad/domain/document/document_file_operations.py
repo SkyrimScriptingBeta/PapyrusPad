@@ -101,9 +101,12 @@ class DocumentFileOperations(IDocumentFileOperations):
         Returns:
             True if saved successfully, False otherwise
         """
+        # Update the document's path and name before attempting to save
+        document.path = path
+        document.name = path.name  # Update the document name to match the filename
+
         try:
             self._filesystem.write_text(str(path), document.content)
-            document.path = path
             document.mark_saved()
             return True
         except Exception:
