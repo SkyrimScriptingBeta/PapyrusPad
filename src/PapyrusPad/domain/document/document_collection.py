@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import override
+from typing import override, Callable, List
 
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
@@ -8,12 +8,22 @@ from PapyrusPad.domain.document.text_document import TextDocument
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 
 
+def _empty_document_list() -> list[IDocument]:
+    return []
+
+
+def _empty_listener_list() -> List[Callable[[IDocument], None]]:
+    return []
+
+
 @dataclass
 class DocumentCollection(IDocumentCollection):
     """Implementation of IDocumentCollection that manages documents in memory."""
 
-    _documents: list[IDocument] = field(default_factory=list[IDocument])
+    _documents: list[IDocument] = field(default_factory=_empty_document_list)
     _active_document_id: str | None = None
+    _document_added_listeners: List[Callable[[IDocument], None]] = field(default_factory=_empty_listener_list)
+    _active_document_changed_listeners: List[Callable[[IDocument], None]] = field(default_factory=_empty_listener_list)
 
     @override
     def list_documents(self) -> list[IDocument]:
@@ -54,6 +64,10 @@ class DocumentCollection(IDocumentCollection):
         if not self._active_document_id:
             self._active_document_id = document.id
 
+        # Notify listeners that a document was added
+        for listener in self._document_added_listeners:
+            listener(document)
+
     @override
     def remove(self, document_id: str) -> bool:
         """Close/remove the document. Returns True if found."""
@@ -70,9 +84,15 @@ class DocumentCollection(IDocumentCollection):
     @override
     def set_active(self, document_id: str) -> bool:
         """Mark a document as currently active. Returns True if found."""
-        if not self.get_document(document_id):
+        document = self.get_document(document_id)
+        if not document:
             return False
         self._active_document_id = document_id
+
+        # Notify listeners that the active document changed
+        for listener in self._active_document_changed_listeners:
+            listener(document)
+
         return True
 
     @override
@@ -130,3 +150,23 @@ class DocumentCollection(IDocumentCollection):
         self.set_active(document.id)
 
         return document
+
+    @override
+    def add_document_added_listener(self, listener: Callable[[IDocument], None]) -> None:
+        """
+        Add a listener that will be called when a document is added to the collection.
+
+        Args:
+            listener: A function that takes an IDocument parameter
+        """
+        self._document_added_listeners.append(listener)
+
+    @override
+    def add_active_document_changed_listener(self, listener: Callable[[IDocument], None]) -> None:
+        """
+        Add a listener that will be called when the active document changes.
+
+        Args:
+            listener: A function that takes an IDocument parameter
+        """
+        self._active_document_changed_listeners.append(listener)

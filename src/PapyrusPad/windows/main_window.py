@@ -3,6 +3,7 @@ from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QMainWindow
 
 from PapyrusPad.di.depends import Depends
+from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 from PapyrusPad.menus.file_menu import FileMenu
 from PapyrusPad.menus.help_menu import HelpMenu
@@ -29,9 +30,36 @@ class MainWindow(QMainWindow, IWidget):
 
         # Add editor for all of the editor documents
         for document in document_collection.list_documents():
-            self.dock_manager.dock(EditorWidget(document), Qt.DockWidgetArea.RightDockWidgetArea)
+            self._add_editor_for_document(document)
 
         # If there is only one document, hide its draggable docking title bar
-        if len(document_collection.list_documents()) == 1:
-            if dock_widget := self.dock_manager.get_docked_widgets()[0]:
+        self._update_titlebar_visibility()
+
+        # Listen for document added events
+        document_collection.add_document_added_listener(self._on_document_added)
+
+    def _add_editor_for_document(self, document: IDocument) -> None:
+        """
+        Add an editor widget for the given document.
+
+        Args:
+            document: The document to add an editor for
+        """
+        self.dock_manager.dock(EditorWidget(document), Qt.DockWidgetArea.RightDockWidgetArea)
+
+    def _update_titlebar_visibility(self) -> None:
+        """Update the visibility of the titlebar based on the number of docked widgets."""
+        docked_widgets = self.dock_manager.get_docked_widgets()
+        if len(docked_widgets) == 1:
+            if dock_widget := docked_widgets[0]:
                 self.dock_manager.hide_titlebar(dock_widget)
+
+    def _on_document_added(self, document: IDocument) -> None:
+        """
+        Called when a document is added to the collection.
+
+        Args:
+            document: The document that was added
+        """
+        self._add_editor_for_document(document)
+        self._update_titlebar_visibility()
