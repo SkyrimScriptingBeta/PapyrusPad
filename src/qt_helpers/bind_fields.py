@@ -1,6 +1,6 @@
 from typing import Any
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QLineEdit, QCheckBox, QPlainTextEdit
+from PySide6.QtWidgets import QLineEdit, QCheckBox, QPlainTextEdit, QWidget
 from typing import Callable, ParamSpec, TypeVar
 
 from qt_helpers.signal_typing import GenericSignalHandler
@@ -42,9 +42,17 @@ BINDING_REGISTRY: dict[tuple[type[QObject], str], BindingAdapter[Any, Any]] = {}
 
 def bind_fields(bindings: list[tuple[QObject, str, ObservableField[Any]]]) -> None:
     for widget, prop, observable in bindings:
-        adapter = BINDING_REGISTRY.get((type(widget), prop))
+        adapter = None
+        widget_type = type(widget)
+
+        # Walk the parent inheritance tree
+        for cls in widget_type.mro():
+            adapter = BINDING_REGISTRY.get((cls, prop))
+            if adapter:
+                break
+
         if adapter is None:
-            raise ValueError(f"No binding registered for {type(widget).__name__}.{prop}")
+            raise ValueError(f"No binding registered for {widget_type.__name__}.{prop}")
 
         lock = False
 
@@ -112,4 +120,9 @@ BINDING_REGISTRY[(QLineEdit, "text")] = BindingAdapter[QLineEdit, [str]](
 BINDING_REGISTRY[(QPlainTextEdit, "plainText")] = BindingAdapter[QPlainTextEdit, [str]](
     signal_getter=make_signal_getter_for_no_arg("textChanged", lambda w: w.toPlainText()),
     setter=lambda w, val: w.setPlainText(val),
+)
+
+BINDING_REGISTRY[(QWidget, "windowTitle")] = BindingAdapter[QWidget, [str]](
+    signal_getter=make_signal_getter_for_no_arg("windowTitleChanged", lambda w: w.windowTitle()),
+    setter=lambda w, val: w.setWindowTitle(val),
 )

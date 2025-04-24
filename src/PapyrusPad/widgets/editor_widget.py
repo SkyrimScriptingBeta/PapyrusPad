@@ -24,6 +24,7 @@ class EditorWidget(QWidget, IWidget):
     @override
     def setup_bindings(self) -> None:
         bind_fields([(self.txt_source, "plainText", self.document.content_observable)])
+        bind_fields([(self, "windowTitle", self.document.name_observable)])
 
     @override
     def setup_signals(self) -> None:
