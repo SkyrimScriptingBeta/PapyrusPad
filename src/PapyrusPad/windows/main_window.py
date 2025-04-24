@@ -39,7 +39,9 @@ class MainWindow(QMainWindow, IWidget):
         document_collection.add_document_added_listener(self._on_document_added)
 
     def _add_editor_for_document(self, document: IDocument) -> None:
-        self.dock_manager.dock(EditorWidget(document), Qt.DockWidgetArea.RightDockWidgetArea)
+        dock_widget = self.dock_manager.dock(EditorWidget(document), Qt.DockWidgetArea.RightDockWidgetArea)
+        if len(self.dock_manager.get_docked_widgets()) > 1:
+            self.tabifyDockWidget(dock_widget, self.dock_manager.get_docked_widgets()[0])
 
     def _update_titlebar_visibility(self) -> None:
         """Update the visibility of the titlebar based on the number of docked widgets."""
