@@ -39,12 +39,6 @@ class MainWindow(QMainWindow, IWidget):
         document_collection.add_document_added_listener(self._on_document_added)
 
     def _add_editor_for_document(self, document: IDocument) -> None:
-        """
-        Add an editor widget for the given document.
-
-        Args:
-            document: The document to add an editor for
-        """
         self.dock_manager.dock(EditorWidget(document), Qt.DockWidgetArea.RightDockWidgetArea)
 
     def _update_titlebar_visibility(self) -> None:
@@ -55,11 +49,5 @@ class MainWindow(QMainWindow, IWidget):
                 self.dock_manager.hide_titlebar(dock_widget)
 
     def _on_document_added(self, document: IDocument) -> None:
-        """
-        Called when a document is added to the collection.
-
-        Args:
-            document: The document that was added
-        """
         self._add_editor_for_document(document)
         self._update_titlebar_visibility()
