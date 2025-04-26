@@ -206,12 +206,16 @@ class ObservableListBase(Generic[T], IObservableList[T]):
 
             # Add new items
             if isinstance(value, list):
-                self._items[index] = value
-                if value:
-                    self._notify_add_items(value, index.start)
+                # Explicitly cast to List[T] to help Pylance
+                typed_value: List[T] = cast(List[T], value)
+                self._items[index] = typed_value
+                if typed_value:
+                    # Use the explicitly typed value
+                    self._notify_add_items(typed_value, index.start)
             else:
                 # Handle single item assigned to slice
-                items_list = [cast(T, value)]
+                single_value: T = cast(T, value)
+                items_list: List[T] = [single_value]
                 self._items[index] = items_list
                 self._notify_add_items(items_list, index.start)
         else:
@@ -220,8 +224,9 @@ class ObservableListBase(Generic[T], IObservableList[T]):
             self._notify_remove(old_item, index)
 
             # Add new item
-            self._items[index] = cast(T, value)  # Cast to T since we know it's a single item
-            self._notify_add(cast(T, value), index)
+            new_value: T = cast(T, value)  # Cast to T since we know it's a single item
+            self._items[index] = new_value
+            self._notify_add(new_value, index)
 
     @override
     def __delitem__(self, index: Union[int, slice]) -> None:
