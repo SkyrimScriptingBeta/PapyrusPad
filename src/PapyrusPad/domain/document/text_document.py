@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 import uuid
-from typing import override, Any
+from typing import override
 
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
@@ -14,21 +14,28 @@ class TextDocument(IDocument):
     """A text document implementation of IDocument."""
 
     _id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    _name: Any = field(default_factory=lambda: ObservableField("Untitled"))
+    _name: ObservableField[str] = field(default_factory=lambda: ObservableField("Untitled"))
+    _display_name_observable: ObservableField[str] = field(default_factory=lambda: ObservableField("Untitled"))
     _path: Path | None = None
-    _content: Any = field(default_factory=lambda: ObservableField(""))
+    _content: ObservableField[str] = field(default_factory=lambda: ObservableField(""))
     _is_modified: bool = False
     _last_saved: datetime | None = None
 
     def __post_init__(self) -> None:
-        """Initialize the document after creation."""
-        # Convert string _name to ObservableField if needed
-        if isinstance(self._name, str):
-            self._name = ObservableField(self._name)
+        print("START __post_init")
+        self._update_display_name()
+        self.content_observable.bind(self._on_content_changed)
+        self.name_observable.bind(self._on_name_changed)
+        self._is_modified = False
+        print("END __post_init")
 
-        # Convert string _content to ObservableField if needed
-        if isinstance(self._content, str):
-            self._content = ObservableField(self._content)
+    def _on_content_changed(self, value: str) -> None:
+        print("--> Content changed")
+        self.is_modified = True
+
+    def _on_name_changed(self, value: str) -> None:
+        print("--> Name changed")
+        self._update_display_name()
 
     @property
     @override
@@ -43,8 +50,7 @@ class TextDocument(IDocument):
     @name.setter
     @override
     def name(self, value: str) -> None:
-        self._name.set(value)
-        self._is_modified = True
+        self._name.set_if_changed(value)
 
     @property
     @override
@@ -69,9 +75,11 @@ class TextDocument(IDocument):
     @content.setter
     @override
     def content(self, value: str) -> None:
+        print("A")
         if self._content.get() != value:
+            print("B")
             self._content.set(value)
-            self._is_modified = True
+            self.is_modified = True
 
     @property
     @override
@@ -86,11 +94,13 @@ class TextDocument(IDocument):
     @is_modified.setter
     @override
     def is_modified(self, value: bool) -> None:
-        self._is_modified = value
+        if value != self._is_modified:
+            self._is_modified = value
+            self._update_display_name()
 
     @override
     def mark_saved(self) -> None:
-        self._is_modified = False
+        self.is_modified = False
         self._last_saved = datetime.now()
 
     @property
@@ -101,8 +111,24 @@ class TextDocument(IDocument):
     @property
     @override
     def display_name(self) -> str:
-        modified_indicator = "*" if self._is_modified else ""
-        return f"{self.name}{modified_indicator}"
+        return self._display_name_observable.get()
+
+    def _update_display_name(self) -> None:
+        if self.path is None:
+            self._display_name_observable.set_if_changed(self.name)
+            return
+
+        print("-----------> Updating display name")
+        modified_indicator = "*" if self.is_modified else ""
+        text = f"{self.name}{modified_indicator}"
+        print("calling set, so callbacks should run....")
+        self._display_name_observable.set_if_changed(text)
+        print(f"SET - Display name updated to: {text}")
+
+    @property
+    @override
+    def display_name_observable(self) -> ObservableField[str]:
+        return self._display_name_observable
 
     @override
     def save(self, filesystem: IFileSystem) -> bool:

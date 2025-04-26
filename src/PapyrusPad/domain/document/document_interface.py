@@ -82,6 +82,12 @@ class IDocument(ABC):
         """Name for tab or sidebar display, may include '*' if modified."""
         ...
 
+    @property
+    @abstractmethod
+    def display_name_observable(self) -> ObservableField[str]:
+        """Observable for display name."""
+        ...
+
     @abstractmethod
     def save(self, filesystem: IFileSystem) -> bool:
         """

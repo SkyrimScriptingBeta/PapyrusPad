@@ -140,6 +140,7 @@ class DockManager(IDockManager):
         dock.setFeatures(features)
         dock.topLevelChanged.connect(as_bool_handler(lambda _: self._update_title_bar_for(dock)))
         dock.dockLocationChanged.connect(as_bool_handler(lambda _: self._update_title_bar_for(dock)))
+        widget.windowTitleChanged.connect(as_bool_handler(lambda title: dock.setWindowTitle(widget.windowTitle())))
         self.docked_widgets.append(dock)
         return dock
 

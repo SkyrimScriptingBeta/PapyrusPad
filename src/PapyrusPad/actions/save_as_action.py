@@ -43,6 +43,7 @@ class SaveAsAction(QAction, IAction):
         # Show file save dialog
         default_name = document.name if document.name else "Untitled.txt"
         file_path = dialog_service.show_file_save_dialog(title="Save As", default_path=default_name, filter="All Files (*);;Text Files (*.txt);;Papyrus Scripts (*.psc)")
+        print(f"File path from dialog: {file_path}")
 
         # If user cancelled, return
         if file_path is None:

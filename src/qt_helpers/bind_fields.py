@@ -1,6 +1,6 @@
 from typing import Any
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QLineEdit, QCheckBox, QPlainTextEdit, QWidget
+from PySide6.QtWidgets import QLabel, QLineEdit, QCheckBox, QPlainTextEdit, QWidget
 from typing import Callable, ParamSpec, TypeVar
 
 from qt_helpers.signal_typing import GenericSignalHandler
@@ -30,8 +30,8 @@ TWidget = TypeVar("TWidget", bound=QObject)
 class BindingAdapter(Generic[TWidget, P]):
     def __init__(  # type: ignore
         self,
-        signal_getter: Callable[[TWidget], Callable[[GenericSignalHandler[P]], None]],
-        setter: Callable[[TWidget, Any], None],
+        signal_getter: Callable[[TWidget], Callable[[GenericSignalHandler[P]], None]] | None = None,
+        setter: Callable[[TWidget, Any], None] | None = None,
     ) -> None:
         self.signal_getter = signal_getter
         self.setter = setter
@@ -64,18 +64,25 @@ def bind_fields(bindings: list[tuple[QObject, str, ObservableField[Any]]]) -> No
                 observable.set(value)
                 lock = False
 
-        adapter.signal_getter(widget)(update_model)
+        if adapter.signal_getter:
+            adapter.signal_getter(widget)(update_model)
 
         # Model → UI
         def update_ui(value: Any) -> None:
             nonlocal lock
             if not lock:
                 lock = True
-                if adapter:
+                if adapter and adapter.setter:
+                    print("1")
                     adapter.setter(widget, value)
+                else:
+                    print("2")
                 lock = False
 
         observable.bind(update_ui)
+
+        # Call the update_ui function once to initialize the UI with the current value
+        update_ui(observable.get())
 
 
 def make_signal_getter_for(signal_name: str, _widget_type: type[TWidget]) -> Callable[[TWidget], Callable[[GenericSignalHandler[P]], None]]:  # For type checking purposes
@@ -96,22 +103,22 @@ def make_signal_getter_for_no_arg[TWidget](signal_name: str, getter: Callable[[T
 
         def connect_wrapper(handler: Callable[[str], None]) -> None:
             def on_signal() -> None:
+                print("Signal emitted")
                 handler(getter(widget))  # pull value manually
 
             signal.connect(on_signal)
+            print(f"Connected {signal_name} to {on_signal}")
 
         return connect_wrapper
 
     return signal_getter
 
 
-# Register checkbox binding
 BINDING_REGISTRY[(QCheckBox, "checked")] = BindingAdapter[QCheckBox, [bool]](
     signal_getter=make_signal_getter_for("toggled", QCheckBox),
     setter=lambda w, val: w.setChecked(val),
 )
 
-# Register line edit binding
 BINDING_REGISTRY[(QLineEdit, "text")] = BindingAdapter[QLineEdit, [str]](
     signal_getter=make_signal_getter_for("textChanged", QLineEdit),
     setter=lambda w, val: w.setText(val),
@@ -123,6 +130,9 @@ BINDING_REGISTRY[(QPlainTextEdit, "plainText")] = BindingAdapter[QPlainTextEdit,
 )
 
 BINDING_REGISTRY[(QWidget, "windowTitle")] = BindingAdapter[QWidget, [str]](
-    signal_getter=make_signal_getter_for_no_arg("windowTitleChanged", lambda w: w.windowTitle()),
     setter=lambda w, val: w.setWindowTitle(val),
+)
+
+BINDING_REGISTRY[(QLabel, "text")] = BindingAdapter[QLabel, [str]](
+    setter=lambda w, val: w.setText(val),
 )
