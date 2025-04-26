@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import override, Callable, List
+from typing import override, Callable, List, Iterator
 
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
@@ -23,6 +23,7 @@ class DocumentCollection(IDocumentCollection):
     _active_document_id: str | None = None
     _document_added_listeners: List[Callable[[IDocument], None]] = field(default_factory=_empty_listener_list)
     _active_document_changed_listeners: List[Callable[[IDocument], None]] = field(default_factory=_empty_listener_list)
+    _current_index: int = field(default=0, init=False)
 
     @override
     def __len__(self) -> int:
@@ -32,6 +33,30 @@ class DocumentCollection(IDocumentCollection):
         This allows using len(collection) to get the document count.
         """
         return len(self._documents)
+
+    @override
+    def __iter__(self) -> Iterator[IDocument]:
+        """
+        Return an iterator over the documents in the collection.
+
+        This allows iterating over the collection using for loops and other iteration tools.
+        """
+        self._current_index = 0
+        return self
+
+    @override
+    def __next__(self) -> IDocument:
+        """
+        Return the next document in the collection.
+
+        This allows using next() on the collection to get the next document.
+        Raises StopIteration when there are no more documents.
+        """
+        if self._current_index >= len(self._documents):
+            raise StopIteration
+        document = self._documents[self._current_index]
+        self._current_index += 1
+        return document
 
     @override
     def list_documents(self) -> list[IDocument]:

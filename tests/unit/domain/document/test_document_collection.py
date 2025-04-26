@@ -2,6 +2,7 @@ from pathlib import Path
 from assertpy import assert_that
 
 from PapyrusPad.domain.document.document_collection import DocumentCollection
+from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.document.text_document import TextDocument
 
 
@@ -37,6 +38,44 @@ class TestDocumentCollection:
         # Remove the last document and check length
         collection.remove(doc2.id)
         assert_that(len(collection)).is_equal_to(0)
+
+    def test_iterator(self) -> None:
+        """Test the iterator functionality."""
+        collection = DocumentCollection()
+
+        # Empty collection should not have any items to iterate
+        assert_that(lambda: next(collection)).raises(StopIteration)
+
+        # Add documents
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
+        doc3 = TextDocument.create(name="doc3.txt")
+
+        collection.add_or_replace(doc1)
+        collection.add_or_replace(doc2)
+        collection.add_or_replace(doc3)
+
+        # Test next() function
+        assert_that(next(collection)).is_equal_to(doc1)
+        assert_that(next(collection)).is_equal_to(doc2)
+        assert_that(next(collection)).is_equal_to(doc3)
+
+        # Should raise StopIteration after all documents
+        assert_that(lambda: next(collection)).raises(StopIteration)
+
+        # Test reset of iterator
+        iterator = iter(collection)
+        assert_that(next(iterator)).is_equal_to(doc1)
+
+        # Test for loop
+        docs: list[IDocument] = []
+        for doc in collection:
+            docs.append(doc)
+
+        assert_that(docs).is_length(3)
+        assert_that(docs[0]).is_equal_to(doc1)
+        assert_that(docs[1]).is_equal_to(doc2)
+        assert_that(docs[2]).is_equal_to(doc3)
 
     def test_create(self) -> None:
         """Test creating a document."""

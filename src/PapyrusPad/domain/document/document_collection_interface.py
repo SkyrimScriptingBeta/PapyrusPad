@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Iterator
 
 from PapyrusPad.domain.document.document_interface import IDocument
 
@@ -14,6 +14,25 @@ class IDocumentCollection(ABC):
         Return the number of documents in the collection.
 
         This allows using len(collection) to get the document count.
+        """
+        ...
+
+    @abstractmethod
+    def __iter__(self) -> Iterator[IDocument]:
+        """
+        Return an iterator over the documents in the collection.
+
+        This allows iterating over the collection using for loops and other iteration tools.
+        """
+        ...
+
+    @abstractmethod
+    def __next__(self) -> IDocument:
+        """
+        Return the next document in the collection.
+
+        This allows using next() on the collection to get the next document.
+        Raises StopIteration when there are no more documents.
         """
         ...
 
