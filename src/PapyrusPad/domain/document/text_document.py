@@ -2,11 +2,14 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 import uuid
-from typing import override
+from typing import override, TYPE_CHECKING
 
-from PapyrusPad.domain.document.document_interface import IDocument
+from PapyrusPad.domain.document.document_interface import IDocument, T
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 from qt_helpers.observable import Observable
+
+if TYPE_CHECKING:
+    from PapyrusPad.domain.capability.document_capability_provider import DocumentCapabilityProvider
 
 
 @dataclass
@@ -20,6 +23,7 @@ class TextDocument(IDocument):
     _content: Observable[str] = field(default_factory=lambda: Observable(""))
     _is_modified: bool = False
     _last_saved: datetime | None = None
+    _document_type: Observable[str] = field(default_factory=lambda: Observable("text"))
 
     def __post_init__(self) -> None:
         self._update_display_name()
@@ -162,6 +166,72 @@ class TextDocument(IDocument):
     @override
     def display_name_observable(self) -> Observable[str]:
         return self._display_name_observable
+
+    @property
+    @override
+    def document_type(self) -> str:
+        """Get the document type ID."""
+        return self._document_type.get()
+
+    @document_type.setter
+    @override
+    def document_type(self, value: str) -> None:
+        """Set the document type ID."""
+        self._document_type.set_if_changed(value)
+
+    @property
+    @override
+    def document_type_observable(self) -> Observable[str]:
+        """Observable for document type changes."""
+        return self._document_type
+
+    # Capability provider will be injected at runtime
+    _capability_provider = None
+
+    @classmethod
+    def set_capability_provider_for_testing(cls, provider: "DocumentCapabilityProvider | None") -> None:
+        """
+        Set the capability provider for testing purposes.
+
+        This method should only be used in tests.
+
+        Args:
+            provider: The capability provider to set
+        """
+        cls._capability_provider = provider
+
+    @override
+    def has_capability(self, capability_id: str) -> bool:
+        """
+        Check if this document has a specific capability.
+
+        Args:
+            capability_id: The ID of the capability to check
+
+        Returns:
+            True if the document has the capability, False otherwise
+        """
+        if self._capability_provider is None:
+            return False
+
+        return self._capability_provider.has_capability(self.document_type, capability_id)
+
+    @override
+    def get_capability(self, capability_id: str, capability_type: type[T]) -> T | None:
+        """
+        Get a capability implementation by ID and type.
+
+        Args:
+            capability_id: The ID of the capability to get
+            capability_type: The expected type of the capability
+
+        Returns:
+            The capability implementation, or None if not available
+        """
+        if self._capability_provider is None:
+            return None
+
+        return self._capability_provider.get_capability(self.document_type, capability_id, capability_type)
 
     @override
     def save(self, filesystem: IFileSystem) -> bool:

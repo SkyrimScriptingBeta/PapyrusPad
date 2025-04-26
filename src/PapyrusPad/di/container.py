@@ -20,6 +20,9 @@ class IContainer(Protocol):
     filesystem = providers.Dependency(IFileSystem)
     dialog_service = providers.Dependency(IDialogService)
     document_file_operations = providers.Dependency(IDocumentFileOperations)
+    document_type_registry = providers.Dependency()
+    capability_registry = providers.Dependency()
+    document_capability_provider = providers.Dependency()
 
 
 _container: containers.DeclarativeContainer | None = None

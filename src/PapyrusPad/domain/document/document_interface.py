@@ -1,13 +1,61 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from datetime import datetime
+from typing import TypeVar
 
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 from qt_helpers.observable import Observable
 
+T = TypeVar("T")
+
 
 class IDocument(ABC):
     """Represents a document open in the editor."""
+
+    @property
+    @abstractmethod
+    def document_type(self) -> str:
+        """Get the document type ID."""
+        ...
+
+    @document_type.setter
+    @abstractmethod
+    def document_type(self, value: str) -> None:
+        """Set the document type ID."""
+        ...
+
+    @property
+    @abstractmethod
+    def document_type_observable(self) -> Observable[str]:
+        """Observable for document type changes."""
+        ...
+
+    @abstractmethod
+    def has_capability(self, capability_id: str) -> bool:
+        """
+        Check if this document has a specific capability.
+
+        Args:
+            capability_id: The ID of the capability to check
+
+        Returns:
+            True if the document has the capability, False otherwise
+        """
+        ...
+
+    @abstractmethod
+    def get_capability(self, capability_id: str, capability_type: type[T]) -> T | None:
+        """
+        Get a capability implementation by ID and type.
+
+        Args:
+            capability_id: The ID of the capability to get
+            capability_type: The expected type of the capability
+
+        Returns:
+            The capability implementation, or None if not available
+        """
+        ...
 
     @property
     @abstractmethod
