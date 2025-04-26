@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Callable, Iterator
 
 from PapyrusPad.domain.document.document_interface import IDocument
+from qt_helpers.observable_field import ObservableField
 
 
 class IDocumentCollection(ABC):
@@ -36,6 +37,26 @@ class IDocumentCollection(ABC):
         """
         ...
 
+    @property
+    @abstractmethod
+    def active_document_id(self) -> ObservableField[str | None]:
+        """
+        Get the observable field for the active document ID.
+
+        This allows binding to changes in the active document.
+        """
+        ...
+
+    @property
+    @abstractmethod
+    def active_document(self) -> IDocument | None:
+        """
+        Get the currently active document, if any.
+
+        This is a convenience property that returns the document with the active ID.
+        """
+        ...
+
     @abstractmethod
     def list_documents(self) -> list[IDocument]:
         """All open documents, in open-tab order."""
@@ -52,11 +73,6 @@ class IDocumentCollection(ABC):
         ...
 
     @abstractmethod
-    def get_active(self) -> IDocument | None:
-        """Return the currently focused/active document, if any."""
-        ...
-
-    @abstractmethod
     def add_or_replace(self, document: IDocument) -> None:
         """Add a new document or replace one with same ID."""
         ...
@@ -64,11 +80,6 @@ class IDocumentCollection(ABC):
     @abstractmethod
     def remove(self, document_id: str) -> bool:
         """Close/remove the document. Returns True if found."""
-        ...
-
-    @abstractmethod
-    def set_active(self, document_id: str) -> bool:
-        """Mark a document as currently active. Returns True if found."""
         ...
 
     @abstractmethod
@@ -85,16 +96,6 @@ class IDocumentCollection(ABC):
     def add_document_added_listener(self, listener: Callable[[IDocument], None]) -> None:
         """
         Add a listener that will be called when a document is added to the collection.
-
-        Args:
-            listener: A function that takes an IDocument parameter
-        """
-        ...
-
-    @abstractmethod
-    def add_active_document_changed_listener(self, listener: Callable[[IDocument], None]) -> None:
-        """
-        Add a listener that will be called when the active document changes.
 
         Args:
             listener: A function that takes an IDocument parameter

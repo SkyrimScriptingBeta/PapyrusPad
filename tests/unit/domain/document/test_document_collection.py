@@ -13,7 +13,8 @@ class TestDocumentCollection:
         """Test creating a document collection with default values."""
         collection = DocumentCollection()
         assert_that(collection.list_documents()).is_empty()
-        assert collection.get_active() is None
+        assert collection.active_document is None
+        assert collection.active_document_id.get() is None
 
     def test_len(self) -> None:
         """Test the __len__ method for getting document count."""
@@ -77,6 +78,46 @@ class TestDocumentCollection:
         assert_that(docs[1]).is_equal_to(doc2)
         assert_that(docs[2]).is_equal_to(doc3)
 
+    def test_active_document_id_observable(self) -> None:
+        """Test the active_document_id observable field."""
+        collection = DocumentCollection()
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
+
+        # Add documents
+        collection.add_or_replace(doc1)
+        collection.add_or_replace(doc2)
+
+        # By default, the first document added should be active
+        assert_that(collection.active_document_id.get()).is_equal_to(doc1.id)
+        assert_that(collection.active_document).is_equal_to(doc1)
+
+        # Track changes to active_document_id
+        changes = []
+        collection.active_document_id.bind(lambda value: changes.append(value))
+
+        # Change active document
+        collection.active_document_id.set(doc2.id)
+
+        # Check that active document was updated
+        assert_that(collection.active_document_id.get()).is_equal_to(doc2.id)
+        assert_that(collection.active_document).is_equal_to(doc2)
+
+        # Check that the callback was called
+        assert_that(changes).is_length(1)
+        assert_that(changes[0]).is_equal_to(doc2.id)
+
+        # Try to set a non-existent document as active
+        collection.active_document_id.set("non-existent-id")
+
+        # Active document ID should be updated, but active_document should be None
+        assert_that(collection.active_document_id.get()).is_equal_to("non-existent-id")
+        assert collection.active_document is None
+
+        # Check that the callback was called again
+        assert_that(changes).is_length(2)
+        assert_that(changes[1]).is_equal_to("non-existent-id")
+
     def test_create(self) -> None:
         """Test creating a document."""
         collection = DocumentCollection()
@@ -89,7 +130,8 @@ class TestDocumentCollection:
         # Check collection state
         assert_that(collection.list_documents()).is_length(1)
         assert_that(collection.get_document(doc.id)).is_equal_to(doc)
-        assert_that(collection.get_active()).is_equal_to(doc)
+        assert_that(collection.active_document).is_equal_to(doc)
+        assert_that(collection.active_document_id.get()).is_equal_to(doc.id)
 
     def test_add_or_replace(self) -> None:
         """Test adding and replacing documents."""
@@ -143,8 +185,8 @@ class TestDocumentCollection:
         # Check result
         assert_that(result).is_false()
 
-    def test_set_active(self) -> None:
-        """Test setting the active document."""
+    def test_legacy_set_active(self) -> None:
+        """Test the legacy set_active method."""
         collection = DocumentCollection()
         doc1 = TextDocument.create(name="doc1.txt")
         doc2 = TextDocument.create(name="doc2.txt")
@@ -162,6 +204,8 @@ class TestDocumentCollection:
         # Check result and collection state
         assert_that(result).is_true()
         assert_that(collection.get_active()).is_equal_to(doc2)
+        assert_that(collection.active_document).is_equal_to(doc2)
+        assert_that(collection.active_document_id.get()).is_equal_to(doc2.id)
 
         # Try to set a non-existent document as active
         result = collection.set_active("non-existent-id")
@@ -212,17 +256,19 @@ class TestDocumentCollection:
         collection.add_or_replace(doc2)
 
         # Set doc2 as active
-        collection.set_active(doc2.id)
-        assert_that(collection.get_active()).is_equal_to(doc2)
+        collection.active_document_id.set(doc2.id)
+        assert_that(collection.active_document).is_equal_to(doc2)
 
         # Remove active document
         collection.remove(doc2.id)
 
         # Active document should fall back to doc1
-        assert_that(collection.get_active()).is_equal_to(doc1)
+        assert_that(collection.active_document).is_equal_to(doc1)
+        assert_that(collection.active_document_id.get()).is_equal_to(doc1.id)
 
         # Remove last document
         collection.remove(doc1.id)
 
         # No active document
-        assert collection.get_active() is None
+        assert collection.active_document is None
+        assert collection.active_document_id.get() is None

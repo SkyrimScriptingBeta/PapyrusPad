@@ -44,7 +44,7 @@ class DocumentFileOperations(IDocumentFileOperations):
         existing_doc = document_collection.find_by_path(path)
         if existing_doc:
             # Make it active and return it
-            document_collection.set_active(existing_doc.id)
+            document_collection.active_document_id.set(existing_doc.id)
             return existing_doc
 
         print(f"Opening file: {path}")
@@ -61,7 +61,7 @@ class DocumentFileOperations(IDocumentFileOperations):
 
         # Add to collection and make active
         document_collection.add_or_replace(document)
-        document_collection.set_active(document.id)
+        document_collection.active_document_id.set(document.id)
 
         print(f"Opened document: {document.name} at {document.path}")
 
