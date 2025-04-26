@@ -183,6 +183,147 @@ class TestDocumentCollection:
         # Test removing from an empty collection
         assert_that(collection.remove_at_index(0)).is_false()
 
+    def test_document_added_listener(self) -> None:
+        """Test the document added listener."""
+        collection = DocumentCollection()
+
+        # Track added documents
+        added_documents: list[IDocument] = []
+        collection.add_document_added_listener(lambda doc: added_documents.append(doc))
+
+        # Add documents
+        doc1 = TextDocument.create(name="doc1.txt")
+        collection.add_or_replace(doc1)
+
+        # Check that the listener was called
+        assert_that(added_documents).is_length(1)
+        assert_that(added_documents[0]).is_equal_to(doc1)
+
+        # Add another document
+        doc2 = TextDocument.create(name="doc2.txt")
+        collection.add_or_replace(doc2)
+
+        # Check that the listener was called again
+        assert_that(added_documents).is_length(2)
+        assert_that(added_documents[1]).is_equal_to(doc2)
+
+        # Replace a document
+        doc1_updated = TextDocument.create_with_id(id=doc1.id, name="doc1_updated.txt")
+        collection.add_or_replace(doc1_updated)
+
+        # Check that the listener was called again
+        assert_that(added_documents).is_length(3)
+        assert_that(added_documents[2]).is_equal_to(doc1_updated)
+
+    def test_removing_document_listener(self) -> None:
+        """Test the removing document listener."""
+        collection = DocumentCollection()
+
+        # Add documents
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
+        collection.add_or_replace(doc1)
+        collection.add_or_replace(doc2)
+
+        # Track documents about to be removed
+        removing_documents: list[IDocument] = []
+        collection.add_removing_document_listener(lambda doc: removing_documents.append(doc))
+
+        # Remove a document
+        collection.remove(doc1.id)
+
+        # Check that the listener was called
+        assert_that(removing_documents).is_length(1)
+        assert_that(removing_documents[0]).is_equal_to(doc1)
+
+        # Remove another document
+        collection.remove(doc2.id)
+
+        # Check that the listener was called again
+        assert_that(removing_documents).is_length(2)
+        assert_that(removing_documents[1]).is_equal_to(doc2)
+
+        # Try to remove a non-existent document
+        collection.remove("non-existent-id")
+
+        # Check that the listener was not called
+        assert_that(removing_documents).is_length(2)
+
+    def test_removed_document_listener(self) -> None:
+        """Test the removed document listener."""
+        collection = DocumentCollection()
+
+        # Add documents
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
+        collection.add_or_replace(doc1)
+        collection.add_or_replace(doc2)
+
+        # Track removed document IDs
+        removed_document_ids: list[str] = []
+        collection.add_removed_document_listener(lambda doc_id: removed_document_ids.append(doc_id))
+
+        # Remove a document
+        collection.remove(doc1.id)
+
+        # Check that the listener was called
+        assert_that(removed_document_ids).is_length(1)
+        assert_that(removed_document_ids[0]).is_equal_to(doc1.id)
+
+        # Remove another document
+        collection.remove(doc2.id)
+
+        # Check that the listener was called again
+        assert_that(removed_document_ids).is_length(2)
+        assert_that(removed_document_ids[1]).is_equal_to(doc2.id)
+
+        # Try to remove a non-existent document
+        collection.remove("non-existent-id")
+
+        # Check that the listener was not called
+        assert_that(removed_document_ids).is_length(2)
+
+    def test_remove_at_index_calls_listeners(self) -> None:
+        """Test that remove_at_index calls the removing and removed document listeners."""
+        collection = DocumentCollection()
+
+        # Add documents
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
+        collection.add_or_replace(doc1)
+        collection.add_or_replace(doc2)
+
+        # Track documents about to be removed and removed document IDs
+        removing_documents: list[IDocument] = []
+        removed_document_ids: list[str] = []
+        collection.add_removing_document_listener(lambda doc: removing_documents.append(doc))
+        collection.add_removed_document_listener(lambda doc_id: removed_document_ids.append(doc_id))
+
+        # Remove a document by index
+        collection.remove_at_index(0)  # doc1 is at index 0
+
+        # Check that the listeners were called
+        assert_that(removing_documents).is_length(1)
+        assert_that(removing_documents[0]).is_equal_to(doc1)
+        assert_that(removed_document_ids).is_length(1)
+        assert_that(removed_document_ids[0]).is_equal_to(doc1.id)
+
+        # Remove another document by index
+        collection.remove_at_index(0)  # doc2 is now at index 0
+
+        # Check that the listeners were called again
+        assert_that(removing_documents).is_length(2)
+        assert_that(removing_documents[1]).is_equal_to(doc2)
+        assert_that(removed_document_ids).is_length(2)
+        assert_that(removed_document_ids[1]).is_equal_to(doc2.id)
+
+        # Try to remove from an empty collection
+        collection.remove_at_index(0)
+
+        # Check that the listeners were not called
+        assert_that(removing_documents).is_length(2)
+        assert_that(removed_document_ids).is_length(2)
+
     def test_active_document_id_observable(self) -> None:
         """Test the active_document_id observable field."""
         collection = DocumentCollection()
@@ -198,7 +339,7 @@ class TestDocumentCollection:
         assert_that(collection.active_document).is_equal_to(doc1)
 
         # Track changes to active_document_id
-        changes = []
+        changes: list[str | None] = []
         collection.active_document_id.bind(lambda value: changes.append(value))
 
         # Change active document

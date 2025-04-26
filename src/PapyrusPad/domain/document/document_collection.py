@@ -16,6 +16,10 @@ def _empty_listener_list() -> List[Callable[[IDocument], None]]:
     return []
 
 
+def _empty_id_listener_list() -> List[Callable[[str], None]]:
+    return []
+
+
 @dataclass
 class DocumentCollection(IDocumentCollection):
     """Implementation of IDocumentCollection that manages documents in memory."""
@@ -23,6 +27,8 @@ class DocumentCollection(IDocumentCollection):
     _documents: list[IDocument] = field(default_factory=_empty_document_list)
     _active_document_id_field: ObservableField[str | None] = field(default_factory=lambda: ObservableField(None))
     _document_added_listeners: List[Callable[[IDocument], None]] = field(default_factory=_empty_listener_list)
+    _removing_document_listeners: List[Callable[[IDocument], None]] = field(default_factory=_empty_listener_list)
+    _removed_document_listeners: List[Callable[[str], None]] = field(default_factory=_empty_id_listener_list)
     _current_index: int = field(default=0, init=False)
 
     @override
@@ -167,6 +173,16 @@ class DocumentCollection(IDocumentCollection):
     @override
     def remove(self, document_id: str) -> bool:
         """Close/remove the document. Returns True if found."""
+        # Find the document
+        document = self.get_document(document_id)
+        if not document:
+            return False
+
+        # Notify listeners that a document is about to be removed
+        for listener in self._removing_document_listeners:
+            listener(document)
+
+        # Remove the document
         original_length = len(self._documents)
         self._documents = [doc for doc in self._documents if doc.id != document_id]
 
@@ -175,6 +191,10 @@ class DocumentCollection(IDocumentCollection):
             # Set to the first document if available, otherwise None
             new_active_id = self._documents[0].id if self._documents else None
             self._active_document_id_field.set(new_active_id)
+
+        # Notify listeners that a document was removed
+        for listener in self._removed_document_listeners:
+            listener(document_id)
 
         # Return True if we removed a document
         return len(self._documents) < original_length
@@ -202,6 +222,31 @@ class DocumentCollection(IDocumentCollection):
             listener: A function that takes an IDocument parameter
         """
         self._document_added_listeners.append(listener)
+
+    @override
+    def add_removing_document_listener(self, listener: Callable[[IDocument], None]) -> None:
+        """
+        Add a listener that will be called BEFORE a document is removed from the collection.
+
+        This allows performing cleanup or saving operations before the document is removed.
+
+        Args:
+            listener: A function that takes an IDocument parameter (the document about to be removed)
+        """
+        self._removing_document_listeners.append(listener)
+
+    @override
+    def add_removed_document_listener(self, listener: Callable[[str], None]) -> None:
+        """
+        Add a listener that will be called AFTER a document is removed from the collection.
+
+        Since the document might already be destroyed, this listener receives the document ID
+        rather than the document itself.
+
+        Args:
+            listener: A function that takes a str parameter (the ID of the removed document)
+        """
+        self._removed_document_listeners.append(listener)
 
     # Legacy methods for backward compatibility
     def get_active(self) -> IDocument | None:

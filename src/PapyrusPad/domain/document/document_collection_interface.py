@@ -140,3 +140,28 @@ class IDocumentCollection(ABC):
             listener: A function that takes an IDocument parameter
         """
         ...
+
+    @abstractmethod
+    def add_removing_document_listener(self, listener: Callable[[IDocument], None]) -> None:
+        """
+        Add a listener that will be called BEFORE a document is removed from the collection.
+
+        This allows performing cleanup or saving operations before the document is removed.
+
+        Args:
+            listener: A function that takes an IDocument parameter (the document about to be removed)
+        """
+        ...
+
+    @abstractmethod
+    def add_removed_document_listener(self, listener: Callable[[str], None]) -> None:
+        """
+        Add a listener that will be called AFTER a document is removed from the collection.
+
+        Since the document might already be destroyed, this listener receives the document ID
+        rather than the document itself.
+
+        Args:
+            listener: A function that takes a str parameter (the ID of the removed document)
+        """
+        ...
