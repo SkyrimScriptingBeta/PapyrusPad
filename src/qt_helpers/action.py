@@ -16,8 +16,6 @@ def action(
     text: str | None = None, *, shortcut: str | None = None, tooltip: str | None = None, icon: QPixmap | QIcon | QStyle.StandardPixmap | str | None = None
 ) -> Callable[[Type[T]], Type[T]]:
     def decorator(cls: Type[T]) -> Type[T]:
-        print(f"Decorating {cls.__name__} with action mixin")
-
         # First make original class a dataclass if it's not already
         if not is_dataclass(cls):
             cls = dataclass(cls)

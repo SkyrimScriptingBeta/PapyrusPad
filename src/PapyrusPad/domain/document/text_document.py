@@ -22,12 +22,10 @@ class TextDocument(IDocument):
     _last_saved: datetime | None = None
 
     def __post_init__(self) -> None:
-        print("START __post_init")
         self._update_display_name()
         self.content_observable.bind(self._on_content_changed)
         self.name_observable.bind(self._on_name_changed)
         self._is_modified = False
-        print("END __post_init")
 
     @classmethod
     def create(cls, name: str = "Untitled", content: str = "", path: Path | None = None) -> "TextDocument":
@@ -75,11 +73,9 @@ class TextDocument(IDocument):
         return doc
 
     def _on_content_changed(self, value: str) -> None:
-        print("--> Content changed")
         self.is_modified = True
 
     def _on_name_changed(self, value: str) -> None:
-        print("--> Name changed")
         self.is_modified = True  # Setting name should mark as modified
         self._update_display_name()
 
@@ -121,9 +117,7 @@ class TextDocument(IDocument):
     @content.setter
     @override
     def content(self, value: str) -> None:
-        print("A")
         if self._content.get() != value:
-            print("B")
             self._content.set(value)
             self.is_modified = True
 
@@ -160,12 +154,9 @@ class TextDocument(IDocument):
         return self._display_name_observable.get()
 
     def _update_display_name(self) -> None:
-        print("-----------> Updating display name")
         modified_indicator = "*" if self.is_modified else ""
         text = f"{self.name}{modified_indicator}"
-        print(f"Setting display name to: {text}")
         self._display_name_observable.set_if_changed(text)
-        print(f"SET - Display name updated to: {text}")
 
     @property
     @override

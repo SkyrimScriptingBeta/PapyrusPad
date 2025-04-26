@@ -12,8 +12,6 @@ T = TypeVar("T", bound=QMenu)
 @dataclass_transform()
 def menu(text: str | None = None) -> Callable[[Type[T]], Type[T]]:
     def decorator(cls: Type[T]) -> Type[T]:
-        print(f"Decorating {cls.__name__} with menu mixin")
-
         # First make original class a dataclass if it's not already
         if not is_dataclass(cls):
             cls = dataclass(cls)

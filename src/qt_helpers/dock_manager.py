@@ -88,7 +88,6 @@ class DockManager(IDockManager):
     @override
     def on_event(self, event: QEvent) -> None:
         if event.type() == QEvent.Type.LayoutRequest:
-            print("INSTALL TAB FEATURES")
             self._install_tab_features()
 
     @override
@@ -117,15 +116,12 @@ class DockManager(IDockManager):
                 tab_bar.setTabsClosable(True)
                 tab_bar.setMovable(True)
                 tab_bar.tabCloseRequested.connect(self._handle_tab_close)
-                print("Connected tabCloseRequested to _handle_tab_close")
                 tab_bar.installEventFilter(self.main_window)
                 tab_bar.setProperty("_customized", True)
 
     # NOTE: we should handle other close methods to keep docked_widgets in sync
     def _handle_tab_close(self, index: int) -> None:
-        print("Tab close requested:", index)
         if self._on_tab_close_requested:
-            print("Calling _on_tab_close_requested")
             self._on_tab_close_requested(index)
 
     # @override
@@ -189,7 +185,6 @@ class DockManager(IDockManager):
         dock_widget.setTitleBarWidget(None)  # type: ignore
 
     def _update_title_bar_for(self, dock: QDockWidget) -> None:
-        print("Updating title bar for:", dock)
         tab_group = self.main_window.tabifiedDockWidgets(dock)
         if dock not in tab_group:
             tab_group.append(dock)

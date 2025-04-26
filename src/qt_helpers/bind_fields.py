@@ -73,10 +73,7 @@ def bind_fields(bindings: list[tuple[QObject, str, ObservableField[Any]]]) -> No
             if not lock:
                 lock = True
                 if adapter and adapter.setter:
-                    print("1")
                     adapter.setter(widget, value)
-                else:
-                    print("2")
                 lock = False
 
         observable.bind(update_ui)
@@ -103,11 +100,9 @@ def make_signal_getter_for_no_arg[TWidget](signal_name: str, getter: Callable[[T
 
         def connect_wrapper(handler: Callable[[str], None]) -> None:
             def on_signal() -> None:
-                print("Signal emitted")
                 handler(getter(widget))  # pull value manually
 
             signal.connect(on_signal)
-            print(f"Connected {signal_name} to {on_signal}")
 
         return connect_wrapper
 

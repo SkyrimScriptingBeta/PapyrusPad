@@ -30,7 +30,6 @@ def set_container(container_class: type[containers.DeclarativeContainer], contai
     global _container, _container_class
     _container = container
     _container_class = container_class
-    print(f"Container set. Class: {container_class}, Instance: {container}")
 
 
 def get_container() -> IContainer:

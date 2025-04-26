@@ -47,8 +47,6 @@ class DocumentFileOperations(IDocumentFileOperations):
             document_collection.active_document_id.set(existing_doc.id)
             return existing_doc
 
-        print(f"Opening file: {path}")
-
         # Read the file content
         content = self._filesystem.read_text(str(path))
 
@@ -60,13 +58,8 @@ class DocumentFileOperations(IDocumentFileOperations):
         document.mark_saved()  # Mark as saved since we just loaded it
 
         # Add to collection and make active
-        print(f"Adding document: {document.name} to collection")
         document_collection.add_or_replace(document)
-
-        print(f"Setting active document ID to: {document.id}")
         document_collection.active_document_id.set(document.id)
-
-        print(f"Opened document: {document.name} at {document.path}")
 
         return document
 
@@ -108,8 +101,6 @@ class DocumentFileOperations(IDocumentFileOperations):
         Returns:
             True if saved successfully, False otherwise
         """
-        print(f"Saving document as {path}")
-
         # Update the document's path and name before attempting to save
         document.path = path
         document.name = path.name  # Update the document name to match the filename
