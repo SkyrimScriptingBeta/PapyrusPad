@@ -5,7 +5,7 @@ from typing import override, Callable, List, Iterator
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 from PapyrusPad.domain.document.text_document import TextDocument
-from qt_helpers.observable_field import Observable
+from qt_helpers.observable import Observable
 
 
 def _empty_document_list() -> list[IDocument]:

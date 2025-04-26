@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
-from qt_helpers.observable_field import Observable
+from qt_helpers.observable import Observable
 
 
 class IDocument(ABC):

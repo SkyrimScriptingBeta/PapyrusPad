@@ -6,7 +6,7 @@ from typing import override
 
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
-from qt_helpers.observable_field import Observable
+from qt_helpers.observable import Observable
 
 
 @dataclass

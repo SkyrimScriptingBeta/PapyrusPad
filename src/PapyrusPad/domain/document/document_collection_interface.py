@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Callable, Iterator
 
 from PapyrusPad.domain.document.document_interface import IDocument
-from qt_helpers.observable_field import Observable
+from qt_helpers.observable import Observable
 
 
 class IDocumentCollection(ABC):

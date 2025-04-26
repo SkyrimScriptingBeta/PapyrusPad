@@ -12,7 +12,7 @@ from PySide6.QtCore import QObject
 
 from typing import Any
 from PySide6.QtCore import QObject
-from qt_helpers.observable_field import Observable
+from qt_helpers.observable import Observable
 
 from typing import Callable, Any, ParamSpec
 from PySide6.QtCore import QObject
