@@ -1,4 +1,5 @@
 from typing import override
+from PySide6.QtCore import QEvent, QObject
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QDockWidget, QMainWindow
 
@@ -29,6 +30,7 @@ class MainWindow(QMainWindow, IWidget):
     def setup(self, document_collection: IDocumentCollection = Depends[IDocumentCollection]):
         self.resize(1024, 1024)
         self.dock_manager = get_dock_manager(self)
+        self.dock_manager.on_tab_close(self._on_tab_close)
 
         # Add editor for all of the editor documents
         for document in document_collection.list_documents():
@@ -72,4 +74,20 @@ class MainWindow(QMainWindow, IWidget):
         # Need to switch the active tabbified dock widget to the active document
         if editor_dock is not None:
             editor_dock.show()
-            editor_dock.raise_()
+            editor_dock.raise_
+
+    def _on_tab_close(self, index: int, document_collection: IDocumentCollection = Depends[IDocumentCollection]) -> None:
+        if index < 0 or index >= len(document_collection.list_documents()):
+            return
+
+        # document = document_collection.get
+
+    @override
+    def event(self, event: QEvent) -> bool:
+        self.dock_manager.on_event(event)
+        return super().event(event)
+
+    @override
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
+        self.dock_manager.on_event(event)
+        return super().eventFilter(obj, event)

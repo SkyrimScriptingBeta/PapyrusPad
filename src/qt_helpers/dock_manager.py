@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Optional, cast, override
+from typing import Callable, Optional, cast, override
 from PySide6.QtWidgets import (
     QMainWindow,
     QDockWidget,
@@ -18,6 +18,9 @@ from qt_helpers.signal_typing import as_bool_handler
 
 
 class IDockManager(ABC):
+    @abstractmethod
+    def on_tab_close(self, callback: Callable[[int], None]) -> None: ...
+
     @abstractmethod
     def get_docked_widgets(self) -> list[QDockWidget]: ...
 
@@ -63,6 +66,8 @@ class IDockManager(ABC):
 class DockManager(IDockManager):
     main_window: QMainWindow
     docked_widgets: list[QDockWidget] = field(default_factory=list[QDockWidget])
+
+    _on_tab_close_requested: Optional[Callable[[int], None]] = None
     _drag_tab_start_pos: QPoint = field(default_factory=QPoint)
     _drag_tab_index: int = -1
     _drag_tab_text: Optional[str] = None
@@ -72,6 +77,10 @@ class DockManager(IDockManager):
         self.main_window.setTabPosition(Qt.DockWidgetArea.AllDockWidgetAreas, QTabWidget.TabPosition.North)
 
     @override
+    def on_tab_close(self, callback: Callable[[int], None]) -> None:
+        self._on_tab_close_requested = callback
+
+    @override
     def get_docked_widgets(self) -> list[QDockWidget]:
         """Get the list of docked widgets."""
         return self.docked_widgets
@@ -79,6 +88,7 @@ class DockManager(IDockManager):
     @override
     def on_event(self, event: QEvent) -> None:
         if event.type() == QEvent.Type.LayoutRequest:
+            print("INSTALL TAB FEATURES")
             self._install_tab_features()
 
     @override
@@ -107,21 +117,14 @@ class DockManager(IDockManager):
                 tab_bar.setTabsClosable(True)
                 tab_bar.setMovable(True)
                 tab_bar.tabCloseRequested.connect(self._handle_tab_close)
+                print("Connected tabCloseRequested to _handle_tab_close")
                 tab_bar.installEventFilter(self.main_window)
                 tab_bar.setProperty("_customized", True)
 
     # NOTE: we should handle other close methods to keep docked_widgets in sync
     def _handle_tab_close(self, index: int) -> None:
-        tab_bar = self.main_window.sender()
-        if isinstance(tab_bar, QTabBar):
-            tab_text = tab_bar.tabText(index)
-            for dock in self.main_window.findChildren(QDockWidget):
-                if dock.windowTitle() == tab_text:
-                    self.main_window.removeDockWidget(dock)
-                    dock.deleteLater()
-                    if dock in self.docked_widgets:
-                        self.docked_widgets.remove(dock)
-                    break
+        if self._on_tab_close_requested:
+            self._on_tab_close_requested(index)
 
     # @override
     def _make_dock(
