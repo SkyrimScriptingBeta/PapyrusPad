@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Callable, Generic, TypeVar, Dict, List, Iterator, Optional, Tuple, Union, cast, Any
+from typing import TYPE_CHECKING, Callable, Generic, TypeVar, Dict, List, Iterator, Optional, Tuple, Union, cast
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRichComparison
 
 T = TypeVar("T")
 K = TypeVar("K")
@@ -228,7 +231,7 @@ class ObservableList(Generic[T]):
         """
         return self._items.count(item)
 
-    def sort(self, *, key: Optional[Callable[[T], Any]] = None, reverse: bool = False) -> None:
+    def sort(self, *, key: Optional[Callable[[T], "SupportsRichComparison"]] = None, reverse: bool = False) -> None:
         """
         Sort the list in place.
 
@@ -236,7 +239,7 @@ class ObservableList(Generic[T]):
             key: A function that takes an item and returns a key for sorting
             reverse: Whether to sort in reverse order
         """
-        self._items.sort(key=key, reverse=reverse)
+        self._items.sort(key=key, reverse=reverse)  # type: ignore
         # No notification needed as the items themselves haven't changed
 
     def reverse(self) -> None:
