@@ -11,6 +11,7 @@
   - Dataclasses for model representation
   - Modern syntax (union types with `|`, pattern matching, etc.)
   - Abstract base classes for interface definitions
+  - Generic types for type-safe collections
 
 ### Qt/PySide6
 
@@ -118,6 +119,12 @@
 - **Rationale**: Simplify UI-to-model synchronization and improve code maintainability
 - **Implementation**: Central binding registry, observable fields, and binding adapters
 
+### Observable Collections System
+
+- **Decision**: Implement a layered architecture for observable collections
+- **Rationale**: Improve type safety, code reuse, and flexibility for collections that need to notify observers
+- **Implementation**: Interfaces, base classes, and concrete implementations with specific event types
+
 ### Docking System
 
 - **Decision**: Implement custom docking behavior on top of Qt's docking system
@@ -169,3 +176,20 @@
 
 - **Strategy**: Manual updates initially, potential for auto-update system later
 - **Versioning**: Semantic versioning (major.minor.patch)
+
+## Type Checking Challenges
+
+### Generic Types
+
+- **Challenge**: Python's runtime doesn't maintain information about generic type parameters
+- **Solution**: Explicit type casting and annotations to help the type checker
+
+### Union Types
+
+- **Challenge**: Working with `Union[T, List[T]]` parameters can be challenging for type checkers
+- **Solution**: Explicit type casting and conditional handling based on type
+
+### Optional Parameters
+
+- **Challenge**: Methods like `sort()` with optional parameters can cause type checking issues
+- **Solution**: Explicit handling of None cases or type ignore comments where appropriate

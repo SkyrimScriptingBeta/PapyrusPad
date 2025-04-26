@@ -11,6 +11,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 5. **Development Infrastructure**: Establishing the development workflow with Poetry, SCSS styling, and resource compilation.
 6. **Domain-Driven File Organization**: Implementing a domain-driven file structure that organizes code by feature and domain concepts.
 7. **Dependency Injection**: Setting up a dependency injection system to manage application dependencies and promote loose coupling.
+8. **Observable Collections**: Implementing a robust, type-safe system for collections that notify observers when their contents change.
 
 ## Recent Changes
 
@@ -25,6 +26,8 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - Implemented dependency injection using the `dependency-injector` package
 - Created a FastAPI-inspired `Depends[T]` pattern for requesting dependencies
 - Developed a comprehensive data binding system for UI-to-model synchronization
+- Refactored the observable collections system to use interfaces and base classes
+- Updated DocumentCollection to implement IObservableList[IDocument]
 
 ### UI Components
 
@@ -90,6 +93,8 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 
 6. **Styling with SCSS**: Using SCSS for styling with hot-reloading in development has improved the styling workflow. This approach will be maintained and expanded with more comprehensive styling.
 
+7. **Observable Collections**: The decision to implement a layered architecture for observable collections with interfaces, base implementations, and concrete classes has improved type safety, code reuse, and flexibility. This approach allows for easy extension and customization of collection behavior.
+
 ### Technical Considerations
 
 1. **Editor Performance**: As we move to implement a custom editor, performance will be a key consideration, especially for large Papyrus scripts.
@@ -97,6 +102,8 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 2. **LSP Integration**: The integration with the Papyrus LSP will require careful design to ensure responsiveness and reliability.
 
 3. **Modding Tool Integration**: Planning for integration with mod managers (MO2, Vortex) needs to begin early to ensure a smooth experience.
+
+4. **Type Checking Challenges**: Working with generic types in Python can present challenges for type checkers. We've addressed these through explicit type casting, type annotations, and occasional use of type ignore comments.
 
 ### Open Questions
 
@@ -116,6 +123,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - **Dependency Injection**: Use the `Depends[T]` pattern for requesting dependencies.
 - **Type-Safe Binding**: Use the registry-based binding system for UI-to-model synchronization.
 - **Typing**: Maintain strict typing throughout the codebase.
+- **Observable Collections**: Use the observable collections system for collections that need to notify observers of changes.
 
 ### UI Design
 
@@ -158,6 +166,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - The docking system provides a flexible and user-friendly way to organize the interface.
 - Using SCSS for styling has improved maintainability and development workflow.
 - Using fake implementations instead of mocks for testing has improved test readability and maintainability.
+- The observable collections system has improved type safety, code reuse, and flexibility for collections that need to notify observers of changes.
 
 ### Challenges
 
@@ -165,6 +174,7 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - Balancing simplicity and power in the editor interface requires careful design.
 - Integrating with external tools (compiler, LSP) will require robust error handling and user feedback.
 - Testing with dependency injection requires careful management of singleton instances to avoid test isolation issues.
+- Working with generic types in Python can present challenges for type checkers, requiring explicit type casting and occasional type ignore comments.
 
 ### Future Opportunities
 
@@ -174,3 +184,4 @@ The current focus of the PapyrusPad project is establishing the foundational arc
 - The dependency injection system could be extended to support scoped dependencies and more complex injection scenarios.
 - The editor component could be enhanced with Papyrus-specific features beyond what general-purpose editors provide.
 - Integration with mod managers could provide a seamless workflow for modders.
+- The observable collections system could be extended to support filtered views, sorted views, mapped collections, batch operations, and undo/redo functionality.

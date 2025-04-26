@@ -69,6 +69,43 @@ class TextDocument(IDocument):
         return self._content
 ```
 
+### Observable Collections System
+
+The application implements a robust, type-safe system for collections that notify observers when their contents change:
+
+1. **Interface Layer**: `IObservableList` and `IObservableDict` define the contracts for observable collections.
+2. **Base Implementation Layer**: `ObservableListBase` and `ObservableDictBase` provide concrete implementations that can be extended.
+3. **Concrete Classes**: `ObservableList` and `ObservableDict` are ready-to-use implementations.
+4. **Change Objects**: `ListChange` and `DictChange` encapsulate information about collection changes.
+5. **Change Type Enum**: `CollectionChangeType` defines the types of changes (ADD, REMOVE, UPDATE, CLEAR).
+6. **Event Registration**: Collections provide methods to register for specific events (`on_add`, `on_remove`, etc.).
+7. **Integration with Domain Models**: Domain models like `DocumentCollection` implement and extend the observable collection interfaces.
+
+```python
+# Creating an observable list
+items = ObservableList[str](["apple", "banana", "cherry"])
+
+# Registering for events
+items.on_add(lambda item, index: print(f"Added {item} at index {index}"))
+items.on_remove(lambda item, index: print(f"Removed {item} from index {index}"))
+
+# Using in a domain model
+@dataclass
+class DocumentCollection(ObservableListBase[IDocument], IDocumentCollection):
+    # Implementation...
+    
+    def add_or_replace(self, document: IDocument) -> None:
+        existing_doc = self.get_document(document.id)
+        if existing_doc:
+            index = self._items.index(existing_doc)
+            self._items[index] = document
+            # Notify listeners
+            for listener in self._document_added_listeners:
+                listener(document)
+        else:
+            self.append(document)  # Uses ObservableListBase.append which notifies listeners
+```
+
 ### Declarative Menu System
 
 The application extends the declarative approach to menus and actions:
@@ -169,7 +206,8 @@ The application uses interfaces to define contracts and enable loose coupling:
 1. **IWidget Interface**: Defines the contract for all widget classes with methods like `setup()`, `setup_layout()`, etc.
 2. **IAction Interface**: Defines the contract for action classes with the `action()` method.
 3. **IDockManager Interface**: Defines the contract for dock management functionality.
-4. **Abstract Base Classes**: Used to define interfaces with the `ABC` module.
+4. **IObservableList/IObservableDict Interfaces**: Define the contracts for observable collections.
+5. **Abstract Base Classes**: Used to define interfaces with the `ABC` module.
 
 ```python
 class IWidget(ABC):
@@ -186,6 +224,15 @@ class IAction(ABC):
     def action(self, checked: bool) -> None:
         """Defines the default action behavior for QAction instances."""
         pass
+
+class IObservableList(Generic[T], ABC):
+    @abstractmethod
+    def on_add(self, callback: Callable[[T, int], None]) -> None: ...
+    
+    @abstractmethod
+    def on_remove(self, callback: Callable[[T, int], None]) -> None: ...
+    
+    # Other methods...
 ```
 
 ## Design Patterns
@@ -269,6 +316,7 @@ Used for event handling and signal connections:
 2. **Event Filtering**: Custom event handling through Qt's event filter system.
 3. **File System Watching**: For style sheet hot-reloading during development.
 4. **Observable Fields**: Generic observable value containers that notify listeners when values change.
+5. **Observable Collections**: Collections that notify observers when their contents change.
 
 ```python
 # Observer pattern with signals
@@ -292,6 +340,11 @@ class ObservableField(Generic[T]):
     def bind(self, callback: Callable[[T], None]) -> None:
         self._callbacks.append(callback)
         callback(self._value)  # trigger immediately with current value
+
+# Observer pattern with observable collections
+items = ObservableList[str](["apple", "banana", "cherry"])
+items.on_add(lambda item, index: print(f"Added {item} at index {index}"))
+items.append("date")  # Triggers the callback
 ```
 
 ## File Organization
@@ -334,6 +387,7 @@ src/PapyrusPad/
 7. **Dependencies**: Manages application dependencies and wiring.
 8. **Binding Registry**: Central registry for widget binding adapters.
 9. **Observable Fields**: Domain model properties that notify listeners when values change.
+10. **Observable Collections**: Collections that notify observers when their contents change.
 
 ### Data Flow
 
@@ -342,6 +396,7 @@ src/PapyrusPad/
 3. **Model → Widgets**: Changes in the model are automatically propagated to widgets through bindings.
 4. **Model → Application Logic**: Application logic operates on the model.
 5. **Application Logic → Model**: Application logic updates the model, which triggers UI updates through bindings.
+6. **Collection Changes → Observers**: Changes to collections trigger notifications to registered observers.
 
 ## Critical Implementation Paths
 
@@ -369,6 +424,13 @@ src/PapyrusPad/
 3. Apply the stylesheet to the application
 4. In production mode: Load pre-compiled QSS from resources
 
+### Observable Collection Updates
+
+1. Collection is modified (item added, removed, etc.)
+2. Notification methods are called with appropriate parameters
+3. Registered callbacks are invoked
+4. UI components update in response to collection changes
+
 ## Future Architecture Considerations
 
 1. **Plugin System**: A formal plugin architecture to allow for extensibility.
@@ -379,3 +441,4 @@ src/PapyrusPad/
 6. **Menu Extension System**: Allow plugins to extend the menu system.
 7. **Enhanced Data Binding**: Extend the data binding system to support validation, transformation, and more complex binding scenarios.
 8. **Testing Framework**: Comprehensive testing strategy with proper test isolation. We've already implemented a robust approach for resetting singleton instances between tests, which will serve as the foundation for our testing framework.
+9. **Observable Collections Extensions**: Extensions like filtered views, sorted views, mapped collections, batch operations, and undo/redo support.

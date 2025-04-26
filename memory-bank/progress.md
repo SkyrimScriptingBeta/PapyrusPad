@@ -17,6 +17,7 @@ PapyrusPad is in the early stages of development. The project has established it
 - ✅ Dark/light mode support via command-line arguments
 - ✅ Domain-driven file organization
 - ✅ Dependency injection system
+- ✅ Observable collections system with interfaces and base classes
 
 ### UI Components
 
@@ -37,6 +38,13 @@ PapyrusPad is in the early stages of development. The project has established it
 - ✅ PyInstaller packaging configuration
 - ✅ Debug mode with debugpy support
 
+### Domain Models
+
+- ✅ Document model with observable properties
+- ✅ Document collection with observable list behavior
+- ✅ File system abstraction with memory and Qt implementations
+- ✅ Dialog service abstraction with fake and Qt implementations
+
 ## What's In Progress
 
 ### Editor Enhancements
@@ -50,6 +58,13 @@ PapyrusPad is in the early stages of development. The project has established it
 - 🔄 Refining the dock manager implementation
 - 🔄 Saving and restoring dock layouts
 - 🔄 Default panel configurations
+
+### Observable Collections
+
+- ✅ Interface-based design for observable collections
+- ✅ Base implementations for observable lists and dictionaries
+- ✅ Integration with DocumentCollection
+- 🔄 Additional collection types (filtered views, sorted views, etc.)
 
 ## What's Left to Build
 
@@ -101,6 +116,7 @@ PapyrusPad is in the early stages of development. The project has established it
 - Dock manager needs refinement for better tab management
 - No persistent settings or configuration yet
 - No project management capabilities
+- Type checking challenges with generic types in observable collections
 
 ## Next Steps
 
@@ -133,6 +149,7 @@ The project started with a focus on creating a minimal, fast-loading editor with
 - **Dependency Injection**: Implemented a FastAPI-inspired dependency injection system
 - **Docking System**: Enhanced to provide a more modern tab-based interface
 - **Styling**: Moved to SCSS for better maintainability
+- **Observable Collections**: Refactored to use interfaces and base classes for better type safety, code reuse, and flexibility
 
 ### Future Direction Considerations
 
@@ -140,3 +157,4 @@ The project started with a focus on creating a minimal, fast-loading editor with
 - **Enhanced Data Binding**: Extending the data binding system to support validation, transformation, and more complex binding scenarios
 - **Performance Optimization**: May need to optimize editor performance for large scripts
 - **Distribution Strategy**: Evaluating options for distribution and updates
+- **Observable Collections Extensions**: Considering extensions like filtered views, sorted views, mapped collections, batch operations, and undo/redo support
