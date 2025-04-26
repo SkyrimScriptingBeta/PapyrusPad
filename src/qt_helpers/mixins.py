@@ -8,6 +8,9 @@ class SetupFunctionsMixin:
     def setup(self) -> None:
         pass
 
+    def setup_bindings(self) -> None:
+        pass
+
     def setup_layout(self) -> None:
         pass
 
