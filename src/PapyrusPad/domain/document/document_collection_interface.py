@@ -1,41 +1,13 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Callable, Iterator
+from typing import Callable, Iterator, List, Union, Optional, Any, override
 
 from PapyrusPad.domain.document.document_interface import IDocument
-from qt_helpers.observable import Observable
+from qt_helpers.observable import Observable, IObservableList, ListChange
 
 
-class IDocumentCollection(ABC):
+class IDocumentCollection(IObservableList[IDocument], ABC):
     """Manages all documents open in the editor."""
-
-    @abstractmethod
-    def __len__(self) -> int:
-        """
-        Return the number of documents in the collection.
-
-        This allows using len(collection) to get the document count.
-        """
-        ...
-
-    @abstractmethod
-    def __iter__(self) -> Iterator[IDocument]:
-        """
-        Return an iterator over the documents in the collection.
-
-        This allows iterating over the collection using for loops and other iteration tools.
-        """
-        ...
-
-    @abstractmethod
-    def __next__(self) -> IDocument:
-        """
-        Return the next document in the collection.
-
-        This allows using next() on the collection to get the next document.
-        Raises StopIteration when there are no more documents.
-        """
-        ...
 
     @property
     @abstractmethod
@@ -117,8 +89,8 @@ class IDocumentCollection(ABC):
         ...
 
     @abstractmethod
-    def remove(self, document_id: str) -> bool:
-        """Close/remove the document. Returns True if found."""
+    def remove_by_id(self, document_id: str) -> bool:
+        """Close/remove the document by ID. Returns True if found."""
         ...
 
     @abstractmethod
@@ -131,6 +103,7 @@ class IDocumentCollection(ABC):
         """Check if a document with this path is already open."""
         ...
 
+    # Legacy event methods - these will be deprecated in favor of the observable list pattern
     @abstractmethod
     def add_document_added_listener(self, listener: Callable[[IDocument], None]) -> None:
         """
@@ -164,4 +137,131 @@ class IDocumentCollection(ABC):
         Args:
             listener: A function that takes a str parameter (the ID of the removed document)
         """
+        ...
+
+    # IObservableList methods that need to be implemented
+    @abstractmethod
+    @override
+    def __len__(self) -> int:
+        """Return the number of documents in the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def __getitem__(self, index: Union[int, slice]) -> Union[IDocument, List[IDocument]]:
+        """Get a document or slice of documents from the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def __setitem__(self, index: Union[int, slice], value: Union[IDocument, List[IDocument]]) -> None:
+        """Set a document or slice of documents in the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def __delitem__(self, index: Union[int, slice]) -> None:
+        """Delete a document or slice of documents from the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def __iter__(self) -> Iterator[IDocument]:
+        """Return an iterator over the documents in the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def __contains__(self, item: IDocument) -> bool:
+        """Check if a document is in the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def append(self, item: IDocument) -> None:
+        """Add a document to the end of the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def extend(self, items: List[IDocument]) -> None:
+        """Extend the collection by appending all documents from the iterable."""
+        ...
+
+    @abstractmethod
+    @override
+    def insert(self, index: int, item: IDocument) -> None:
+        """Insert a document at a given position."""
+        ...
+
+    @abstractmethod
+    @override
+    def remove(self, item: IDocument) -> None:
+        """Remove the first occurrence of a document from the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def pop(self, index: int = -1) -> IDocument:
+        """Remove and return a document at a given position."""
+        ...
+
+    @abstractmethod
+    @override
+    def clear(self) -> None:
+        """Remove all documents from the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def index(self, item: IDocument, start: int = 0, end: Optional[int] = None) -> int:
+        """Return the index of the first occurrence of a document."""
+        ...
+
+    @abstractmethod
+    @override
+    def count(self, item: IDocument) -> int:
+        """Return the number of occurrences of a document in the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def sort(self, *, key: Optional[Callable[[IDocument], Any]] = None, reverse: bool = False) -> None:
+        """Sort the collection in place."""
+        ...
+
+    @abstractmethod
+    @override
+    def reverse(self) -> None:
+        """Reverse the collection in place."""
+        ...
+
+    @abstractmethod
+    @override
+    def copy(self) -> List[IDocument]:
+        """Return a shallow copy of the collection."""
+        ...
+
+    @abstractmethod
+    @override
+    def on_change(self, callback: Callable[[ListChange[IDocument]], None]) -> None:
+        """Register for all change events with detailed information."""
+        ...
+
+    @abstractmethod
+    @override
+    def on_add(self, callback: Callable[[IDocument, int], None]) -> None:
+        """Register for add events with document and index."""
+        ...
+
+    @abstractmethod
+    @override
+    def on_remove(self, callback: Callable[[IDocument, int], None]) -> None:
+        """Register for remove events with document and index."""
+        ...
+
+    @abstractmethod
+    @override
+    def on_clear(self, callback: Callable[[List[IDocument]], None]) -> None:
+        """Register for clear events with the cleared documents."""
         ...

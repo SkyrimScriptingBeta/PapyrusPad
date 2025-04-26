@@ -33,13 +33,13 @@ prod-light = "poetry run app --light"
 qrc = "pyside6-rcc -o src/PapyrusPad/qrc_resources.py resources/resources.qrc"
 
 [tool.poetry.group.dev.dependencies]
+assertpy = "^1.1"
 debugpy = "^1.8.14"
 poethepoet = "^0.33.1"
 pyinstaller = "^6.13.0"
 pytest = "^8.3.5"
-assertpy = "^1.1"
-pytest-sugar = "^1.0.0"
 pytest-rich = "^0.2.0"
+pytest-sugar = "^1.0.0"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -54,7 +54,7 @@ reportCallInDefaultInitializer = true
 reportImplicitOverride = true
 reportImplicitStringConcatenation = true
 reportImportCycles = true
-reportMissingSuperCall = true
+reportMissingSuperCall = false
 reportPropertyTypeMismatch = true
 reportShadowedImports = true
 reportUninitializedInstanceVariable = true
