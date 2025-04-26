@@ -60,7 +60,10 @@ class DocumentFileOperations(IDocumentFileOperations):
         document.mark_saved()  # Mark as saved since we just loaded it
 
         # Add to collection and make active
+        print(f"Adding document: {document.name} to collection")
         document_collection.add_or_replace(document)
+
+        print(f"Setting active document ID to: {document.id}")
         document_collection.active_document_id.set(document.id)
 
         print(f"Opened document: {document.name} at {document.path}")

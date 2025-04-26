@@ -1,6 +1,6 @@
 from typing import override
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QDockWidget, QMainWindow
 
 from PapyrusPad.di.depends import Depends
 from PapyrusPad.domain.document.document_interface import IDocument
@@ -20,6 +20,8 @@ from qt_helpers.window import window
 class MainWindow(QMainWindow, IWidget):
     dock_manager: IDockManager = make_later(IDockManager)
 
+    editor_dock_by_document_id: dict[str, QDockWidget | None] = make(dict[str, QDockWidget | None])
+
     file_menu: FileMenu = make(FileMenu)
     help_menu: HelpMenu = make(HelpMenu)
 
@@ -37,11 +39,14 @@ class MainWindow(QMainWindow, IWidget):
 
         # Listen for document added events
         document_collection.add_document_added_listener(self._on_document_added)
+        document_collection.active_document_id.bind(self._on_active_document_changed)
 
     def _add_editor_for_document(self, document: IDocument) -> None:
         dock_widget = self.dock_manager.dock(EditorWidget(document), Qt.DockWidgetArea.RightDockWidgetArea)
+        self.editor_dock_by_document_id[document.id] = dock_widget
         if len(self.dock_manager.get_docked_widgets()) > 1:
-            self.tabifyDockWidget(dock_widget, self.dock_manager.get_docked_widgets()[0])
+            print(f"TABBIFYING dock widget: {dock_widget.windowTitle()}")
+            self.tabifyDockWidget(self.dock_manager.get_docked_widgets()[0], dock_widget)
 
     def _update_titlebar_visibility(self) -> None:
         """Update the visibility of the titlebar based on the number of docked widgets."""
@@ -53,3 +58,18 @@ class MainWindow(QMainWindow, IWidget):
     def _on_document_added(self, document: IDocument) -> None:
         self._add_editor_for_document(document)
         self._update_titlebar_visibility()
+
+    def _on_active_document_changed(self, document_id: str | None) -> None:
+        if document_id is None:
+            return
+
+        # Show the editor for the active document and hide others
+        editor_dock = self.editor_dock_by_document_id[document_id]
+
+        # Update the titlebar visibility
+        self._update_titlebar_visibility()
+
+        # Need to switch the active tabbified dock widget to the active document
+        if editor_dock is not None:
+            editor_dock.show()
+            editor_dock.raise_()

@@ -9,15 +9,16 @@ QPlainTextEdit {
     font-family: "Fira Code iScript"
 }
 
-QTabBar {
-    font-size: 24px;
-    background-color: #ff00ff;
-}
+// QTabBar {
+//     font-size: 24px;
+//     background-color: #ff00ff;
+// }
 
 QTabBar::tab {
-    background-color: blue;
+    // background-color: blue;
+    padding: 5px 20px;
 }
 
-QTabBar::tab::selected {
-    background-color: red;
-}
+// QTabBar::tab::selected {
+//     background-color: red;
+// }
