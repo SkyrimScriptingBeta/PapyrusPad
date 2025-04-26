@@ -80,8 +80,9 @@ def widget(
                     layout_direction = layout
 
                 # Create and set the layout
-                self.layout = QBoxLayout(layout_direction)
-                self.setLayout(self.layout)
+                box_layout = QBoxLayout(layout_direction, self)
+                print(f"Setting layout: {layout_direction} for {self.__class__.__name__}")
+                self.setLayout(box_layout)
 
                 # Add child widgets to layout if requested
                 if add_widgets_to_layout:
@@ -90,7 +91,7 @@ def widget(
                         if isinstance(field.type, type) and issubclass(field.type, QWidget):
                             widget_instance = getattr(self, field.name, None)
                             if widget_instance is not None:
-                                self.layout.addWidget(widget_instance)
+                                box_layout.addWidget(widget_instance)
 
         # Replace the init method
         new_cls.__init__ = new_init

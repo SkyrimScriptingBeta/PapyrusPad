@@ -5,21 +5,24 @@ from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 from PapyrusPad.domain.document.document_file_operations_interface import IDocumentFileOperations
 from PapyrusPad.domain.document.text_document import TextDocument
+from PapyrusPad.domain.document_type.document_type_registry import DocumentTypeRegistry
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
 
 
 class DocumentFileOperations(IDocumentFileOperations):
     """Implementation of IDocumentFileOperations that uses IFileSystem."""
 
-    def __init__(self, filesystem: IFileSystem):
+    def __init__(self, filesystem: IFileSystem, document_type_registry: DocumentTypeRegistry):
         """
         Initialize the document file operations service.
 
         Args:
             filesystem: The filesystem to use for file operations
+            document_type_registry: The document type registry to use for determining document types
         """
         super().__init__()
         self._filesystem = filesystem
+        self._document_type_registry = document_type_registry
 
     @override
     def open_file(self, path: Path, document_collection: IDocumentCollection) -> IDocument:
@@ -55,6 +58,13 @@ class DocumentFileOperations(IDocumentFileOperations):
         document.name = path.name
         document.path = path
         document.content = content
+
+        # Determine document type based on file extension
+        suffix = path.suffix.lower()
+        doc_type = self._document_type_registry.get_type_for_extension(suffix)
+        if doc_type:
+            document.document_type = doc_type.type_id
+
         document.mark_saved()  # Mark as saved since we just loaded it
 
         # Add to collection and make active
@@ -104,6 +114,12 @@ class DocumentFileOperations(IDocumentFileOperations):
         # Update the document's path and name before attempting to save
         document.path = path
         document.name = path.name  # Update the document name to match the filename
+
+        # Update document type based on new file extension
+        suffix = path.suffix.lower()
+        doc_type = self._document_type_registry.get_type_for_extension(suffix)
+        if doc_type:
+            document.document_type = doc_type.type_id
 
         try:
             self._filesystem.write_text(str(path), document.content)

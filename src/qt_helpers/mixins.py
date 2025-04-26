@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from PySide6.QtGui import QIcon, QPixmap
-from PySide6.QtWidgets import QBoxLayout, QStyle, QWidget
+from PySide6.QtWidgets import QStyle, QWidget
 
 
 @dataclass
@@ -25,11 +25,8 @@ class SetupFunctionsMixin:
 
 
 class WidgetMixin(SetupFunctionsMixin):
-    layout: QBoxLayout | None
-
     def __init__(self):
         super().__init__()
-        self.layout = None
 
 
 class MainWindowMixin(SetupFunctionsMixin):

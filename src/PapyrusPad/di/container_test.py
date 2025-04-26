@@ -16,9 +16,11 @@ class TestContainer(containers.DeclarativeContainer):
     document_collection = providers.Singleton(DocumentCollection)
     filesystem = providers.Singleton(MemoryFileSystem)
     dialog_service = providers.Singleton(FakeDialogService)
-    document_file_operations = providers.Singleton(DocumentFileOperations, filesystem=filesystem)
 
     # Document type and capability system
     document_type_registry = providers.Singleton(DocumentTypeRegistry)
     capability_registry = providers.Singleton(CapabilityRegistry)
     document_capability_provider = providers.Singleton(DocumentCapabilityProvider, _document_type_registry=document_type_registry, _capability_registry=capability_registry)
+
+    # File operations (depends on document type registry)
+    document_file_operations = providers.Singleton(DocumentFileOperations, filesystem=filesystem, document_type_registry=document_type_registry)
