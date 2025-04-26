@@ -74,13 +74,10 @@ class MainWindow(QMainWindow, IWidget):
         # Need to switch the active tabbified dock widget to the active document
         if editor_dock is not None:
             editor_dock.show()
-            editor_dock.raise_
+            editor_dock.raise_()
 
     def _on_tab_close(self, index: int, document_collection: IDocumentCollection = Depends[IDocumentCollection]) -> None:
-        if index < 0 or index >= len(document_collection.list_documents()):
-            return
-
-        # document = document_collection.get
+        document_collection.remove_at_index(index)
 
     @override
     def event(self, event: QEvent) -> bool:

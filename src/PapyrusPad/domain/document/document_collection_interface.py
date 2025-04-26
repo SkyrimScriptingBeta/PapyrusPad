@@ -84,6 +84,19 @@ class IDocumentCollection(ABC):
         ...
 
     @abstractmethod
+    def remove_at_index(self, index: int) -> bool:
+        """
+        Remove the document at the specified index.
+
+        Args:
+            index: The index of the document to remove (0-based)
+
+        Returns:
+            True if a document was removed, False if the index was out of range
+        """
+        ...
+
+    @abstractmethod
     def list_documents(self) -> list[IDocument]:
         """All open documents, in open-tab order."""
         ...

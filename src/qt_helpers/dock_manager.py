@@ -123,7 +123,9 @@ class DockManager(IDockManager):
 
     # NOTE: we should handle other close methods to keep docked_widgets in sync
     def _handle_tab_close(self, index: int) -> None:
+        print("Tab close requested:", index)
         if self._on_tab_close_requested:
+            print("Calling _on_tab_close_requested")
             self._on_tab_close_requested(index)
 
     # @override

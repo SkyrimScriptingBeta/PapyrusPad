@@ -144,6 +144,45 @@ class TestDocumentCollection:
         assert_that(collection.get_document_id_by_index(1)).is_equal_to(doc3.id)
         assert collection.get_document_id_by_index(2) is None
 
+    def test_remove_at_index(self) -> None:
+        """Test removing a document at a specific index."""
+        collection = DocumentCollection()
+
+        # Empty collection should return False for any index
+        assert_that(collection.remove_at_index(0)).is_false()
+        assert_that(collection.remove_at_index(1)).is_false()
+        assert_that(collection.remove_at_index(-1)).is_false()
+
+        # Add documents
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
+        doc3 = TextDocument.create(name="doc3.txt")
+
+        collection.add_or_replace(doc1)
+        collection.add_or_replace(doc2)
+        collection.add_or_replace(doc3)
+
+        # Test removing document at index 1 (doc2)
+        assert_that(collection.remove_at_index(1)).is_true()
+        assert_that(collection.list_documents()).is_length(2)
+        assert_that(collection.get_document_by_index(0)).is_equal_to(doc1)
+        assert_that(collection.get_document_by_index(1)).is_equal_to(doc3)
+        assert collection.get_document(doc2.id) is None
+
+        # Test removing document at index 0 (doc1)
+        assert_that(collection.remove_at_index(0)).is_true()
+        assert_that(collection.list_documents()).is_length(1)
+        assert_that(collection.get_document_by_index(0)).is_equal_to(doc3)
+        assert collection.get_document(doc1.id) is None
+
+        # Test removing the last document (doc3)
+        assert_that(collection.remove_at_index(0)).is_true()
+        assert_that(collection.list_documents()).is_empty()
+        assert collection.get_document(doc3.id) is None
+
+        # Test removing from an empty collection
+        assert_that(collection.remove_at_index(0)).is_false()
+
     def test_active_document_id_observable(self) -> None:
         """Test the active_document_id observable field."""
         collection = DocumentCollection()
@@ -334,6 +373,47 @@ class TestDocumentCollection:
 
         # Remove last document
         collection.remove(doc1.id)
+
+        # No active document
+        assert collection.active_document is None
+        assert collection.active_document_id.get() is None
+
+    def test_active_document_after_remove_at_index(self) -> None:
+        """Test active document behavior after removing documents by index."""
+        collection = DocumentCollection()
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
+        doc3 = TextDocument.create(name="doc3.txt")
+
+        # Add documents
+        collection.add_or_replace(doc1)
+        collection.add_or_replace(doc2)
+        collection.add_or_replace(doc3)
+
+        # Set doc2 as active
+        collection.active_document_id.set(doc2.id)
+        assert_that(collection.active_document).is_equal_to(doc2)
+
+        # Remove active document by index
+        collection.remove_at_index(1)  # doc2 is at index 1
+
+        # Active document should fall back to doc1
+        assert_that(collection.active_document).is_equal_to(doc1)
+        assert_that(collection.active_document_id.get()).is_equal_to(doc1.id)
+
+        # Set doc3 as active
+        collection.active_document_id.set(doc3.id)
+        assert_that(collection.active_document).is_equal_to(doc3)
+
+        # Remove doc1 by index
+        collection.remove_at_index(0)  # doc1 is at index 0
+
+        # Active document should still be doc3
+        assert_that(collection.active_document).is_equal_to(doc3)
+        assert_that(collection.active_document_id.get()).is_equal_to(doc3.id)
+
+        # Remove last document by index
+        collection.remove_at_index(0)  # doc3 is now at index 0
 
         # No active document
         assert collection.active_document is None

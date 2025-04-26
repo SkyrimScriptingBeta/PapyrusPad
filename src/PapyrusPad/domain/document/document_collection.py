@@ -113,6 +113,22 @@ class DocumentCollection(IDocumentCollection):
         return document.id
 
     @override
+    def remove_at_index(self, index: int) -> bool:
+        """
+        Remove the document at the specified index.
+
+        Args:
+            index: The index of the document to remove (0-based)
+
+        Returns:
+            True if a document was removed, False if the index was out of range
+        """
+        document_id = self.get_document_id_by_index(index)
+        if not document_id:
+            return False
+        return self.remove(document_id)
+
+    @override
     def list_documents(self) -> list[IDocument]:
         """All open documents, in open-tab order."""
         return self._documents.copy()
