@@ -82,6 +82,37 @@ class DocumentCollection(IDocumentCollection):
         return self.get_document(active_id)
 
     @override
+    def get_document_by_index(self, index: int) -> IDocument | None:
+        """
+        Get the document at the specified index.
+
+        Args:
+            index: The index of the document to get (0-based)
+
+        Returns:
+            The document at the specified index, or None if the index is out of range
+        """
+        if index < 0 or index >= len(self._documents):
+            return None
+        return self._documents[index]
+
+    @override
+    def get_document_id_by_index(self, index: int) -> str | None:
+        """
+        Get the ID of the document at the specified index.
+
+        Args:
+            index: The index of the document to get (0-based)
+
+        Returns:
+            The ID of the document at the specified index, or None if the index is out of range
+        """
+        document = self.get_document_by_index(index)
+        if not document:
+            return None
+        return document.id
+
+    @override
     def list_documents(self) -> list[IDocument]:
         """All open documents, in open-tab order."""
         return self._documents.copy()

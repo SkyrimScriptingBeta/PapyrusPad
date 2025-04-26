@@ -78,6 +78,72 @@ class TestDocumentCollection:
         assert_that(docs[1]).is_equal_to(doc2)
         assert_that(docs[2]).is_equal_to(doc3)
 
+    def test_get_document_by_index(self) -> None:
+        """Test getting a document by index."""
+        collection = DocumentCollection()
+
+        # Empty collection should return None for any index
+        assert collection.get_document_by_index(0) is None
+        assert collection.get_document_by_index(1) is None
+        assert collection.get_document_by_index(-1) is None
+
+        # Add documents
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
+        doc3 = TextDocument.create(name="doc3.txt")
+
+        collection.add_or_replace(doc1)
+        collection.add_or_replace(doc2)
+        collection.add_or_replace(doc3)
+
+        # Test getting documents by index
+        assert_that(collection.get_document_by_index(0)).is_equal_to(doc1)
+        assert_that(collection.get_document_by_index(1)).is_equal_to(doc2)
+        assert_that(collection.get_document_by_index(2)).is_equal_to(doc3)
+
+        # Test out of range indices
+        assert collection.get_document_by_index(3) is None
+        assert collection.get_document_by_index(-1) is None
+
+        # Test after removing a document
+        collection.remove(doc2.id)
+        assert_that(collection.get_document_by_index(0)).is_equal_to(doc1)
+        assert_that(collection.get_document_by_index(1)).is_equal_to(doc3)
+        assert collection.get_document_by_index(2) is None
+
+    def test_get_document_id_by_index(self) -> None:
+        """Test getting a document ID by index."""
+        collection = DocumentCollection()
+
+        # Empty collection should return None for any index
+        assert collection.get_document_id_by_index(0) is None
+        assert collection.get_document_id_by_index(1) is None
+        assert collection.get_document_id_by_index(-1) is None
+
+        # Add documents
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
+        doc3 = TextDocument.create(name="doc3.txt")
+
+        collection.add_or_replace(doc1)
+        collection.add_or_replace(doc2)
+        collection.add_or_replace(doc3)
+
+        # Test getting document IDs by index
+        assert_that(collection.get_document_id_by_index(0)).is_equal_to(doc1.id)
+        assert_that(collection.get_document_id_by_index(1)).is_equal_to(doc2.id)
+        assert_that(collection.get_document_id_by_index(2)).is_equal_to(doc3.id)
+
+        # Test out of range indices
+        assert collection.get_document_id_by_index(3) is None
+        assert collection.get_document_id_by_index(-1) is None
+
+        # Test after removing a document
+        collection.remove(doc2.id)
+        assert_that(collection.get_document_id_by_index(0)).is_equal_to(doc1.id)
+        assert_that(collection.get_document_id_by_index(1)).is_equal_to(doc3.id)
+        assert collection.get_document_id_by_index(2) is None
+
     def test_active_document_id_observable(self) -> None:
         """Test the active_document_id observable field."""
         collection = DocumentCollection()

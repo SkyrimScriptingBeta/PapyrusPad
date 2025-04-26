@@ -58,6 +58,32 @@ class IDocumentCollection(ABC):
         ...
 
     @abstractmethod
+    def get_document_by_index(self, index: int) -> IDocument | None:
+        """
+        Get the document at the specified index.
+
+        Args:
+            index: The index of the document to get (0-based)
+
+        Returns:
+            The document at the specified index, or None if the index is out of range
+        """
+        ...
+
+    @abstractmethod
+    def get_document_id_by_index(self, index: int) -> str | None:
+        """
+        Get the ID of the document at the specified index.
+
+        Args:
+            index: The index of the document to get (0-based)
+
+        Returns:
+            The ID of the document at the specified index, or None if the index is out of range
+        """
+        ...
+
+    @abstractmethod
     def list_documents(self) -> list[IDocument]:
         """All open documents, in open-tab order."""
         ...
