@@ -14,6 +14,30 @@ class TestDocumentCollection:
         assert_that(collection.list_documents()).is_empty()
         assert collection.get_active() is None
 
+    def test_len(self) -> None:
+        """Test the __len__ method for getting document count."""
+        collection = DocumentCollection()
+
+        # Empty collection should have length 0
+        assert_that(len(collection)).is_equal_to(0)
+
+        # Add documents and check length
+        doc1 = TextDocument.create(name="doc1.txt")
+        collection.add_or_replace(doc1)
+        assert_that(len(collection)).is_equal_to(1)
+
+        doc2 = TextDocument.create(name="doc2.txt")
+        collection.add_or_replace(doc2)
+        assert_that(len(collection)).is_equal_to(2)
+
+        # Remove a document and check length
+        collection.remove(doc1.id)
+        assert_that(len(collection)).is_equal_to(1)
+
+        # Remove the last document and check length
+        collection.remove(doc2.id)
+        assert_that(len(collection)).is_equal_to(0)
+
     def test_create(self) -> None:
         """Test creating a document."""
         collection = DocumentCollection()

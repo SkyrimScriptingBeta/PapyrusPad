@@ -9,6 +9,15 @@ class IDocumentCollection(ABC):
     """Manages all documents open in the editor."""
 
     @abstractmethod
+    def __len__(self) -> int:
+        """
+        Return the number of documents in the collection.
+
+        This allows using len(collection) to get the document count.
+        """
+        ...
+
+    @abstractmethod
     def list_documents(self) -> list[IDocument]:
         """All open documents, in open-tab order."""
         ...

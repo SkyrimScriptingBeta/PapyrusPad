@@ -25,6 +25,15 @@ class DocumentCollection(IDocumentCollection):
     _active_document_changed_listeners: List[Callable[[IDocument], None]] = field(default_factory=_empty_listener_list)
 
     @override
+    def __len__(self) -> int:
+        """
+        Return the number of documents in the collection.
+
+        This allows using len(collection) to get the document count.
+        """
+        return len(self._documents)
+
+    @override
     def list_documents(self) -> list[IDocument]:
         """All open documents, in open-tab order."""
         return self._documents.copy()
