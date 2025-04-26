@@ -72,7 +72,7 @@ def window(
                 self.setCentralWidget(self.central_widget)
 
             # Loop through dataclass fields and add QMenu instances as menus
-            for field_name, field_value in self.__dataclass_fields__.items():
+            for field_name, _ in self.__dataclass_fields__.items():
                 if isinstance(getattr(self, field_name, None), QMenu):
                     self.menuBar().addMenu(getattr(self, field_name))
 
