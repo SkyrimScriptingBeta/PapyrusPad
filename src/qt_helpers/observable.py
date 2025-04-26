@@ -1,11 +1,21 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Callable, Generic, TypeVar, Dict, List, Iterator, Optional, Tuple, Union, cast, Any, override
+from typing import Callable, Generic, Protocol, TypeVar, Dict, List, Iterator, Optional, Tuple, Union, cast, Any, override, runtime_checkable
 
 T = TypeVar("T")
 K = TypeVar("K")
 V = TypeVar("V")
+
+H = TypeVar("H", contravariant=True)
+
+
+@runtime_checkable
+class SupportsLessThan(Protocol[H]):
+    def __lt__(self, other: H) -> bool: ...
+    def __gt__(self, other: H) -> bool: ...
+
+    # And potentially other comparison methods
 
 
 @dataclass
@@ -361,7 +371,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         return self._items.count(item)
 
     @override
-    def sort(self, *, key: Optional[Callable[[T], Any]] = None, reverse: bool = False) -> None:
+    def sort(self, *, key: Optional[Callable[[T], SupportsLessThan[V]]] = None, reverse: bool = False) -> None:
         """
         Sort the list in place.
 
@@ -369,8 +379,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
             key: A function that takes an item and returns a key for sorting
             reverse: Whether to sort in reverse order
         """
-        self._items.sort(key=key, reverse=reverse)
-        # No notification needed as the items themselves haven't changed
+        self._items.sort(key=SupportsLessThan, reverse=reverse)
 
     @override
     def reverse(self) -> None:
