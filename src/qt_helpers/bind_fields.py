@@ -76,7 +76,7 @@ def bind_fields(bindings: list[tuple[QObject, str, Observable[Any]]]) -> None:
                     adapter.setter(widget, value)
                 lock = False
 
-        observable.bind(update_ui)
+        observable.on_change(update_ui)
 
         # Call the update_ui function once to initialize the UI with the current value
         update_ui(observable.get())

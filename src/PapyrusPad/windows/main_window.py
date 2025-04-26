@@ -42,7 +42,7 @@ class MainWindow(QMainWindow, IWidget):
         # Listen for document added events
         document_collection.add_document_added_listener(self._on_document_added)
         document_collection.add_removing_document_listener(self._on_removing_document)
-        document_collection.active_document_id.bind(self._on_active_document_changed)
+        document_collection.active_document_id.on_change(self._on_active_document_changed)
 
     def _add_editor_for_document(self, document: IDocument) -> None:
         dock_widget = self.dock_manager.dock(EditorWidget(document), Qt.DockWidgetArea.RightDockWidgetArea)

@@ -23,5 +23,5 @@ class Observable(Generic[T]):
             for callback in self._callbacks:
                 callback(value)
 
-    def bind(self, callback: Callable[[T], None]) -> None:
+    def on_change(self, callback: Callable[[T], None]) -> None:
         self._callbacks.append(callback)

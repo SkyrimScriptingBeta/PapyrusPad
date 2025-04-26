@@ -340,7 +340,7 @@ class TestDocumentCollection:
 
         # Track changes to active_document_id
         changes: list[str | None] = []
-        collection.active_document_id.bind(lambda value: changes.append(value))
+        collection.active_document_id.on_change(lambda value: changes.append(value))
 
         # Change active document
         collection.active_document_id.set(doc2.id)

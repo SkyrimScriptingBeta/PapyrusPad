@@ -23,8 +23,8 @@ class TextDocument(IDocument):
 
     def __post_init__(self) -> None:
         self._update_display_name()
-        self.content_observable.bind(self._on_content_changed)
-        self.name_observable.bind(self._on_name_changed)
+        self.content_observable.on_change(self._on_content_changed)
+        self.name_observable.on_change(self._on_name_changed)
         self._is_modified = False
 
     @classmethod
