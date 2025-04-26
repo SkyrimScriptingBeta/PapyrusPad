@@ -28,7 +28,7 @@ class TestDocumentFileOperations:
         assert_that(document.content).is_equal_to("File content")
         assert_that(document.is_modified).is_false()
         assert_that(document.last_saved).is_not_none()
-        assert_that(document_collection.get_active()).is_equal_to(document)
+        assert_that(document_collection.active_document).is_equal_to(document)
 
     def test_open_file_already_open(self, document_collection: DocumentCollection, filesystem: IFileSystem) -> None:
         """Test opening a file that is already open."""
@@ -45,7 +45,7 @@ class TestDocumentFileOperations:
 
         # Open another file to make it active
         other_document = document_file_operations.open_file(Path("/test/other.txt"), document_collection)
-        assert_that(document_collection.get_active()).is_equal_to(other_document)
+        assert_that(document_collection.active_document).is_equal_to(other_document)
 
         # Act - open the first file again
         document = document_file_operations.open_file(file_path, document_collection)
@@ -54,7 +54,7 @@ class TestDocumentFileOperations:
         # Should return the same document
         assert_that(document).is_equal_to(first_document)
         # Should make it active
-        assert_that(document_collection.get_active()).is_equal_to(first_document)
+        assert_that(document_collection.active_document).is_equal_to(first_document)
 
     def test_open_file_error(self, document_collection: DocumentCollection, filesystem: IFileSystem) -> None:
         """Test opening a file that cannot be read."""

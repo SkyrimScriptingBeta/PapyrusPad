@@ -19,7 +19,7 @@ class TestSaveAsAction:
         # Create a document and mark it as modified
         document = document_collection.create(name="test.txt")
         document.content = "Some content to make it modified"  # This will mark it as modified
-        document_collection.set_active(document.id)
+        document_collection.active_document_id.set(document.id)
 
         # Configure the dialog service to return a path
         test_path = "/test/path.txt"
@@ -47,7 +47,7 @@ class TestSaveAsAction:
         # Ensure no document is active
         # First, create a document and make it active
         temp_doc = document_collection.create(name="temp.txt")
-        document_collection.set_active(temp_doc.id)
+        document_collection.active_document_id.set(temp_doc.id)
         # Then remove it to leave no active document
         document_collection.remove(temp_doc.id)
 
@@ -72,7 +72,7 @@ class TestSaveAsAction:
         # Create a document and mark it as modified
         document = document_collection.create(name="test.txt")
         document.content = "Some content to make it modified"  # This will mark it as modified
-        document_collection.set_active(document.id)
+        document_collection.active_document_id.set(document.id)
 
         # Configure the dialog service to return None (user cancelled)
         dialog_service.next_file_save_dialog_result = None
@@ -98,7 +98,7 @@ class TestSaveAsAction:
         # Create a document
         document = document_collection.create(name="test.txt")
         document.content = "Some content to make it modified"  # This will mark it as modified
-        document_collection.set_active(document.id)
+        document_collection.active_document_id.set(document.id)
 
         # Configure the dialog service to return an invalid path
         invalid_path = "/invalid/path/that/does/not/exist.txt"

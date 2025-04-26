@@ -5,7 +5,7 @@ T = TypeVar("T")
 
 
 @dataclass
-class ObservableField(Generic[T]):
+class Observable(Generic[T]):
     _value: T
     _callbacks: list[Callable[[T], None]] = field(default_factory=list[Callable[[T], None]])
 

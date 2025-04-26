@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
-from qt_helpers.observable_field import ObservableField
+from qt_helpers.observable_field import Observable
 
 
 class IDocument(ABC):
@@ -27,7 +27,7 @@ class IDocument(ABC):
 
     @property
     @abstractmethod
-    def name_observable(self) -> ObservableField[str]: ...
+    def name_observable(self) -> Observable[str]: ...
 
     @property
     @abstractmethod
@@ -51,7 +51,7 @@ class IDocument(ABC):
 
     @property
     @abstractmethod
-    def content_observable(self) -> ObservableField[str]: ...
+    def content_observable(self) -> Observable[str]: ...
 
     @property
     @abstractmethod
@@ -84,7 +84,7 @@ class IDocument(ABC):
 
     @property
     @abstractmethod
-    def display_name_observable(self) -> ObservableField[str]:
+    def display_name_observable(self) -> Observable[str]:
         """Observable for display name."""
         ...
 

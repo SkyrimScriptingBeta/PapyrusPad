@@ -5,7 +5,7 @@ from typing import override, Callable, List, Iterator
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.document.document_collection_interface import IDocumentCollection
 from PapyrusPad.domain.document.text_document import TextDocument
-from qt_helpers.observable_field import ObservableField
+from qt_helpers.observable_field import Observable
 
 
 def _empty_document_list() -> list[IDocument]:
@@ -25,7 +25,7 @@ class DocumentCollection(IDocumentCollection):
     """Implementation of IDocumentCollection that manages documents in memory."""
 
     _documents: list[IDocument] = field(default_factory=_empty_document_list)
-    _active_document_id_field: ObservableField[str | None] = field(default_factory=lambda: ObservableField(None))
+    _active_document_id_field: Observable[str | None] = field(default_factory=lambda: Observable(None))
     _document_added_listeners: List[Callable[[IDocument], None]] = field(default_factory=_empty_listener_list)
     _removing_document_listeners: List[Callable[[IDocument], None]] = field(default_factory=_empty_listener_list)
     _removed_document_listeners: List[Callable[[str], None]] = field(default_factory=_empty_id_listener_list)
@@ -66,7 +66,7 @@ class DocumentCollection(IDocumentCollection):
 
     @property
     @override
-    def active_document_id(self) -> ObservableField[str | None]:
+    def active_document_id(self) -> Observable[str | None]:
         """
         Get the observable field for the active document ID.
 
@@ -247,22 +247,3 @@ class DocumentCollection(IDocumentCollection):
             listener: A function that takes a str parameter (the ID of the removed document)
         """
         self._removed_document_listeners.append(listener)
-
-    # Legacy methods for backward compatibility
-    def get_active(self) -> IDocument | None:
-        """
-        Legacy method for backward compatibility.
-        Use the active_document property instead.
-        """
-        return self.active_document
-
-    def set_active(self, document_id: str) -> bool:
-        """
-        Legacy method for backward compatibility.
-        Use active_document_id.set() instead.
-        """
-        document = self.get_document(document_id)
-        if not document:
-            return False
-        self._active_document_id_field.set(document_id)
-        return True

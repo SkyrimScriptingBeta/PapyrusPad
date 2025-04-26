@@ -6,7 +6,7 @@ from typing import override
 
 from PapyrusPad.domain.document.document_interface import IDocument
 from PapyrusPad.domain.filesystem.filesystem_interface import IFileSystem
-from qt_helpers.observable_field import ObservableField
+from qt_helpers.observable_field import Observable
 
 
 @dataclass
@@ -14,10 +14,10 @@ class TextDocument(IDocument):
     """A text document implementation of IDocument."""
 
     _id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    _name: ObservableField[str] = field(default_factory=lambda: ObservableField("Untitled"))
-    _display_name_observable: ObservableField[str] = field(default_factory=lambda: ObservableField("Untitled"))
+    _name: Observable[str] = field(default_factory=lambda: Observable("Untitled"))
+    _display_name_observable: Observable[str] = field(default_factory=lambda: Observable("Untitled"))
     _path: Path | None = None
-    _content: ObservableField[str] = field(default_factory=lambda: ObservableField(""))
+    _content: Observable[str] = field(default_factory=lambda: Observable(""))
     _is_modified: bool = False
     _last_saved: datetime | None = None
 
@@ -96,7 +96,7 @@ class TextDocument(IDocument):
 
     @property
     @override
-    def name_observable(self) -> ObservableField[str]:
+    def name_observable(self) -> Observable[str]:
         return self._name
 
     @property
@@ -123,7 +123,7 @@ class TextDocument(IDocument):
 
     @property
     @override
-    def content_observable(self) -> ObservableField[str]:
+    def content_observable(self) -> Observable[str]:
         return self._content
 
     @property
@@ -160,7 +160,7 @@ class TextDocument(IDocument):
 
     @property
     @override
-    def display_name_observable(self) -> ObservableField[str]:
+    def display_name_observable(self) -> Observable[str]:
         return self._display_name_observable
 
     @override

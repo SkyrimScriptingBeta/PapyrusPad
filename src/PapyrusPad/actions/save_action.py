@@ -32,7 +32,7 @@ class SaveAction(QAction, IAction):
             dialog_service: The dialog service
         """
         # Get the active document
-        document = document_collection.get_active()
+        document = document_collection.active_document
 
         # If no document is active, show an error message
         if document is None:

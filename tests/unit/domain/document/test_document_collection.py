@@ -431,36 +431,6 @@ class TestDocumentCollection:
         # Check result
         assert_that(result).is_false()
 
-    def test_legacy_set_active(self) -> None:
-        """Test the legacy set_active method."""
-        collection = DocumentCollection()
-        doc1 = TextDocument.create(name="doc1.txt")
-        doc2 = TextDocument.create(name="doc2.txt")
-
-        # Add documents
-        collection.add_or_replace(doc1)
-        collection.add_or_replace(doc2)
-
-        # By default, the first document added should be active
-        assert_that(collection.get_active()).is_equal_to(doc1)
-
-        # Set doc2 as active
-        result = collection.set_active(doc2.id)
-
-        # Check result and collection state
-        assert_that(result).is_true()
-        assert_that(collection.get_active()).is_equal_to(doc2)
-        assert_that(collection.active_document).is_equal_to(doc2)
-        assert_that(collection.active_document_id.get()).is_equal_to(doc2.id)
-
-        # Try to set a non-existent document as active
-        result = collection.set_active("non-existent-id")
-
-        # Check result
-        assert_that(result).is_false()
-        # Active document should still be doc2
-        assert_that(collection.get_active()).is_equal_to(doc2)
-
     def test_find_by_path(self) -> None:
         """Test finding a document by path."""
         collection = DocumentCollection()

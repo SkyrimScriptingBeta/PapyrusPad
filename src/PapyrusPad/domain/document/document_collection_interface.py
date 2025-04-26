@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Callable, Iterator
 
 from PapyrusPad.domain.document.document_interface import IDocument
-from qt_helpers.observable_field import ObservableField
+from qt_helpers.observable_field import Observable
 
 
 class IDocumentCollection(ABC):
@@ -39,7 +39,7 @@ class IDocumentCollection(ABC):
 
     @property
     @abstractmethod
-    def active_document_id(self) -> ObservableField[str | None]:
+    def active_document_id(self) -> Observable[str | None]:
         """
         Get the observable field for the active document ID.
 

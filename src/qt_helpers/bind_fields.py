@@ -12,7 +12,7 @@ from PySide6.QtCore import QObject
 
 from typing import Any
 from PySide6.QtCore import QObject
-from qt_helpers.observable_field import ObservableField
+from qt_helpers.observable_field import Observable
 
 from typing import Callable, Any, ParamSpec
 from PySide6.QtCore import QObject
@@ -40,7 +40,7 @@ class BindingAdapter(Generic[TWidget, P]):
 BINDING_REGISTRY: dict[tuple[type[QObject], str], BindingAdapter[Any, Any]] = {}
 
 
-def bind_fields(bindings: list[tuple[QObject, str, ObservableField[Any]]]) -> None:
+def bind_fields(bindings: list[tuple[QObject, str, Observable[Any]]]) -> None:
     for widget, prop, observable in bindings:
         adapter = None
         widget_type = type(widget)
