@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Callable, Generic, Protocol, TypeVar, Dict, List, Iterator, Optional, Tuple, Union, cast, Any, override, runtime_checkable
+from typing import Callable, Generic, Protocol, TypeVar, Iterator, cast, Any, override, runtime_checkable
 
 H = TypeVar("H", contravariant=True)
 
@@ -53,9 +53,9 @@ class ListChange(Generic[T]):
     """Information about a change to an ObservableList."""
 
     type: CollectionChangeType
-    index: Optional[int] = None  # Index where the change occurred, if applicable
-    item: Optional[T] = None  # Item that was added or removed, if applicable
-    items: Optional[List[T]] = None  # Multiple items that were added or removed, if applicable
+    index: int | None = None  # Index where the change occurred, if applicable
+    item: T | None = None  # Item that was added or removed, if applicable
+    items: list[T] | None = None  # Multiple items that were added or removed, if applicable
 
 
 @dataclass
@@ -63,9 +63,9 @@ class DictChange(Generic[K, V]):
     """Information about a change to an ObservableDict."""
 
     type: CollectionChangeType
-    key: Optional[K] = None  # Key where the change occurred, if applicable
-    value: Optional[V] = None  # Value that was added, removed, or updated, if applicable
-    items: Optional[Dict[K, V]] = None  # Multiple items that were added, removed, or updated, if applicable
+    key: K | None = None  # Key where the change occurred, if applicable
+    value: V | None = None  # Value that was added, removed, or updated, if applicable
+    items: dict[K, V] | None = None  # Multiple items that were added, removed, or updated, if applicable
 
 
 class IObservableList(Generic[T], ABC):
@@ -77,17 +77,17 @@ class IObservableList(Generic[T], ABC):
         ...
 
     @abstractmethod
-    def __getitem__(self, index: Union[int, slice]) -> Union[T, List[T]]:
+    def __getitem__(self, index: int | slice) -> T | list[T]:
         """Get an item or slice of items from the list."""
         ...
 
     @abstractmethod
-    def __setitem__(self, index: Union[int, slice], value: Union[T, List[T]]) -> None:
+    def __setitem__(self, index: int | slice, value: T | list[T]) -> None:
         """Set an item or slice of items in the list."""
         ...
 
     @abstractmethod
-    def __delitem__(self, index: Union[int, slice]) -> None:
+    def __delitem__(self, index: int | slice) -> None:
         """Delete an item or slice of items from the list."""
         ...
 
@@ -107,7 +107,7 @@ class IObservableList(Generic[T], ABC):
         ...
 
     @abstractmethod
-    def extend(self, items: List[T]) -> None:
+    def extend(self, items: list[T]) -> None:
         """Extend the list by appending all items from the iterable."""
         ...
 
@@ -132,7 +132,7 @@ class IObservableList(Generic[T], ABC):
         ...
 
     @abstractmethod
-    def index(self, item: T, start: int = 0, end: Optional[int] = None) -> int:
+    def index(self, item: T, start: int = 0, end: int | None = None) -> int:
         """Return the index of the first occurrence of an item."""
         ...
 
@@ -142,7 +142,7 @@ class IObservableList(Generic[T], ABC):
         ...
 
     @abstractmethod
-    def sort(self, *, key: Optional[Callable[[T], Any]] = None, reverse: bool = False) -> None:
+    def sort(self, *, key: Callable[[T], Any] | None = None, reverse: bool = False) -> None:
         """Sort the list in place."""
         ...
 
@@ -152,7 +152,7 @@ class IObservableList(Generic[T], ABC):
         ...
 
     @abstractmethod
-    def copy(self) -> List[T]:
+    def copy(self) -> list[T]:
         """Return a shallow copy of the list."""
         ...
 
@@ -172,7 +172,7 @@ class IObservableList(Generic[T], ABC):
         ...
 
     @abstractmethod
-    def on_clear(self, callback: Callable[[List[T]], None]) -> None:
+    def on_clear(self, callback: Callable[[list[T]], None]) -> None:
         """Register for clear events with the cleared items."""
         ...
 
@@ -180,7 +180,7 @@ class IObservableList(Generic[T], ABC):
 class ObservableListBase(Generic[T], IObservableList[T]):
     """Base implementation that can work with an external list or create its own."""
 
-    def __init__(self, items: Optional[List[T]] = None):
+    def __init__(self, items: list[T] | None = None):
         """
         Initialize with optional external list reference.
 
@@ -188,10 +188,10 @@ class ObservableListBase(Generic[T], IObservableList[T]):
             items: Optional external list to observe. If None, creates a new list.
         """
         self._items: list[T] = items if items is not None else []
-        self._change_callbacks: List[Callable[[ListChange[T]], None]] = []
-        self._add_callbacks: List[Callable[[T, int], None]] = []
-        self._remove_callbacks: List[Callable[[T, int], None]] = []
-        self._clear_callbacks: List[Callable[[List[T]], None]] = []
+        self._change_callbacks: list[Callable[[ListChange[T]], None]] = []
+        self._add_callbacks: list[Callable[[T, int], None]] = []
+        self._remove_callbacks: list[Callable[[T, int], None]] = []
+        self._clear_callbacks: list[Callable[[list[T]], None]] = []
 
     @override
     def __len__(self) -> int:
@@ -199,12 +199,12 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         return len(self._items)
 
     @override
-    def __getitem__(self, index: Union[int, slice]) -> Union[T, List[T]]:
+    def __getitem__(self, index: int | slice) -> T | list[T]:
         """Get an item or slice of items from the list."""
         return self._items[index]
 
     @override
-    def __setitem__(self, index: Union[int, slice], value: Union[T, List[T]]) -> None:
+    def __setitem__(self, index: int | slice, value: T | list[T]) -> None:
         """Set an item or slice of items in the list."""
         if isinstance(index, slice):
             # Remove old items
@@ -214,7 +214,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
 
             # Add new items
             if isinstance(value, list):
-                # Explicitly cast to List[T] to help Pylance
+                # Explicitly cast to list[T] to help Pylance
                 self._items[index] = value
                 if value:
                     # Use the explicitly typed value
@@ -222,7 +222,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
             else:
                 # Handle single item assigned to slice
                 single_value: T = cast(T, value)
-                items_list: List[T] = [single_value]
+                items_list: list[T] = [single_value]
                 self._items[index] = items_list
                 self._notify_add_items(items_list, index.start)
         else:
@@ -236,7 +236,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
             self._notify_add(new_value, index)
 
     @override
-    def __delitem__(self, index: Union[int, slice]) -> None:
+    def __delitem__(self, index: int | slice) -> None:
         """Delete an item or slice of items from the list."""
         if isinstance(index, slice):
             items = self._items[index]
@@ -269,7 +269,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         self._notify_add(item, len(self._items) - 1)
 
     @override
-    def extend(self, items: List[T]) -> None:
+    def extend(self, items: list[T]) -> None:
         """
         Extend the list by appending all items from the iterable.
 
@@ -335,7 +335,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         self._notify_clear(items)
 
     @override
-    def index(self, item: T, start: int = 0, end: Optional[int] = None) -> int:
+    def index(self, item: T, start: int = 0, end: int | None = None) -> int:
         """
         Return the index of the first occurrence of an item.
 
@@ -368,7 +368,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         return self._items.count(item)
 
     @override
-    def sort(self, *, key: Optional[Callable[[T], SupportsLessThan[V]]] = lambda x: x, reverse: bool = False) -> None:
+    def sort(self, *, key: Callable[[T], SupportsLessThan[V]] | None = lambda x: x, reverse: bool = False) -> None:
         """
         Sort the list in place.
 
@@ -391,7 +391,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         # No notification needed as the items themselves haven't changed
 
     @override
-    def copy(self) -> List[T]:
+    def copy(self) -> list[T]:
         """
         Return a shallow copy of the list.
 
@@ -431,7 +431,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         self._remove_callbacks.append(callback)
 
     @override
-    def on_clear(self, callback: Callable[[List[T]], None]) -> None:
+    def on_clear(self, callback: Callable[[list[T]], None]) -> None:
         """
         Register for clear events with the cleared items.
 
@@ -457,7 +457,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         for callback in self._change_callbacks:
             callback(change)
 
-    def _notify_add_items(self, items: List[T], start_index: int) -> None:
+    def _notify_add_items(self, items: list[T], start_index: int) -> None:
         """
         Notify all callbacks of multiple items being added.
 
@@ -493,7 +493,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         for callback in self._change_callbacks:
             callback(change)
 
-    def _notify_remove_items(self, items: List[T], start_index: int) -> None:
+    def _notify_remove_items(self, items: list[T], start_index: int) -> None:
         """
         Notify all callbacks of multiple items being removed.
 
@@ -512,7 +512,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
         for callback in self._change_callbacks:
             callback(change)
 
-    def _notify_clear(self, items: List[T]) -> None:
+    def _notify_clear(self, items: list[T]) -> None:
         """
         Notify all callbacks of the list being cleared.
 
@@ -532,7 +532,7 @@ class ObservableListBase(Generic[T], IObservableList[T]):
 class ObservableList(ObservableListBase[T]):
     """A list that notifies observers when items are added or removed."""
 
-    def __init__(self, initial_items: Optional[List[T]] = None):
+    def __init__(self, initial_items: list[T] | None = None):
         """
         Initialize an ObservableList.
 
@@ -576,22 +576,22 @@ class IObservableDict(Generic[K, V], ABC):
         ...
 
     @abstractmethod
-    def get(self, key: K, default: Optional[V] = None) -> Optional[V]:
+    def get(self, key: K, default: V | None = None) -> V | None:
         """Return the value for a key if it exists, otherwise return a default value."""
         ...
 
     @abstractmethod
-    def setdefault(self, key: K, default: Optional[V] = None) -> Optional[V]:
+    def setdefault(self, key: K, default: V | None = None) -> V | None:
         """Return the value for a key if it exists, otherwise set and return the default value."""
         ...
 
     @abstractmethod
-    def pop(self, key: K, default: Optional[V] = None) -> Optional[V]:
+    def pop(self, key: K, default: V | None = None) -> V | None:
         """Remove and return the value for a key if it exists, otherwise return a default value."""
         ...
 
     @abstractmethod
-    def popitem(self) -> Tuple[K, V]:
+    def popitem(self) -> tuple[K, V]:
         """Remove and return a (key, value) pair from the dictionary."""
         ...
 
@@ -601,27 +601,27 @@ class IObservableDict(Generic[K, V], ABC):
         ...
 
     @abstractmethod
-    def update(self, other: Dict[K, V]) -> None:
+    def update(self, other: dict[K, V]) -> None:
         """Update the dictionary with the key/value pairs from another dictionary."""
         ...
 
     @abstractmethod
-    def keys(self) -> List[K]:
+    def keys(self) -> list[K]:
         """Return a list of all keys in the dictionary."""
         ...
 
     @abstractmethod
-    def values(self) -> List[V]:
+    def values(self) -> list[V]:
         """Return a list of all values in the dictionary."""
         ...
 
     @abstractmethod
-    def items(self) -> List[Tuple[K, V]]:
+    def items(self) -> list[tuple[K, V]]:
         """Return a list of all (key, value) pairs in the dictionary."""
         ...
 
     @abstractmethod
-    def copy(self) -> Dict[K, V]:
+    def copy(self) -> dict[K, V]:
         """Return a shallow copy of the dictionary."""
         ...
 
@@ -646,7 +646,7 @@ class IObservableDict(Generic[K, V], ABC):
         ...
 
     @abstractmethod
-    def on_clear(self, callback: Callable[[Dict[K, V]], None]) -> None:
+    def on_clear(self, callback: Callable[[dict[K, V]], None]) -> None:
         """Register for clear events with the cleared items."""
         ...
 
@@ -654,19 +654,19 @@ class IObservableDict(Generic[K, V], ABC):
 class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
     """Base implementation that can work with an external dict or create its own."""
 
-    def __init__(self, items: Optional[Dict[K, V]] = None):
+    def __init__(self, items: dict[K, V] | None = None):
         """
         Initialize with optional external dict reference.
 
         Args:
             items: Optional external dict to observe. If None, creates a new dict.
         """
-        self._items: Dict[K, V] = dict(items) if items is not None else {}
-        self._change_callbacks: List[Callable[[DictChange[K, V]], None]] = []
-        self._add_callbacks: List[Callable[[K, V], None]] = []
-        self._remove_callbacks: List[Callable[[K, V], None]] = []
-        self._update_callbacks: List[Callable[[K, V], None]] = []
-        self._clear_callbacks: List[Callable[[Dict[K, V]], None]] = []
+        self._items: dict[K, V] = dict(items) if items is not None else {}
+        self._change_callbacks: list[Callable[[DictChange[K, V]], None]] = []
+        self._add_callbacks: list[Callable[[K, V], None]] = []
+        self._remove_callbacks: list[Callable[[K, V], None]] = []
+        self._update_callbacks: list[Callable[[K, V], None]] = []
+        self._clear_callbacks: list[Callable[[dict[K, V]], None]] = []
 
     @override
     def __len__(self) -> int:
@@ -706,7 +706,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         return key in self._items
 
     @override
-    def get(self, key: K, default: Optional[V] = None) -> Optional[V]:
+    def get(self, key: K, default: V | None = None) -> V | None:
         """
         Return the value for a key if it exists, otherwise return a default value.
 
@@ -720,7 +720,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         return self._items.get(key, default)
 
     @override
-    def setdefault(self, key: K, default: Optional[V] = None) -> Optional[V]:
+    def setdefault(self, key: K, default: V | None = None) -> V | None:
         """
         Return the value for a key if it exists, otherwise set and return the default value.
 
@@ -738,7 +738,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         return self._items[key]
 
     @override
-    def pop(self, key: K, default: Optional[V] = None) -> Optional[V]:
+    def pop(self, key: K, default: V | None = None) -> V | None:
         """
         Remove and return the value for a key if it exists, otherwise return a default value.
 
@@ -761,7 +761,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         raise KeyError(key)
 
     @override
-    def popitem(self) -> Tuple[K, V]:
+    def popitem(self) -> tuple[K, V]:
         """
         Remove and return a (key, value) pair from the dictionary.
 
@@ -785,7 +785,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         self._notify_clear(items)
 
     @override
-    def update(self, other: Dict[K, V]) -> None:
+    def update(self, other: dict[K, V]) -> None:
         """
         Update the dictionary with the key/value pairs from another dictionary.
 
@@ -794,8 +794,8 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         """
         if not other:
             return
-        added_items: Dict[K, V] = {}
-        updated_items: Dict[K, V] = {}
+        added_items: dict[K, V] = {}
+        updated_items: dict[K, V] = {}
         for key, value in other.items():
             if key in self._items:
                 updated_items[key] = value
@@ -814,7 +814,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
                 self._notify_update(key, value)
 
     @override
-    def keys(self) -> List[K]:
+    def keys(self) -> list[K]:
         """
         Return a list of all keys in the dictionary.
 
@@ -824,7 +824,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         return list(self._items.keys())
 
     @override
-    def values(self) -> List[V]:
+    def values(self) -> list[V]:
         """
         Return a list of all values in the dictionary.
 
@@ -834,7 +834,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         return list(self._items.values())
 
     @override
-    def items(self) -> List[Tuple[K, V]]:
+    def items(self) -> list[tuple[K, V]]:
         """
         Return a list of all (key, value) pairs in the dictionary.
 
@@ -844,7 +844,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         return list(self._items.items())
 
     @override
-    def copy(self) -> Dict[K, V]:
+    def copy(self) -> dict[K, V]:
         """
         Return a shallow copy of the dictionary.
 
@@ -894,7 +894,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         self._update_callbacks.append(callback)
 
     @override
-    def on_clear(self, callback: Callable[[Dict[K, V]], None]) -> None:
+    def on_clear(self, callback: Callable[[dict[K, V]], None]) -> None:
         """
         Register for clear events with the cleared items.
 
@@ -963,7 +963,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
         for callback in self._change_callbacks:
             callback(change)
 
-    def _notify_clear(self, items: Dict[K, V]) -> None:
+    def _notify_clear(self, items: dict[K, V]) -> None:
         """
         Notify all callbacks of the dictionary being cleared.
 
@@ -983,7 +983,7 @@ class ObservableDictBase(Generic[K, V], IObservableDict[K, V]):
 class ObservableDict(ObservableDictBase[K, V]):
     """A dictionary that notifies observers when items are added, removed, or updated."""
 
-    def __init__(self, initial_items: Optional[Dict[K, V]] = None):
+    def __init__(self, initial_items: dict[K, V] | None = None):
         """
         Initialize an ObservableDict.
 

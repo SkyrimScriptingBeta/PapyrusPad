@@ -186,7 +186,7 @@
 
 ### Union Types
 
-- **Challenge**: Working with `Union[T, List[T]]` parameters can be challenging for type checkers
+- **Challenge**: Working with `T | list[T]` parameters can be challenging for type checkers
 - **Solution**: Explicit type casting and conditional handling based on type
 
 ### Optional Parameters

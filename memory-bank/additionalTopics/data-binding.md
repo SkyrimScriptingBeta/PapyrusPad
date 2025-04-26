@@ -39,7 +39,7 @@ The Data Binding System follows a registry-based architecture with adapters for 
 The binding registry is a central dictionary that maps tuples of widget types and property names to binding adapters:
 
 ```python
-BINDING_REGISTRY: Dict[Tuple[Type, str], BindingAdapter] = {}
+BINDING_REGISTRY: dict[tuple[type, str], BindingAdapter] = {}
 ```
 
 This registry is populated with adapters for common widget types and properties:
@@ -146,7 +146,7 @@ class TextDocument(IDocument):
 The `bind_fields()` function establishes bindings between widget properties and observable fields:
 
 ```python
-def bind_fields(bindings: List[Tuple[Any, str, Observable]]) -> None:
+def bind_fields(bindings: list[tuple[Any, str, Observable]]) -> None:
     """
     Bind widget properties to observable fields.
     

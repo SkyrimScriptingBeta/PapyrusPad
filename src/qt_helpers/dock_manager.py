@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Callable, Optional, cast, override
+from typing import Callable, cast, override
 from PySide6.QtWidgets import (
     QMainWindow,
     QDockWidget,
@@ -42,7 +42,7 @@ class IDockManager(ABC):
         widget: QWidget,
         area: Qt.DockWidgetArea,
         # *,
-        title: Optional[str] = None,
+        title: str | None = None,
         allowed_areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
         features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
         | QDockWidget.DockWidgetFeature.DockWidgetMovable
@@ -54,7 +54,7 @@ class IDockManager(ABC):
     #     widget: QWidget,
     #     area: Qt.DockWidgetArea,
     #     *,
-    #     title: Optional[str] = None,
+    #     title: str | None = None,
     #     allowed_areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
     #     features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
     #     | QDockWidget.DockWidgetFeature.DockWidgetMovable
@@ -67,10 +67,10 @@ class DockManager(IDockManager):
     main_window: QMainWindow
     docked_widgets: list[QDockWidget] = field(default_factory=list[QDockWidget])
 
-    _on_tab_close_requested: Optional[Callable[[int], None]] = None
+    _on_tab_close_requested: Callable[[int], None] | None = None
     _drag_tab_start_pos: QPoint = field(default_factory=QPoint)
     _drag_tab_index: int = -1
-    _drag_tab_text: Optional[str] = None
+    _drag_tab_text: str | None = None
 
     def __post_init__(self) -> None:
         self.main_window.setDockNestingEnabled(True)
@@ -128,7 +128,7 @@ class DockManager(IDockManager):
     def _make_dock(
         self,
         widget: QWidget,
-        title: Optional[str] = None,
+        title: str | None = None,
         allowed_areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
         features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
         | QDockWidget.DockWidgetFeature.DockWidgetMovable
@@ -150,7 +150,7 @@ class DockManager(IDockManager):
         self,
         widget: QWidget,
         area: Qt.DockWidgetArea,
-        title: Optional[str] = None,
+        title: str | None = None,
         allowed_areas: Qt.DockWidgetArea = Qt.DockWidgetArea.AllDockWidgetAreas,
         features: QDockWidget.DockWidgetFeature = QDockWidget.DockWidgetFeature.DockWidgetClosable
         | QDockWidget.DockWidgetFeature.DockWidgetMovable

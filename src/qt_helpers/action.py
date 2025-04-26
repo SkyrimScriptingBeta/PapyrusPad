@@ -1,5 +1,5 @@
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Callable, Type, TypeVar, dataclass_transform
+from typing import Any, Callable, TypeVar, dataclass_transform
 
 from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import QStyle
@@ -14,8 +14,8 @@ T = TypeVar("T", bound=QAction)
 @dataclass_transform()
 def action(
     text: str | None = None, *, shortcut: str | None = None, tooltip: str | None = None, icon: QPixmap | QIcon | QStyle.StandardPixmap | str | None = None
-) -> Callable[[Type[T]], Type[T]]:
-    def decorator(cls: Type[T]) -> Type[T]:
+) -> Callable[[type[T]], type[T]]:
+    def decorator(cls: type[T]) -> type[T]:
         # First make original class a dataclass if it's not already
         if not is_dataclass(cls):
             cls = dataclass(cls)

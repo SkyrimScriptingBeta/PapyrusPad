@@ -1,5 +1,5 @@
 from dataclasses import field
-from typing import Any, Callable, ParamSpec, Type, TypeVar
+from typing import Any, Callable, ParamSpec, TypeVar
 
 T = TypeVar("T", covariant=True)
 P = ParamSpec("P")
@@ -30,7 +30,7 @@ def make(class_type: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
     return field(default_factory=factory_fn)
 
 
-def make_later[T](class_type: Type[T], *args: Any, **kwargs: Any) -> T:
+def make_later[T](class_type: type[T], *args: Any, **kwargs: Any) -> T:
     """
     Creates a factory for any dataclass field which you must initialize later.
 

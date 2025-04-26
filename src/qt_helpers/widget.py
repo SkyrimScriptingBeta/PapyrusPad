@@ -1,5 +1,5 @@
 from dataclasses import dataclass, fields, is_dataclass
-from typing import Any, Callable, Type, TypeVar, dataclass_transform
+from typing import Any, Callable, TypeVar, dataclass_transform
 
 from PySide6.QtWidgets import QBoxLayout, QWidget
 
@@ -19,8 +19,8 @@ def widget(
     layout: QBoxLayout.Direction | str | None = QBoxLayout.Direction.TopToBottom,
     *,
     add_widgets_to_layout: bool = True,
-) -> Callable[[Type[T]], Type[T]]:
-    def decorator(cls: Type[T]) -> Type[T]:
+) -> Callable[[type[T]], type[T]]:
+    def decorator(cls: type[T]) -> type[T]:
         # First make original class a dataclass if it's not already
         if not is_dataclass(cls):
             cls = dataclass(cls)

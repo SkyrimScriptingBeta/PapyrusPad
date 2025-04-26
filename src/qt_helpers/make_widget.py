@@ -2,12 +2,7 @@ from dataclasses import field
 from typing import (
     Any,
     Callable,
-    List,
-    Type,
     TypeVar,
-    Union,
-    Tuple,
-    Optional,
     cast,
 )
 
@@ -18,11 +13,11 @@ from PySide6.QtWidgets import QWidget
 W = TypeVar("W", bound=QWidget)
 
 # Define a type for widget options
-WidgetOptionsType = Optional[Union[str, List[str], Tuple[str, List[str]]]]
+WidgetOptionsType = str | list[str] | tuple[str, list[str]] | None
 
 
 def _create_widget[W](
-    widget_class: Type[W],
+    widget_class: type[W],
     widget_options: WidgetOptionsType = None,
     *args: Any,
     **kwargs: Any,
@@ -57,15 +52,13 @@ def _create_widget[W](
             if classes:
                 qwidget.setProperty("class", f"|{'|'.join(classes)}|")
 
-    print(
-        f"Widget created: {widget_class.__name__} with name: {qwidget.objectName()} and classes: {qwidget.property('class')}"
-    )
+    print(f"Widget created: {widget_class.__name__} with name: {qwidget.objectName()} and classes: {qwidget.property('class')}")
 
     return widget
 
 
 def make_widget[W](
-    widget_class: Type[W],
+    widget_class: type[W],
     widget_options: WidgetOptionsType = None,
     *args: Any,
     **kwargs: Any,
@@ -80,8 +73,8 @@ def make_widget[W](
         widget_class: The widget class to instantiate
         widget_options: Widget options in one of these formats:
             - str: Just the widget name
-            - List[str]: CSS classes to apply
-            - Tuple[str, List[str]]: Both name and classes
+            - list[str]: CSS classes to apply
+            - tuple[str, list[str]]: Both name and classes
         *args: Additional positional arguments to pass to the widget constructor
         **kwargs: Additional keyword arguments to pass to the widget constructor
 
@@ -106,9 +99,7 @@ def make_widget[W](
             )
     """
     # Create a factory function that will create the widget
-    factory_fn: Callable[[], W] = lambda: _create_widget(
-        widget_class, widget_options, *args, **kwargs
-    )
+    factory_fn: Callable[[], W] = lambda: _create_widget(widget_class, widget_options, *args, **kwargs)
 
     # Return a dataclass field with the factory function
     return field(default_factory=factory_fn)

@@ -156,7 +156,7 @@ collection.remove(doc)  # Triggers on_remove
 During implementation, we encountered some type checking challenges:
 
 1. **Generic Type Erasure**: Python's runtime doesn't maintain information about generic type parameters, which can lead to type checking issues.
-2. **Union Types**: Working with `Union[T, List[T]]` parameters can be challenging for type checkers.
+2. **Union Types**: Working with `T | list[T]` parameters can be challenging for type checkers.
 3. **Optional Parameters**: Methods like `sort()` with optional parameters can cause type checking issues.
 
 These challenges were addressed through:
