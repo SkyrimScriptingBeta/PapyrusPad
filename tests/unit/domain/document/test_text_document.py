@@ -24,14 +24,14 @@ class TestTextDocument:
 
     def test_init_with_values(self) -> None:
         """Test creating a document with specific values."""
-        doc = TextDocument(_name="test.txt", _content="Hello, world!", _path=Path("/test/test.txt"))
+        doc = TextDocument.create(name="test.txt", content="Hello, world!", path=Path("/test/test.txt"))
         assert doc.id is not None
         assert_that(doc.name).is_equal_to("test.txt")
         assert_that(doc.path).is_equal_to(Path("/test/test.txt"))
         assert_that(doc.content).is_equal_to("Hello, world!")
-        assert_that(doc.is_modified).is_false()
+        assert_that(doc.is_modified).is_true()  # Setting content marks as modified
         assert doc.last_saved is None
-        assert_that(doc.display_name).is_equal_to("test.txt")
+        assert_that(doc.display_name).is_equal_to("test.txt*")  # Has * because it's modified
 
     def test_name_setter(self) -> None:
         """Test setting the name."""
@@ -60,7 +60,7 @@ class TestTextDocument:
     def test_content_setter_same_value(self) -> None:
         """Test setting the content to the same value."""
         # Create a document with content
-        doc = TextDocument(_content="Hello, world!")
+        doc = TextDocument.create(content="Hello, world!")
         # Mark it as saved (not modified)
         doc.mark_saved()
         # Set to same content
@@ -84,7 +84,7 @@ class TestTextDocument:
     def test_display_name(self) -> None:
         """Test the display name property."""
         # Create a document
-        doc = TextDocument(_name="test.txt")
+        doc = TextDocument.create(name="test.txt")
         # Mark it as saved (not modified)
         doc.mark_saved()
         # Check display name without modification indicator
@@ -97,7 +97,7 @@ class TestTextDocument:
     def test_save_success(self) -> None:
         """Test saving a document successfully."""
         # Arrange
-        doc = TextDocument(_name="test.txt", _path=Path("/test.txt"), _content="Hello, world!")
+        doc = TextDocument.create(name="test.txt", path=Path("/test.txt"), content="Hello, world!")
         mock_filesystem = Mock(spec=IFileSystem)
 
         # Act
@@ -113,7 +113,7 @@ class TestTextDocument:
     def test_save_no_path(self) -> None:
         """Test saving a document with no path."""
         # Arrange
-        doc = TextDocument(_name="test.txt", _content="Hello, world!")
+        doc = TextDocument.create(name="test.txt", content="Hello, world!")
         mock_filesystem = Mock(spec=IFileSystem)
 
         # Act & Assert
@@ -124,7 +124,7 @@ class TestTextDocument:
     def test_save_filesystem_error(self) -> None:
         """Test saving a document when filesystem raises an error."""
         # Arrange
-        doc = TextDocument(_name="test.txt", _path=Path("/test.txt"), _content="Hello, world!")
+        doc = TextDocument.create(name="test.txt", path=Path("/test.txt"), content="Hello, world!")
         mock_filesystem = Mock(spec=IFileSystem)
         mock_filesystem.write_text.side_effect = Exception("Filesystem error")
 
@@ -140,7 +140,7 @@ class TestTextDocument:
     def test_reload_content_success(self) -> None:
         """Test reloading a document's content successfully."""
         # Arrange
-        doc = TextDocument(_name="test.txt", _path=Path("/test.txt"), _content="Old content")
+        doc = TextDocument.create(name="test.txt", path=Path("/test.txt"), content="Old content")
         doc.mark_saved()  # Reset modified flag
         doc.content = "Modified content"  # Modify the document
         assert_that(doc.is_modified).is_true()
@@ -161,7 +161,7 @@ class TestTextDocument:
     def test_reload_content_no_path(self) -> None:
         """Test reloading a document with no path."""
         # Arrange
-        doc = TextDocument(_name="test.txt", _content="Hello, world!")
+        doc = TextDocument.create(name="test.txt", content="Hello, world!")
         mock_filesystem = Mock(spec=IFileSystem)
 
         # Act & Assert
@@ -172,7 +172,7 @@ class TestTextDocument:
     def test_reload_content_filesystem_error(self) -> None:
         """Test reloading a document when filesystem raises an error."""
         # Arrange
-        doc = TextDocument(_name="test.txt", _path=Path("/test.txt"), _content="Hello, world!")
+        doc = TextDocument.create(name="test.txt", path=Path("/test.txt"), content="Hello, world!")
         mock_filesystem = Mock(spec=IFileSystem)
         mock_filesystem.read_text.side_effect = Exception("Filesystem error")
 

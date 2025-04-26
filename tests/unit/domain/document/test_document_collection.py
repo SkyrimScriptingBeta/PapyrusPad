@@ -31,8 +31,8 @@ class TestDocumentCollection:
     def test_add_or_replace(self) -> None:
         """Test adding and replacing documents."""
         collection = DocumentCollection()
-        doc1 = TextDocument(_name="doc1.txt")
-        doc2 = TextDocument(_name="doc2.txt")
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
 
         # Add documents
         collection.add_or_replace(doc1)
@@ -44,7 +44,8 @@ class TestDocumentCollection:
         assert_that(collection.get_document(doc2.id)).is_equal_to(doc2)
 
         # Replace a document
-        doc1_updated = TextDocument(_id=doc1.id, _name="doc1_updated.txt")
+        # Create a new document with the same ID but different name
+        doc1_updated = TextDocument.create_with_id(id=doc1.id, name="doc1_updated.txt")
         collection.add_or_replace(doc1_updated)
 
         # Check collection state
@@ -57,8 +58,8 @@ class TestDocumentCollection:
     def test_remove(self) -> None:
         """Test removing documents."""
         collection = DocumentCollection()
-        doc1 = TextDocument(_name="doc1.txt")
-        doc2 = TextDocument(_name="doc2.txt")
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
 
         # Add documents
         collection.add_or_replace(doc1)
@@ -82,8 +83,8 @@ class TestDocumentCollection:
     def test_set_active(self) -> None:
         """Test setting the active document."""
         collection = DocumentCollection()
-        doc1 = TextDocument(_name="doc1.txt")
-        doc2 = TextDocument(_name="doc2.txt")
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
 
         # Add documents
         collection.add_or_replace(doc1)
@@ -112,8 +113,8 @@ class TestDocumentCollection:
         collection = DocumentCollection()
         path1 = Path("/test/doc1.txt")
         path2 = Path("/test/doc2.txt")
-        doc1 = TextDocument(_name="doc1.txt", _path=path1)
-        doc2 = TextDocument(_name="doc2.txt", _path=path2)
+        doc1 = TextDocument.create(name="doc1.txt", path=path1)
+        doc2 = TextDocument.create(name="doc2.txt", path=path2)
 
         # Add documents
         collection.add_or_replace(doc1)
@@ -128,7 +129,7 @@ class TestDocumentCollection:
         """Test checking if a path is open."""
         collection = DocumentCollection()
         path1 = Path("/test/doc1.txt")
-        doc1 = TextDocument(_name="doc1.txt", _path=path1)
+        doc1 = TextDocument.create(name="doc1.txt", path=path1)
 
         # Add document
         collection.add_or_replace(doc1)
@@ -140,8 +141,8 @@ class TestDocumentCollection:
     def test_active_document_after_remove(self) -> None:
         """Test active document behavior after removing documents."""
         collection = DocumentCollection()
-        doc1 = TextDocument(_name="doc1.txt")
-        doc2 = TextDocument(_name="doc2.txt")
+        doc1 = TextDocument.create(name="doc1.txt")
+        doc2 = TextDocument.create(name="doc2.txt")
 
         # Add documents
         collection.add_or_replace(doc1)

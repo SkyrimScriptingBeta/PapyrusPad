@@ -29,12 +29,58 @@ class TextDocument(IDocument):
         self._is_modified = False
         print("END __post_init")
 
+    @classmethod
+    def create(cls, name: str = "Untitled", content: str = "", path: Path | None = None) -> "TextDocument":
+        """
+        Create a new TextDocument with the given properties.
+
+        Args:
+            name: The name of the document
+            content: The content of the document
+            path: The path of the document
+
+        Returns:
+            A new TextDocument instance
+        """
+        doc = cls()
+        if name != "Untitled":
+            doc.name = name
+        if content:
+            doc.content = content
+        if path:
+            doc.path = path
+        return doc
+
+    @classmethod
+    def create_with_id(cls, id: str, name: str = "Untitled", content: str = "", path: Path | None = None) -> "TextDocument":
+        """
+        Create a new TextDocument with a specific ID (for testing purposes).
+
+        Args:
+            id: The ID to use for the document
+            name: The name of the document
+            content: The content of the document
+            path: The path of the document
+
+        Returns:
+            A new TextDocument instance with the specified ID
+        """
+        doc = cls(_id=id)
+        if name != "Untitled":
+            doc.name = name
+        if content:
+            doc.content = content
+        if path:
+            doc.path = path
+        return doc
+
     def _on_content_changed(self, value: str) -> None:
         print("--> Content changed")
         self.is_modified = True
 
     def _on_name_changed(self, value: str) -> None:
         print("--> Name changed")
+        self.is_modified = True  # Setting name should mark as modified
         self._update_display_name()
 
     @property
@@ -114,14 +160,10 @@ class TextDocument(IDocument):
         return self._display_name_observable.get()
 
     def _update_display_name(self) -> None:
-        if self.path is None:
-            self._display_name_observable.set_if_changed(self.name)
-            return
-
         print("-----------> Updating display name")
         modified_indicator = "*" if self.is_modified else ""
         text = f"{self.name}{modified_indicator}"
-        print("calling set, so callbacks should run....")
+        print(f"Setting display name to: {text}")
         self._display_name_observable.set_if_changed(text)
         print(f"SET - Display name updated to: {text}")
 
